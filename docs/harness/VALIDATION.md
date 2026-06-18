@@ -2,6 +2,15 @@
 
 Use `tool/harness.dart` as the stable entry point for local checks.
 
+For a fresh agent session, prefer the walkinglabs lifecycle wrapper:
+
+```bash
+./init.sh
+```
+
+`init.sh` runs bootstrap first and then the full harness check. Use narrower
+commands below while iterating.
+
 ## Fast Checks
 
 ```bash
@@ -42,9 +51,38 @@ Bootstrap runs dependency installation and code generation:
 - Generated-code failure: run the bootstrap command.
 - Structural failure: read `docs/harness/ARCHITECTURE.md` and fix the import or
   documented exception.
+- Walkinglabs structural failure: check `AGENTS.md`, `feature_list.json`,
+  `progress.md`, `init.sh`, and `session-handoff.md` before patching code.
 - Test failure: prefer the narrowest failing test first, then the full suite.
 - Analyzer failure: fix the warning instead of suppressing it unless there is a
   documented project reason.
+
+## External Harness Audit
+
+When the walkinglabs course repository is available locally, run its structural
+validator against this repo:
+
+```bash
+node /path/to/learn-harness-engineering/skills/harness-creator/scripts/validate-harness.mjs --target .
+```
+
+In the Codex desktop bundled runtime, `node` may be available at:
+
+```bash
+/Users/wangsicheng/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node
+```
+
+## CI
+
+GitHub Actions runs the same standard lifecycle command on pull requests and
+pushes to `main` or `master`:
+
+```bash
+./init.sh
+```
+
+The workflow installs FVM, installs the configured Flutter SDK from
+`.fvm/fvm_config.json`, and then runs the standard startup path.
 
 ## Flutter Version
 

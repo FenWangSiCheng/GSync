@@ -94,7 +94,7 @@ class HarnessRunner {
       'fvm_dart': await _capture('fvm', ['dart', '--version']),
       'fvm': await _readJsonFile('.fvm/fvm_config.json'),
       'generated_files': _generatedFiles(),
-      'harness_docs': _requiredHarnessFiles()
+      'harness_files': _requiredHarnessFiles()
           .map((path) => {'path': path, 'exists': File(path).existsSync()})
           .toList(),
     };
@@ -184,6 +184,11 @@ class HarnessRunner {
   List<String> _requiredHarnessFiles() {
     return const [
       'AGENTS.md',
+      'feature_list.json',
+      'progress.md',
+      'init.sh',
+      'session-handoff.md',
+      '.github/workflows/harness.yml',
       'docs/harness/README.md',
       'docs/harness/ARCHITECTURE.md',
       'docs/harness/VALIDATION.md',
