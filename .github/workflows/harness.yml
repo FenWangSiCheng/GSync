@@ -1,0 +1,35 @@
+name: Harness
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  check:
+    name: Flutter harness check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: '3.44.0'
+
+      - name: Install FVM
+        run: dart pub global activate fvm
+
+      - name: Add Dart pub cache to PATH
+        run: echo "$HOME/.pub-cache/bin" >> "$GITHUB_PATH"
+
+      - name: Install configured Flutter SDK
+        run: fvm install
+
+      - name: Run standard harness startup
+        run: ./init.sh

@@ -94,9 +94,13 @@ class HarnessRunner {
       'fvm_dart': await _capture('fvm', ['dart', '--version']),
       'fvm': await _readJsonFile('.fvm/fvm_config.json'),
       'generated_files': _generatedFiles(),
-      'harness_docs': _requiredHarnessFiles()
+      'harness_files': _requiredHarnessFiles()
           .map((path) => {'path': path, 'exists': File(path).existsSync()})
           .toList(),
+      'harness_directories': _requiredHarnessDirectories()
+          .map((path) => {'path': path, 'exists': Directory(path).existsSync()})
+          .toList(),
+      'agent_skills': _agentSkills(),
     };
 
     stdout.writeln(const JsonEncoder.withIndent('  ').convert(diagnostics));
@@ -184,14 +188,43 @@ class HarnessRunner {
   List<String> _requiredHarnessFiles() {
     return const [
       'AGENTS.md',
+      'feature_list.json',
+      'progress.md',
+      'init.sh',
+      'session-handoff.md',
+      '.github/workflows/harness.yml',
       'docs/harness/README.md',
       'docs/harness/ARCHITECTURE.md',
       'docs/harness/VALIDATION.md',
+      'docs/harness/SKILLS.md',
       'docs/harness/QUALITY.md',
       'docs/harness/OPERABILITY.md',
       'docs/harness/TASKS.md',
       'tool/harness.dart',
     ];
+  }
+
+  List<String> _requiredHarnessDirectories() {
+    return const ['.agents/skills'];
+  }
+
+  List<Map<String, Object?>> _agentSkills() {
+    final directory = Directory('.agents/skills');
+    if (!directory.existsSync()) {
+      return const [];
+    }
+
+    return directory.listSync().whereType<Directory>().map((skill) {
+        final name = skill.uri.pathSegments
+            .where((segment) => segment.isNotEmpty)
+            .last;
+        return {
+          'name': name,
+          'skill_file': '${skill.path}/SKILL.md',
+          'exists': File('${skill.path}/SKILL.md').existsSync(),
+        };
+      }).toList()
+      ..sort((a, b) => (a['name']! as String).compareTo(b['name']! as String));
   }
 }
 

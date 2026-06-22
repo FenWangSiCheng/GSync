@@ -5,7 +5,7 @@ coding agents. The harness makes the app legible, reproducible, and mechanically
 checkable so agents can work without relying on hidden context.
 
 The approach follows the OpenAI harness engineering field report and the
-walkinglabs awesome harness engineering index:
+walkinglabs learn-harness-engineering model:
 
 - Repository knowledge is the system of record.
 - The top-level agent file is a map, not a manual.
@@ -13,14 +13,22 @@ walkinglabs awesome harness engineering index:
 - Validation is runnable from a single local entry point.
 - Runtime behavior emits structured signals an agent can inspect.
 - Quality and cleanup work are tracked as durable repo artifacts.
+- Root state and lifecycle artifacts make sessions restartable.
 
 ## Repository Map
 
 | Path | Purpose |
 | --- | --- |
 | `AGENTS.md` | Short entry point for coding agents. |
+| `feature_list.json` | Feature state, dependencies, status, and evidence. |
+| `progress.md` | Current session state, decisions, risks, next step, and proof. |
+| `init.sh` | Standard startup and verification entrypoint. |
+| `session-handoff.md` | Restart notes for the next agent session. |
+| `.github/workflows/harness.yml` | CI gate that runs the standard harness startup. |
+| `.agents/skills/` | Project-local Flutter and Dart agent skills. |
 | `docs/harness/ARCHITECTURE.md` | Flutter and clean architecture boundaries. |
 | `docs/harness/VALIDATION.md` | Commands, expected checks, and triage order. |
+| `docs/harness/SKILLS.md` | Skill inventory, update workflow, and usage rules. |
 | `docs/harness/QUALITY.md` | Current quality scorecard and known gaps. |
 | `docs/harness/OPERABILITY.md` | Runtime logging and local observability notes. |
 | `docs/harness/TASKS.md` | How to write durable execution plans. |
@@ -40,13 +48,28 @@ walkinglabs awesome harness engineering index:
 
 A change is harness-ready when:
 
+- The active feature in `feature_list.json` has explicit status, dependencies,
+  and evidence.
+- `progress.md` and `session-handoff.md` are current when work spans sessions.
 - The relevant docs still match the code.
 - `fvm dart run tool/harness.dart structure` passes.
 - Flutter analysis and tests pass for the touched surface.
 - New operational signals are structured enough for an agent to search.
 - Any newly discovered recurring failure is captured in docs, tests, or tooling.
 
+## Five Harness Subsystems
+
+| Subsystem | Local artifact | Rule |
+| --- | --- | --- |
+| Instructions | `AGENTS.md`, `docs/harness/` | Keep root instructions short and route agents to deeper docs. |
+| State | `feature_list.json`, `progress.md` | Track active scope, status, evidence, blockers, and next steps on disk. |
+| Verification | `init.sh`, `tool/harness.dart` | Use `./init.sh` for restartable startup and `tool/harness.dart` for Flutter checks. |
+| Scope | `feature_list.json`, `docs/harness/TASKS.md` | Work one feature at a time unless dependencies are recorded. |
+| Lifecycle | `progress.md`, `session-handoff.md` | End sessions with verification evidence and a clean restart path. |
+| Skills | `.agents/skills/`, `docs/harness/SKILLS.md` | Keep project-specific agent workflows checked in and progressively loaded. |
+
 ## Sources
 
 - https://openai.com/index/harness-engineering/
+- https://github.com/walkinglabs/learn-harness-engineering
 - https://github.com/walkinglabs/awesome-harness-engineering

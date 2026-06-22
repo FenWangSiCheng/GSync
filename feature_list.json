@@ -1,0 +1,74 @@
+{
+  "features": [
+    {
+      "id": "feat-001",
+      "name": "Flutter Harness Baseline",
+      "description": "Keep repository-local harness docs, commands, structural tests, and generated artifacts available from a clean checkout.",
+      "dependencies": [],
+      "status": "done",
+      "evidence": "README.md introduces the harness architecture; AGENTS.md, docs/harness/*, tool/harness.dart, and test/harness/architecture_guard_test.dart exist; fvm dart run tool/harness.dart check is the primary verification command."
+    },
+    {
+      "id": "feat-002",
+      "name": "Feature-First Flutter Architecture",
+      "description": "Preserve domain, data, and presentation boundaries for features with business logic or external data.",
+      "dependencies": [
+        "feat-001"
+      ],
+      "status": "done",
+      "evidence": "test/harness/architecture_guard_test.dart checks required layer presence and forbidden imports for domain and data layers."
+    },
+    {
+      "id": "feat-003",
+      "name": "Single Verification Entrypoint",
+      "description": "Expose one repeatable command path for bootstrap, structure, format, analyzer, and test validation.",
+      "dependencies": [
+        "feat-001"
+      ],
+      "status": "done",
+      "evidence": "tool/harness.dart provides bootstrap, doctor, format, structure, test, and check commands; init.sh wraps bootstrap and check for session startup."
+    },
+    {
+      "id": "feat-004",
+      "name": "Runtime Harness Signals",
+      "description": "Emit structured app startup and networking events that agents can inspect in debug logs.",
+      "dependencies": [
+        "feat-001"
+      ],
+      "status": "done",
+      "evidence": "lib/core/harness/harness_logger.dart emits [harness] JSON events documented in docs/harness/OPERABILITY.md."
+    },
+    {
+      "id": "feat-005",
+      "name": "Walkinglabs Session Lifecycle",
+      "description": "Track scope, progress, evidence, blockers, and next-session handoff using root harness artifacts.",
+      "dependencies": [
+        "feat-001",
+        "feat-003"
+      ],
+      "status": "done",
+      "evidence": "Walkinglabs validate-harness reports 100/100; fvm dart run tool/harness.dart check passes with 8 harness structure tests and 154 total Flutter tests; ./init.sh passes bootstrap plus full check."
+    },
+    {
+      "id": "feat-006",
+      "name": "CI Harness Alignment",
+      "description": "Run fvm dart run tool/harness.dart check from repository CI as the primary merge validation command.",
+      "dependencies": [
+        "feat-003"
+      ],
+      "status": "done",
+      "evidence": ".github/workflows/harness.yml installs FVM and runs ./init.sh, which bootstraps generated code and runs fvm dart run tool/harness.dart check."
+    },
+    {
+      "id": "feat-007",
+      "name": "Project Agent Skills Integration",
+      "description": "Keep official Flutter and Dart agent skills checked into the project harness and guarded by repository-local documentation and structure tests.",
+      "dependencies": [
+        "feat-001",
+        "feat-003"
+      ],
+      "status": "done",
+      "evidence": ".agents/skills contains 9 Flutter skills and 11 Dart skills; docs/harness/SKILLS.md documents usage, updates, and the intentional exclusion of flutter-apply-architecture-best-practices in favor of docs/harness/ARCHITECTURE.md; fvm dart run tool/harness.dart structure verifies the inventory."
+    }
+  ]
+}
