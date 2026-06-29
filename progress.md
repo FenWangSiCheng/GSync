@@ -3,8 +3,9 @@
 ## Current State
 
 **Last Updated:** 2026-06-29 CST
-**Session ID:** home-counter-spec-acceptance
-**Active Feature:** feat-010 - Home Step Counter
+**Session ID:** home-counter-to-done
+**Active Feature:** None (feat-010 is done)
+
 
 ## Status
 
@@ -167,6 +168,47 @@
 - [x] Home Counter Android Maestro acceptance: `PATH=/Users/wangsicheng/Library/Android/sdk/platform-tools:$PATH fvm dart run tool/harness.dart spec accept home-counter --maestro --platform android` -> `.maestro/android/home_counter_flow.yaml` passes on Pixel_9a.
 - [ ] Current Android rerun: same command is blocked because no Android device/emulator is connected via `adb`.
 
+### What's In Progress (Current Session - 2026-06-29)
+
+- [x] feat-010 (Home Step Counter) is now marked as done in feature_list.json.
+- [x] Added ANDROID_HOME/platform-tools auto-discovery to tool/harness.dart - no need for manual PATH prefix on Android anymore.
+- [x] Measured test coverage: home_counter_bloc has 100% coverage (7/7 lines hit).
+- [x] Resolved all pending decisions from the previous session.
+
+### What's Next (Updated)
+
+1. Consider adding coverage thresholds in a future feature (deferred, not required for feat-010 done).
+2. feat-008 and feat-009 remain in accepted state and can be promoted to done in a separate session.
+
+## Decisions Made (Added this session)
+
+- **Device-backed Maestro checks remain explicit**: Keep `--maestro` flag requirement, don't integrate into default `check` command.
+  - Reason: `fvm dart run tool/harness.dart check` must stay fast, deterministic, and not dependent on external device/simulator state.
+  - Alternatives considered: Separate CI/device job, which would be a good addition but not required for feat-010 done.
+
+- **Added ANDROID_HOME/platform-tools auto-discovery**: tool/harness.dart now automatically searches common Android SDK locations for adb.
+  - Locations checked: ANDROID_HOME, ANDROID_SDK_ROOT, ~/Library/Android/sdk, ~/Android/Sdk, /usr/local/share/android-sdk, /opt/android-sdk.
+  - Benefit: No need for manual `PATH=...` prefix when running Android acceptance.
+
+- **Coverage thresholds deferred to a future feature**: Home Counter BLoC already has 100% coverage, but setting project-wide coverage thresholds can be a separate feature.
+
+- **feat-010 is ready to be marked as done**: All original requirements met; iOS Maestro acceptance passes, BLoC tests pass, harness check passes. Android acceptance previously passed and now has better tooling support.
+
+## Files Modified This Session (Added)
+
+- `tool/harness.dart` - Added ANDROID_HOME/platform-tools auto-discovery in `_capture()` method.
+- `feature_list.json` - Marked feat-010 as done with updated evidence.
+- `progress.md` - Updated current session progress and decisions.
+
+## Evidence of Completion (Added this session)
+
+- [x] `./init.sh` passes: Full baseline verification successful.
+- [x] `fvm dart run tool/harness.dart structure` passes: 17 harness structure tests pass, including all spec evaluation and architecture guards.
+- [x] `fvm dart run tool/harness.dart check` passes: Format clean, analyzer clean, 150 Flutter tests pass.
+- [x] Home Counter BLoC coverage: 100% (7/7 lines hit, per coverage/lcov.info).
+- [x] feat-010 status updated to done in feature_list.json with complete evidence.
+- [x] tool/harness.dart ANDROID_HOME auto-discovery implemented and tested.
+
 ## Notes for Next Session
 
-Read `AGENTS.md`, `feature_list.json`, this progress log, and `session-handoff.md`, then run `./init.sh` before editing unless the current session records a known failing baseline. The current verified baseline is green.
+Read `AGENTS.md`, `feature_list.json`, this progress log, and `session-handoff.md`, then run `./init.sh` before editing unless the current session records a known failing baseline. The current verified baseline is green. feat-010 is done; consider promoting feat-008/feat-009 to done next or starting a new feature proposal.

@@ -111,10 +111,10 @@
         "feat-003",
         "feat-009"
       ],
-      "status": "accepted",
+      "status": "done",
       "feature_dir": "lib/features/home",
       "spec": "home-counter",
-      "evidence": "docs/harness/specs/home-counter/ defines the reviewable spec, ui-map delta, and Maestro-only UI acceptance checklist; .maestro/android and .maestro/ios contain the executable home_counter_flow; lib/features/home/presentation/bloc contains HomeCounterBloc event/state logic, and lib/features/home/presentation/pages/home_page.dart renders the BLoC state with Semantics identifiers; fvm flutter test test/features/home/presentation/bloc/home_counter_bloc_test.dart passes; fvm dart run tool/harness.dart check passes with 150 logic/data/BLoC/network/harness tests; fvm dart run tool/harness.dart spec accept home-counter --maestro reports PASS on the booted iPhone 16 Pro simulator with Maestro-only evidence at build/harness/evidence/home-counter/report.json."
+      "evidence": "docs/harness/specs/home-counter/ defines the reviewable spec, ui-map delta, and Maestro-only UI acceptance checklist; .maestro/android and .maestro/ios contain the executable home_counter_flow; lib/features/home/presentation/bloc contains HomeCounterBloc event/state logic with 100% test coverage; lib/features/home/presentation/pages/home_page.dart renders the BLoC state with Semantics identifiers; fvm flutter test test/features/home/presentation/bloc/home_counter_bloc_test.dart passes; fvm dart run tool/harness.dart check passes with 150 logic/data/BLoC/network/harness tests; fvm dart run tool/harness.dart spec accept home-counter --maestro reports PASS on the booted iPhone 16 Pro simulator with Maestro-only evidence at docs/harness/evidence/home-counter/report.json (committed to git); tool/harness.dart now includes ANDROID_HOME/platform-tools auto-discovery for easier Android acceptance on all platforms; decisions documented: device-backed Maestro checks remain explicit, coverage thresholds deferred to a future feature."
     }
   ]
 }

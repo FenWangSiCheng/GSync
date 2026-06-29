@@ -747,8 +747,36 @@ acceptance:
     List<String> arguments,
   ) async {
     final command = '$executable ${arguments.join(' ')}';
+
+    // Try to find adb in common Android SDK locations if not on PATH
+    final env = <String, String>{};
+    if (executable == 'adb') {
+      final candidatePaths = <String>[
+        if (Platform.environment.containsKey('ANDROID_HOME'))
+          '${Platform.environment['ANDROID_HOME']}/platform-tools',
+        if (Platform.environment.containsKey('ANDROID_SDK_ROOT'))
+          '${Platform.environment['ANDROID_SDK_ROOT']}/platform-tools',
+        '${Platform.environment['HOME']}/Library/Android/sdk/platform-tools',
+        '${Platform.environment['HOME']}/Android/Sdk/platform-tools',
+        '/usr/local/share/android-sdk/platform-tools',
+        '/opt/android-sdk/platform-tools',
+      ];
+
+      for (final path in candidatePaths) {
+        final adbPath = '$path/adb';
+        if (File(adbPath).existsSync()) {
+          env['PATH'] = '${Platform.environment['PATH']}:$path';
+          break;
+        }
+      }
+    }
+
     try {
-      final result = await Process.run(executable, arguments);
+      final result = await Process.run(
+        executable,
+        arguments,
+        environment: env.isEmpty ? null : env,
+      );
       return {
         'command': command,
         'exit_code': result.exitCode,
