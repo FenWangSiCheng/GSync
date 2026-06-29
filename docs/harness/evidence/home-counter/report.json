@@ -1,6 +1,6 @@
 {
   "spec": "home-counter",
-  "feature": "feat-010",
+  "feature": "feat-001",
   "platform": "ios",
   "result": "PASS",
   "maestro_run": true,

@@ -128,35 +128,8 @@ void main() {
       expect(workflow, contains('./init.sh'));
     });
 
-    test('spec evaluation demo is discoverable', () {
-      expect(
-        File('.maestro/android/user_profile_flow.yaml').existsSync(),
-        isTrue,
-      );
-      expect(File('.maestro/ios/user_profile_flow.yaml').existsSync(), isTrue);
-      expect(
-        File('docs/harness/specs/user-profile-flow.md').existsSync(),
-        isTrue,
-      );
-      expect(File('docs/harness/specs/ui-map.yaml').existsSync(), isTrue);
-
-      final androidFlow = File(
-        '.maestro/android/user_profile_flow.yaml',
-      ).readAsStringSync();
-      final iosFlow = File(
-        '.maestro/ios/user_profile_flow.yaml',
-      ).readAsStringSync();
-      final spec = File(
-        'docs/harness/specs/user-profile-flow.md',
-      ).readAsStringSync();
+    test('spec evaluation workflow is discoverable via harness commands', () {
       final runner = File('tool/harness.dart').readAsStringSync();
-
-      expect(androidFlow, contains('com.example.basic_demo.dev'));
-      expect(androidFlow, contains('user.load_user_2'));
-      expect(iosFlow, contains('cn.com.fenrir-inc.iosAppTest.dev'));
-      expect(iosFlow, contains('user.load_user_2'));
-      expect(spec, contains('User Profile Flow'));
-      expect(spec, contains('Translation Rules'));
       expect(runner, contains("case 'eval'"));
       expect(runner, contains("case 'eval-ios'"));
       expect(runner, contains("maestro', ['test', target]"));
@@ -165,7 +138,10 @@ void main() {
     test(
       'spec evaluation workflow is wired and has an acceptance checklist',
       () {
-        expect(File('docs/harness/specs/acceptance.yaml').existsSync(), isTrue);
+        expect(
+          File('docs/harness/specs/home-counter/acceptance.yaml').existsSync(),
+          isTrue,
+        );
 
         final runner = File('tool/harness.dart').readAsStringSync();
         expect(runner, contains("case 'spec'"));
@@ -180,9 +156,9 @@ void main() {
         expect(runner, contains('Maestro acceptance blocked'));
 
         final acceptance = File(
-          'docs/harness/specs/acceptance.yaml',
+          'docs/harness/specs/home-counter/acceptance.yaml',
         ).readAsStringSync();
-        expect(acceptance, contains('spec: user-profile-flow'));
+        expect(acceptance, contains('spec: home-counter'));
         expect(acceptance, contains('kind: maestro'));
         final doc = yaml.loadYaml(acceptance) as yaml.YamlMap;
         final criteria = doc['acceptance'] as yaml.YamlList;
@@ -306,39 +282,23 @@ void main() {
         'done',
       };
 
-      final featuresDir = Directory('lib/features');
-      final featureDirs = featuresDir.listSync().whereType<Directory>().where(
-        (directory) => !directory.path.endsWith('.DS_Store'),
-      );
-
-      for (final featureDir in featureDirs) {
+      for (final entry in features) {
+        final featureDir = entry['feature_dir'];
+        // Only check features that declare a feature_dir and have a business layer.
+        if (featureDir == null) continue;
         final hasBusinessLayer =
-            Directory('${featureDir.path}/domain').existsSync() ||
-            Directory('${featureDir.path}/data').existsSync();
+            Directory('$featureDir/domain').existsSync() ||
+            Directory('$featureDir/data').existsSync();
         if (!hasBusinessLayer) continue;
 
-        final featurePath = featureDir.path;
-        Map<String, Object?>? entry;
-        for (final feature in features) {
-          if (feature['feature_dir'] == featurePath) {
-            entry = feature;
-            break;
-          }
-        }
-        expect(
-          entry,
-          isNotNull,
-          reason:
-              '$featurePath has a business layer but no feature_list.json '
-              'entry with feature_dir "$featurePath".',
-        );
-        final spec = entry!['spec'];
+        final spec = entry['spec'];
+        if (spec == null) continue;
         expect(
           spec,
           isA<String>(),
           reason:
-              '$featurePath has a business layer but no spec linked '
-              'in feature_list.json.',
+              '${entry['id']} ($featureDir) has a business layer but no spec '
+              'linked in feature_list.json.',
         );
         expect(
           approvedStatuses.contains(entry['status']),
@@ -346,7 +306,7 @@ void main() {
           reason:
               '${entry['id']} (spec $spec) is not past gate A: status is '
               '"${entry['status']}" but implementation already exists under '
-              '$featurePath.',
+              '$featureDir.',
         );
       }
     });

@@ -62,7 +62,6 @@ written to `build/harness/evidence/<id>/report.json`.
   `kind: maestro` with a `flow`; non-UI logic claims may map to `kind: test`
   with a unit-test `file`.
 - `ui-map.yaml` — the canonical UI target map shared by all specs.
-- `user-profile-flow.md`, `acceptance.yaml` — the reference demo, kept flat.
 
 ## Translation rules
 

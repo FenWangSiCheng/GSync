@@ -58,8 +58,8 @@ fvm dart run tool/harness.dart eval-android
 fvm dart run tool/harness.dart eval-ios
 ```
 
-The current demo flows live under `.maestro/android/` and `.maestro/ios/`, and
-map to the human-readable spec in `docs/harness/specs/user-profile-flow.md`.
+The current flows live under `.maestro/android/` and `.maestro/ios/`, and
+map to the human-readable specs in `docs/harness/specs/`.
 
 ## Bootstrap
 
