@@ -35,6 +35,7 @@ adding new scope.
 - Feature state: `feature_list.json`
 - Session progress: `progress.md`
 - Session handoff: `session-handoff.md`
+- Acceptance evidence: `docs/harness/evidence/`
 
 ## Working Loop
 
@@ -58,6 +59,7 @@ adding new scope.
 - `tool/harness.dart` - Flutter-specific command runner.
 - `docs/harness/` - Project map, architecture, validation, quality, operability,
   and task patterns.
+- `docs/harness/evidence/` - Committed acceptance evidence for done features.
 - `.agents/skills/` - Project-local Flutter and Dart agent skills.
 - `docs/harness/SKILLS.md` - Skill inventory, update workflow, and usage rules.
 
@@ -82,6 +84,7 @@ A feature is done only when all of the following are true:
   documented narrower check for the touched surface.
 - Evidence is recorded in `feature_list.json`, `progress.md`, or
   `session-handoff.md`.
+- Acceptance report is committed to `docs/harness/evidence/{spec-id}/report.json`.
 - The repository remains restartable from `./init.sh` or a documented baseline
   command.
 
