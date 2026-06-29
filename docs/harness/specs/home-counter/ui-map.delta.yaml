@@ -1,0 +1,17 @@
+# New UI targets introduced by the "home-counter" spec.
+# These merge into docs/harness/specs/ui-map.yaml once approved.
+targets:
+  home.counter.value:
+    kind: text
+    semantics_identifier: home.counter.value
+    description: Current step count label, e.g. "Steps: 0".
+  home.counter.increment:
+    kind: button
+    text: "+1"
+    semantics_identifier: home.counter.increment
+    description: Increments the step counter by one.
+  home.counter.reset:
+    kind: button
+    text: Reset
+    semantics_identifier: home.counter.reset
+    description: Resets the step counter to zero.

@@ -1,4 +1,13 @@
 {
+  "status_legend": [
+    "proposed",
+    "spec-drafting",
+    "spec-approved",
+    "implementing",
+    "accepted",
+    "done",
+    "in_progress"
+  ],
   "features": [
     {
       "id": "feat-001",
@@ -69,6 +78,43 @@
       ],
       "status": "done",
       "evidence": ".agents/skills contains 9 Flutter skills and 11 Dart skills; docs/harness/SKILLS.md documents usage, updates, and the intentional exclusion of flutter-apply-architecture-best-practices in favor of docs/harness/ARCHITECTURE.md; fvm dart run tool/harness.dart structure verifies the inventory."
+    },
+    {
+      "id": "feat-008",
+      "name": "Maestro Spec Evaluation Demo",
+      "description": "Add a minimal human-readable User Profile spec, UI target map, Maestro flow, and explicit harness eval command for device-backed E2E evaluation.",
+      "dependencies": [
+        "feat-003",
+        "feat-004"
+      ],
+      "status": "accepted",
+      "feature_dir": "lib/features/user",
+      "spec": "user-profile-flow",
+      "evidence": "docs/harness/specs/user-profile-flow.md plus .maestro/android and .maestro/ios flows define the minimal User Profile UI flow; docs/harness/specs/acceptance.yaml is Maestro-only for UI acceptance; UserPage and MainTabPage expose Semantics identifiers. Maestro CLI 2.6.1 is installed and fvm dart run tool/harness.dart eval-ios passes on the booted iPhone 16 Pro simulator. Android eval remains a follow-up."
+    },
+    {
+      "id": "feat-009",
+      "name": "Spec Evaluation Workflow",
+      "description": "Turn spec evaluation into a repeatable four-stage flow with two review gates: human gives a point, AI drafts a reviewable acceptance script, human approves it, AI implements, then AI runs acceptance and reports a result.",
+      "dependencies": [
+        "feat-003",
+        "feat-008"
+      ],
+      "status": "accepted",
+      "evidence": "tool/harness.dart exposes spec new / spec review [--approve] / spec accept [--maestro]; docs/harness/specs/README.md documents the four-stage flow, two gates, and the rule that UI acceptance uses Maestro while kind:test is reserved for non-UI logic; docs/harness/specs/acceptance.yaml demonstrates the chain on user-profile-flow; test/harness/architecture_guard_test.dart guards the status legend, approved-spec gate, and no-widget-test UI policy."
+    },
+    {
+      "id": "feat-010",
+      "name": "Home Step Counter",
+      "description": "Add a step counter to the Home page that increments with a +1 button and resets to zero with a Reset button.",
+      "dependencies": [
+        "feat-003",
+        "feat-009"
+      ],
+      "status": "accepted",
+      "feature_dir": "lib/features/home",
+      "spec": "home-counter",
+      "evidence": "docs/harness/specs/home-counter/ defines the reviewable spec, ui-map delta, and Maestro-only UI acceptance checklist; .maestro/android and .maestro/ios contain the executable home_counter_flow; lib/features/home/presentation/bloc contains HomeCounterBloc event/state logic, and lib/features/home/presentation/pages/home_page.dart renders the BLoC state with Semantics identifiers; fvm flutter test test/features/home/presentation/bloc/home_counter_bloc_test.dart passes; fvm dart run tool/harness.dart check passes with 150 logic/data/BLoC/network/harness tests; fvm dart run tool/harness.dart spec accept home-counter --maestro reports PASS on the booted iPhone 16 Pro simulator with Maestro-only evidence at build/harness/evidence/home-counter/report.json."
     }
   ]
 }

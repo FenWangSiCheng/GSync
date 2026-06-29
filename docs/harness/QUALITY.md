@@ -10,8 +10,9 @@ the project is strong, where it is thin, and what to improve next.
 | Architecture | Good | Feature-first layering is clear and now guarded by tests. |
 | Configuration | Good | Flavor behavior is centralized in `AppConfig`. |
 | Networking | Good | Dio setup supports mocks, proxy behavior, and error handling. |
-| Tests | Good | Unit, widget, BLoC, and harness tests are present. |
+| Tests | Good | Logic, data, BLoC, network, and harness tests are present; UI behavior is verified with Maestro instead of widget tests. |
 | Observability | Emerging | Startup and network initialization emit structured harness events. |
+| Spec Evaluation | Emerging | A minimal Maestro-backed User Profile flow exists outside the default check gate. |
 | Documentation | Good | Agent map and harness docs now cover the working loop and walkinglabs five-subsystem model. |
 | Agent Skills | Good | Official Flutter and Dart skills are checked into `.agents/skills` and guarded by structure tests. |
 | Session Lifecycle | Good | Root feature state, progress, init, and handoff artifacts make sessions restartable. |
@@ -32,4 +33,6 @@ the project is strong, where it is thin, and what to improve next.
 
 - Add integration-test smoke coverage for a real device or simulator.
 - Extend structured events around user-flow success and failure states.
+- Install Maestro locally and capture first `.maestro/user_profile_flow.yaml`
+  pass/fail evidence from a simulator or device.
 - Add coverage thresholds once current coverage is measured and baselined.
