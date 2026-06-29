@@ -121,8 +121,8 @@ These project rules remain active:
 - Keep data code independent from presentation.
 - Keep generated files synchronized after changing annotations.
 - Use `AppConfig` for environment behavior; avoid ad hoc flavor checks.
-- Add or update tests with user-visible behavior, data mapping, routing, and
-  harness rules.
+- Verify user-visible UI behavior with Maestro flows. Keep Flutter tests for
+  logic, data mapping, routing configuration, BLoC behavior, and harness rules.
 - If a failure points to missing context, improve the harness instead of only
   patching the symptom.
 

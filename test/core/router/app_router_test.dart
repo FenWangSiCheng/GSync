@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_foundations/core/router/app_router.dart';
 import 'package:flutter_foundations/core/router/router_constants.dart';
@@ -77,71 +76,6 @@ void main() {
         final router2 = AppRouter();
 
         expect(router1.router, isNot(same(router2.router)));
-      });
-    });
-
-    group('Navigation', () {
-      testWidgets('should navigate to home page', (tester) async {
-        await tester.pumpWidget(
-          MaterialApp.router(routerConfig: appRouter.router),
-        );
-
-        expect(find.byType(MaterialApp), findsOneWidget);
-        await tester.pumpAndSettle();
-        // There are two "Home" texts in the tree: one in the page body
-        // and one as the BottomNavigationBar label. Assert specifically
-        // on the centered body content to avoid ambiguity.
-        expect(find.widgetWithText(Center, 'Home'), findsOneWidget);
-      });
-
-      testWidgets('should navigate to user page', (tester) async {
-        await tester.pumpWidget(
-          MaterialApp.router(routerConfig: appRouter.router),
-        );
-
-        appRouter.router.go(RouterPaths.user);
-        await tester.pumpAndSettle();
-
-        expect(
-          appRouter.router.routeInformationProvider.value.uri.path,
-          RouterPaths.user,
-        );
-        expect(find.text('User Info'), findsOneWidget);
-      });
-
-      testWidgets('should show error page for invalid route', (tester) async {
-        await tester.pumpWidget(
-          MaterialApp.router(routerConfig: appRouter.router),
-        );
-
-        appRouter.router.go('/invalid-route');
-        await tester.pumpAndSettle();
-
-        expect(find.text('Error'), findsOneWidget);
-        expect(find.byIcon(Icons.error_outline), findsOneWidget);
-        expect(find.textContaining('Page not found'), findsOneWidget);
-        expect(find.text('Go Home'), findsOneWidget);
-      });
-
-      testWidgets('should navigate back to home from error page', (
-        tester,
-      ) async {
-        await tester.pumpWidget(
-          MaterialApp.router(routerConfig: appRouter.router),
-        );
-
-        appRouter.router.go('/invalid-route');
-        await tester.pumpAndSettle();
-
-        expect(find.text('Error'), findsOneWidget);
-
-        await tester.tap(find.text('Go Home'));
-        await tester.pumpAndSettle();
-
-        expect(
-          appRouter.router.routeInformationProvider.value.uri.path,
-          RouterPaths.home,
-        );
       });
     });
   });

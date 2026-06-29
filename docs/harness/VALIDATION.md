@@ -34,6 +34,33 @@ The full check runs:
 3. `fvm flutter analyze`
 4. `fvm flutter test`
 
+## Test Policy
+
+UI behavior is verified by Maestro flows, not Flutter widget tests. Keep
+`kind: maestro` acceptance criteria for screens, controls, navigation, and
+visible text. Use Flutter tests for logic, data mapping, repositories, BLoCs,
+configuration, networking, and harness rules.
+
+## Optional Spec Evaluation
+
+Maestro flows are device-backed E2E checks and are intentionally outside the
+default `check` command. Install Maestro, launch or install the `dev` app on a
+simulator or device, then run:
+
+```bash
+fvm dart run tool/harness.dart eval
+```
+
+Platform-specific variants are available:
+
+```bash
+fvm dart run tool/harness.dart eval-android
+fvm dart run tool/harness.dart eval-ios
+```
+
+The current demo flows live under `.maestro/android/` and `.maestro/ios/`, and
+map to the human-readable spec in `docs/harness/specs/user-profile-flow.md`.
+
 ## Bootstrap
 
 ```bash

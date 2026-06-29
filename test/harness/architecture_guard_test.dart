@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:yaml/yaml.dart' as yaml;
 
 void main() {
   group('Harness structure', () {
@@ -126,6 +127,229 @@ void main() {
       expect(workflow, contains('./init.sh'));
     });
 
+    test('spec evaluation demo is discoverable', () {
+      expect(
+        File('.maestro/android/user_profile_flow.yaml').existsSync(),
+        isTrue,
+      );
+      expect(File('.maestro/ios/user_profile_flow.yaml').existsSync(), isTrue);
+      expect(
+        File('docs/harness/specs/user-profile-flow.md').existsSync(),
+        isTrue,
+      );
+      expect(File('docs/harness/specs/ui-map.yaml').existsSync(), isTrue);
+
+      final androidFlow = File(
+        '.maestro/android/user_profile_flow.yaml',
+      ).readAsStringSync();
+      final iosFlow = File(
+        '.maestro/ios/user_profile_flow.yaml',
+      ).readAsStringSync();
+      final spec = File(
+        'docs/harness/specs/user-profile-flow.md',
+      ).readAsStringSync();
+      final runner = File('tool/harness.dart').readAsStringSync();
+
+      expect(androidFlow, contains('com.example.basic_demo.dev'));
+      expect(androidFlow, contains('user.load_user_2'));
+      expect(iosFlow, contains('cn.com.fenrir-inc.iosAppTest.dev'));
+      expect(iosFlow, contains('user.load_user_2'));
+      expect(spec, contains('User Profile Flow'));
+      expect(spec, contains('Translation Rules'));
+      expect(runner, contains("case 'eval'"));
+      expect(runner, contains("case 'eval-ios'"));
+      expect(runner, contains("maestro', ['test', target]"));
+    });
+
+    test(
+      'spec evaluation workflow is wired and has an acceptance checklist',
+      () {
+        expect(File('docs/harness/specs/acceptance.yaml').existsSync(), isTrue);
+
+        final runner = File('tool/harness.dart').readAsStringSync();
+        expect(runner, contains("case 'spec'"));
+        expect(runner, contains('_specReview'));
+        expect(runner, contains('_specAccept'));
+        expect(runner, contains('--maestro'));
+        expect(runner, contains('spec-approved'));
+        expect(runner, contains('build/harness/evidence'));
+        // Gate B can run Maestro explicitly and reports when no device is ready.
+        expect(runner, contains('_deviceReady'));
+        expect(runner, contains('--platform'));
+        expect(runner, contains('Maestro acceptance blocked'));
+
+        final acceptance = File(
+          'docs/harness/specs/acceptance.yaml',
+        ).readAsStringSync();
+        expect(acceptance, contains('spec: user-profile-flow'));
+        expect(acceptance, contains('kind: maestro'));
+        final doc = yaml.loadYaml(acceptance) as yaml.YamlMap;
+        final criteria = doc['acceptance'] as yaml.YamlList;
+        final hasTestCriterion = criteria.any(
+          (item) => (item as yaml.YamlMap)['kind'].toString() == 'test',
+        );
+        expect(hasTestCriterion, isFalse);
+      },
+    );
+
+    test('ui behavior is not covered by Flutter widget tests', () {
+      final violations = _dartFilesUnder('test')
+          .where((file) => !file.path.contains('/harness/'))
+          .expand(_widgetTestViolations)
+          .toList();
+
+      expect(
+        violations,
+        isEmpty,
+        reason:
+            'UI behavior belongs in Maestro flows. Keep Flutter tests for '
+            'logic, data, BLoC, repository, configuration, and harness rules.',
+      );
+    });
+
+    test('every spec has at least one maestro acceptance criterion', () {
+      final acceptanceFiles = _acceptanceFiles();
+      expect(acceptanceFiles, isNotEmpty);
+      for (final file in acceptanceFiles) {
+        final doc = yaml.loadYaml(file.readAsStringSync()) as yaml.YamlMap;
+        final acceptance = doc['acceptance'] as yaml.YamlList;
+        final hasMaestro = acceptance.any(
+          (item) => (item as yaml.YamlMap)['kind'].toString() == 'maestro',
+        );
+        expect(
+          hasMaestro,
+          isTrue,
+          reason: '${file.path} must have at least one kind: maestro criterion',
+        );
+      }
+    });
+
+    test(
+      'every maestro flow referenced by a spec exists on both platforms',
+      () {
+        for (final file in _acceptanceFiles()) {
+          final doc = yaml.loadYaml(file.readAsStringSync()) as yaml.YamlMap;
+          final acceptance = doc['acceptance'] as yaml.YamlList;
+          for (final item in acceptance) {
+            final m = item as yaml.YamlMap;
+            if (m['kind'].toString() != 'maestro') continue;
+            final flow = m['flow'].toString();
+            for (final platform in const ['ios', 'android']) {
+              final path = '.maestro/$platform/$flow.yaml';
+              expect(
+                File(path).existsSync(),
+                isTrue,
+                reason: 'Flow $path referenced by ${file.path} is missing',
+              );
+            }
+          }
+        }
+      },
+    );
+
+    test('home_counter flow exists with correct dev app ids', () {
+      final iosFlow = File(
+        '.maestro/ios/home_counter_flow.yaml',
+      ).readAsStringSync();
+      final androidFlow = File(
+        '.maestro/android/home_counter_flow.yaml',
+      ).readAsStringSync();
+
+      expect(iosFlow, contains('cn.com.fenrir-inc.iosAppTest.dev'));
+      expect(iosFlow, contains('home.counter.increment'));
+      expect(androidFlow, contains('com.example.basic_demo.dev'));
+      expect(androidFlow, contains('home.counter.reset'));
+    });
+
+    test('feature statuses stay within the documented legend', () {
+      final decoded =
+          jsonDecode(File('feature_list.json').readAsStringSync())
+              as Map<String, Object?>;
+      final legend = (decoded['status_legend'] as List<Object?>)
+          .cast<String>()
+          .toSet();
+      expect(
+        legend,
+        containsAll(<String>[
+          'proposed',
+          'spec-drafting',
+          'spec-approved',
+          'implementing',
+          'accepted',
+        ]),
+      );
+
+      final features = (decoded['features'] as List<Object?>)
+          .cast<Map<String, Object?>>();
+      for (final feature in features) {
+        final status = feature['status'] as String;
+        expect(
+          legend.contains(status),
+          isTrue,
+          reason: '${feature['id']} has status "$status" not in status_legend',
+        );
+      }
+    });
+
+    test('every feature with a business layer links an approved spec', () {
+      final decoded =
+          jsonDecode(File('feature_list.json').readAsStringSync())
+              as Map<String, Object?>;
+      final features = (decoded['features'] as List<Object?>)
+          .cast<Map<String, Object?>>();
+
+      const approvedStatuses = <String>{
+        'spec-approved',
+        'implementing',
+        'accepted',
+        'done',
+      };
+
+      final featuresDir = Directory('lib/features');
+      final featureDirs = featuresDir.listSync().whereType<Directory>().where(
+        (directory) => !directory.path.endsWith('.DS_Store'),
+      );
+
+      for (final featureDir in featureDirs) {
+        final hasBusinessLayer =
+            Directory('${featureDir.path}/domain').existsSync() ||
+            Directory('${featureDir.path}/data').existsSync();
+        if (!hasBusinessLayer) continue;
+
+        final featurePath = featureDir.path;
+        Map<String, Object?>? entry;
+        for (final feature in features) {
+          if (feature['feature_dir'] == featurePath) {
+            entry = feature;
+            break;
+          }
+        }
+        expect(
+          entry,
+          isNotNull,
+          reason:
+              '$featurePath has a business layer but no feature_list.json '
+              'entry with feature_dir "$featurePath".',
+        );
+        final spec = entry!['spec'];
+        expect(
+          spec,
+          isA<String>(),
+          reason:
+              '$featurePath has a business layer but no spec linked '
+              'in feature_list.json.',
+        );
+        expect(
+          approvedStatuses.contains(entry['status']),
+          isTrue,
+          reason:
+              '${entry['id']} (spec $spec) is not past gate A: status is '
+              '"${entry['status']}" but implementation already exists under '
+              '$featurePath.',
+        );
+      }
+    });
+
     test('domain layer does not import data or presentation', () {
       final violations = _dartFilesUnder('lib/features')
           .where((file) => file.path.contains('/domain/'))
@@ -180,6 +404,18 @@ Iterable<File> _dartFilesUnder(String path) {
       .where((file) => file.path.endsWith('.dart'));
 }
 
+Iterable<File> _acceptanceFiles() {
+  final specsDirectory = Directory('docs/harness/specs');
+  if (!specsDirectory.existsSync()) {
+    return const [];
+  }
+
+  return specsDirectory
+      .listSync(recursive: true)
+      .whereType<File>()
+      .where((file) => file.path.endsWith('acceptance.yaml'));
+}
+
 Iterable<String> _layerImportViolations(File file) {
   final content = file.readAsStringSync();
   final forbiddenPatterns = [
@@ -208,4 +444,12 @@ Iterable<String> _presentationImportViolations(File file) {
   return forbiddenPatterns
       .where((pattern) => pattern.hasMatch(content))
       .map((pattern) => '${file.path} matches ${pattern.pattern}');
+}
+
+Iterable<String> _widgetTestViolations(File file) {
+  final content = file.readAsStringSync();
+  const forbidden = ['testWidgets(', 'WidgetTester', '.pumpWidget('];
+  return forbidden
+      .where(content.contains)
+      .map((token) => '${file.path} contains $token');
 }

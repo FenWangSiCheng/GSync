@@ -72,6 +72,9 @@ Dart skills:
 ## Harness Rules
 
 - Keep official skills in `.agents/skills/`, not under `lib/`.
+- Do not use `flutter-add-widget-test` for UI behavior in this project. UI
+  acceptance belongs in Maestro flows; use Flutter/Dart tests for non-UI logic,
+  data mapping, BLoC behavior, repositories, configuration, and harness rules.
 - Use project architecture rules from `docs/harness/ARCHITECTURE.md` when a
   generic Flutter skill conflicts with this repository's feature-first layout.
 - Do not automatically update skills from `init.sh`; network updates should be
