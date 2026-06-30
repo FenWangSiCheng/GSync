@@ -4,6 +4,7 @@
 
 **Last Updated:** 2026-06-30 CST
 **Active Feature:** None (harness maintenance; feat-001 through feat-003 are done)
+**Current Activity:** Refreshed root `README.md` to emphasize the harness engineering surface and reflect the latest tooling (coverage gate, UI map generation, dual-platform Maestro, Maestro CI, and `init.sh` preflight).
 
 
 ## Status
@@ -138,6 +139,7 @@
 - `docs/harness/VALIDATION.md` - Documented the fresh-runner Flutter dependency preflight.
 - `progress.md` - Updated this session log.
 - `session-handoff.md` - Updated restart notes and verification evidence.
+- `README.md` - Refreshed the root project introduction to focus on the harness engineering surface: subsystems, coverage gate, UI target map generation, dual-platform Maestro acceptance, Maestro CI, and the `init.sh` Flutter pub get preflight.
 
 ## Evidence of Completion
 
@@ -166,3 +168,5 @@
 - [x] `./init.sh` passes after adding the `fvm flutter pub get` preflight: dependency resolution succeeds before the Dart harness, build_runner writes 0 outputs, analyzer is clean, 165 coverage-gated tests pass, and included coverage remains 259/279 lines (92.83%).
 - [x] GitHub Actions rerun after the dependency preflight reached Android emulator startup and exposed a separate `/usr/bin/sh: set: Illegal option -o pipefail` issue in `reactivecircus/android-emulator-runner`; the follow-up script-file fix superseded the temporary inline shell change.
 - [x] GitHub Actions rerun after the shell flag fix reached Android emulator startup and exposed inline heredoc splitting (`/usr/bin/sh: 1: import: not found`); Android acceptance logic was moved to `tool/ci_android_maestro.sh`.
+- [x] `README.md` updated to reflect the current harness surface and project capabilities.
+- [x] `fvm dart run tool/harness.dart structure` passes after README refresh: 22/22 harness structure tests pass.

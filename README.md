@@ -40,7 +40,7 @@ and the [walkinglabs learn-harness-engineering][walkinglabs] model:
 
 ## Harness Architecture
 
-The harness is split into six durable subsystems. Each subsystem has checked-in
+The harness is split into durable subsystems. Each subsystem has checked-in
 artifacts and a mechanical verification path.
 
 ### Instructions
@@ -65,15 +65,15 @@ Track active scope, feature status, dependencies, blockers, and evidence on disk
 
 ### Verification
 
-Provide repeatable bootstrap, doctor, structure, format, analyzer, and test
-commands. Every check runs locally without secrets or remote state.
+Provide repeatable bootstrap, doctor, structure, format, analyzer, coverage, and
+test commands. Every check runs locally without secrets or remote state.
 
 | Artifact | Purpose |
 | --- | --- |
-| [`init.sh`](init.sh) | Walkinglabs-compatible lifecycle entrypoint — bootstrap then full check. |
-| [`tool/harness.dart`](tool/harness.dart) | Dart command runner with `doctor`, `structure`, `bootstrap`, `check`, and `spec` subcommands. |
-| [`test/harness/`](test/harness/) | Structural guard tests that protect harness assumptions (skill presence, architecture layering, generated-file freshness). |
-| [`docs/harness/VALIDATION.md`](docs/harness/VALIDATION.md) | Command reference, full check behavior, and failure triage order. |
+| [`init.sh`](init.sh) | Walkinglabs-compatible lifecycle entrypoint — resolves Flutter packages, bootstraps generated code, then runs the full check. |
+| [`tool/harness.dart`](tool/harness.dart) | Dart command runner with `doctor`, `structure`, `bootstrap`, `coverage`, `check`, `spec`, and Maestro helpers. |
+| [`test/harness/`](test/harness/) | Structural guard tests that protect harness assumptions (skill presence, architecture layering, generated-file freshness, canonical UI map coverage, committed evidence alignment, and CI wiring). |
+| [`docs/harness/VALIDATION.md`](docs/harness/VALIDATION.md) | Command reference, full check behavior, coverage gate, Maestro policy, and failure triage order. |
 
 ### Scope
 
@@ -93,7 +93,8 @@ so sessions compose instead of conflicting.
 | --- | --- |
 | [`progress.md`](progress.md) | Updated at end of session with current state and evidence. |
 | [`session-handoff.md`](session-handoff.md) | Restart instructions for the next agent session. |
-| [`.github/workflows/harness.yml`](.github/workflows/harness.yml) | CI gate that runs the standard harness startup (`./init.sh`). |
+| [`.github/workflows/harness.yml`](.github/workflows/harness.yml) | Primary CI gate that runs the standard harness startup (`./init.sh`). |
+| [`.github/workflows/maestro.yml`](.github/workflows/maestro.yml) | Simulator-backed Maestro CI that runs every `done` spec on iOS and Android. |
 
 ### Skills
 
@@ -132,7 +133,11 @@ For a fresh session, use the walkinglabs-compatible lifecycle entrypoint:
 ./init.sh
 ```
 
-`init.sh` bootstraps the Flutter project and then runs the full harness check.
+`init.sh` first resolves Flutter packages with `fvm flutter pub get`, then
+bootstraps generated code, and finally runs the full harness check. The pub get
+preflight keeps fresh CI runners from invoking the Dart harness before Flutter SDK
+packages are discoverable.
+
 For narrower iteration, use the Dart harness runner directly:
 
 ```bash
@@ -145,14 +150,70 @@ fvm dart run tool/harness.dart structure
 # Install dependencies and regenerate committed generated files
 fvm dart run tool/harness.dart bootstrap
 
-# Run format, structure, analyzer, and Flutter tests
+# Run format, structure, analyzer, and coverage-gated tests
 fvm dart run tool/harness.dart check
+
+# Recheck an existing coverage/lcov.info report without rerunning tests
+fvm dart run tool/harness.dart coverage --check-only
 ```
 
 Run `structure` after harness or architecture edits. Run `check` before handing
 off broad changes. Update `progress.md`, `feature_list.json`, and
 `session-handoff.md` when status, evidence, blockers, or restart instructions
 change.
+
+## Coverage Gate
+
+`tool/harness.dart coverage` runs the Flutter test suite with coverage enabled and
+enforces a 90% line-coverage threshold for non-UI logic. The gate intentionally
+excludes Maestro-owned UI surface (`presentation/pages`, `core/router`,
+`core/widgets`, `core/resources`, and `main.dart`) plus generated files, so the
+coverage number measures the code that Flutter tests are responsible for.
+
+```bash
+fvm dart run tool/harness.dart coverage
+```
+
+The full `check` command includes this coverage gate after format, structure, and
+analyzer. As of the latest harness update, included coverage is 259/279 lines
+(92.83%).
+
+## UI Target Map
+
+Approved specs add UI targets in per-spec `ui-map.delta.yaml` files. The shared
+[`docs/harness/specs/ui-map.yaml`](docs/harness/specs/ui-map.yaml) is generated
+from deltas whose linked features are past Gate A, and `structure` verifies it is
+current:
+
+```bash
+# Regenerate the canonical UI target map
+fvm dart run tool/harness.dart spec ui-map
+
+# Verify the generated file is up to date
+fvm dart run tool/harness.dart spec ui-map --check
+```
+
+## Maestro Acceptance
+
+User-visible UI behavior is verified by Maestro flows, not Flutter widget tests.
+Device-backed Maestro checks are intentionally outside the default `check`
+command, but dual-platform acceptance is required before marking a feature done:
+
+```bash
+fvm dart run tool/harness.dart spec accept <spec-id> --maestro --platform all
+```
+
+The command runs the spec on an iOS simulator and an Android emulator, then writes
+`report-ios.json`, `report-android.json`, and a summary `report.json` under
+`build/harness/evidence/<spec-id>/`. Copy all three files into
+`docs/harness/evidence/<spec-id>/` and update `feature_list.json` before marking
+the feature done. If either platform is unavailable, record `BLOCKED` instead of
+done.
+
+The [`.github/workflows/maestro.yml`](.github/workflows/maestro.yml) CI workflow
+runs the same dual-platform acceptance for every `done` spec on hosted
+simulators. It does not build or upload IPA, APK, or AAB artifacts, so no signing
+certificates are required.
 
 ## Harness Definition Of Done
 
@@ -166,6 +227,9 @@ A change is harness-ready when:
   baseline with an exact next action.
 - The active feature in `feature_list.json` has explicit status, dependencies,
   and evidence.
+- For features with UI acceptance, `fvm dart run tool/harness.dart spec accept
+  <id> --maestro --platform all` reports PASS on both iOS and Android (or records
+  `BLOCKED`).
 - New operational signals are structured enough for an agent to search.
 - Any newly discovered recurring failure is captured in docs, tests, or tooling.
 
