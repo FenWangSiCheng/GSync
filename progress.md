@@ -55,6 +55,7 @@
 - [x] Dio 5.10's `DioExceptionType.transformTimeout` is mapped to `ApiException("Transform timeout")` with unit coverage.
 - [x] Device-backed Maestro remains an explicit done-path gate and stays outside the default `check` command.
 - [x] `.github/workflows/maestro.yml` runs iOS simulator and Android emulator Maestro acceptance in CI without producing IPA/APK/AAB release artifacts.
+- [x] CI startup now resolves Flutter packages with `fvm flutter pub get` before invoking the Dart harness, so fresh runners have Flutter SDK packages available before `tool/harness.dart` imports package dependencies.
 
 ### What's Next
 
@@ -86,6 +87,7 @@
 - **Gate non-UI logic coverage in the default check**: `fvm dart run tool/harness.dart check` runs `tool/harness.dart coverage`, which tests with coverage and requires at least 90% included line coverage.
 - **Keep Maestro outside the default check**: Device-backed Maestro remains required for done evidence but explicit because it depends on simulator/emulator state.
 - **Use simulator CI for Maestro, not release artifacts**: `.github/workflows/maestro.yml` installs and runs the dev build on iOS and Android simulators, then invokes `spec accept`; it does not build or upload IPA/APK/AAB artifacts, so no signing certificates are required.
+- **Resolve Flutter packages before Dart harness entrypoints on fresh runners**: `dart run` cannot create the initial package config for a Flutter project before Flutter SDK packages are discoverable, so `init.sh` and Maestro CI run `fvm flutter pub get` before `fvm dart run tool/harness.dart ...`.
 
 ## Files Modified This Session
 
@@ -122,8 +124,12 @@
 - `pubspec.yaml` and `pubspec.lock` - Upgraded Dio to 5.10.0.
 - `init.sh` - Updated check label to mention coverage.
 - `.github/workflows/maestro.yml` - Added iOS simulator and Android emulator Maestro CI for all done specs.
+- `.github/workflows/maestro.yml` - Added `fvm flutter pub get` before the Dart harness bootstrap on iOS and Android CI jobs.
+- `init.sh` - Added a Flutter pub get preflight before invoking the Dart harness.
 - `test/harness/architecture_guard_test.dart` - Guarded that Maestro CI runs simulator acceptance and avoids release artifact packaging.
+- `test/harness/architecture_guard_test.dart` - Guarded the Flutter pub get preflight for standard startup and Maestro CI.
 - `docs/harness/README.md`, `docs/harness/VALIDATION.md`, and `docs/harness/QUALITY.md` - Documented simulator-backed Maestro CI.
+- `docs/harness/VALIDATION.md` - Documented the fresh-runner Flutter dependency preflight.
 - `progress.md` - Updated this session log.
 - `session-handoff.md` - Updated restart notes and verification evidence.
 
@@ -150,3 +156,5 @@
 - [x] `fvm flutter pub outdated` reports direct dependencies are all up-to-date after the Dio upgrade; remaining newer versions are dev/transitive and constrained.
 - [x] `fvm dart run tool/harness.dart structure` passes after adding simulator-backed Maestro CI: 22/22 harness structure tests pass.
 - [x] `fvm dart run tool/harness.dart check` passes after adding `.github/workflows/maestro.yml`: format clean, structure 22/22, analyzer clean, 165 coverage-gated tests pass; included coverage remains 259/279 lines (92.83%) against the 90% threshold.
+- [x] `fvm dart run tool/harness.dart structure` passes after CI startup preflight changes: 22/22 harness structure tests pass.
+- [x] `./init.sh` passes after adding the `fvm flutter pub get` preflight: dependency resolution succeeds before the Dart harness, build_runner writes 0 outputs, analyzer is clean, 165 coverage-gated tests pass, and included coverage remains 259/279 lines (92.83%).

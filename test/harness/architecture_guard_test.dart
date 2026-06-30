@@ -119,6 +119,7 @@ void main() {
       expect(handoff, contains('Recommended Next Step'));
 
       expect(init, contains('set -e'));
+      expect(init, contains('fvm flutter pub get'));
       expect(init, contains('fvm dart run tool/harness.dart bootstrap'));
       expect(init, contains('fvm dart run tool/harness.dart check'));
     });
@@ -135,6 +136,7 @@ void main() {
 
       expect(workflow, contains('iOS simulator Maestro'));
       expect(workflow, contains('Android emulator Maestro'));
+      expect(workflow, contains('fvm flutter pub get'));
       expect(workflow, contains('xcrun simctl boot'));
       expect(workflow, contains('reactivecircus/android-emulator-runner@v2'));
       expect(workflow, contains('tool/harness.dart spec accept'));

@@ -4,6 +4,9 @@ set -e
 echo "=== Harness Initialization ==="
 echo "Working directory: $(pwd)"
 
+echo "=== Resolve Flutter dependencies ==="
+fvm flutter pub get
+
 echo "=== Bootstrap dependencies and generated code ==="
 fvm dart run tool/harness.dart bootstrap
 

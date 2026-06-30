@@ -40,6 +40,9 @@ jobs:
       - name: Install configured Flutter SDK
         run: fvm install
 
+      - name: Resolve Flutter dependencies
+        run: fvm flutter pub get
+
       - name: Bootstrap project
         run: fvm dart run tool/harness.dart bootstrap
 
@@ -110,6 +113,9 @@ jobs:
 
       - name: Install configured Flutter SDK
         run: fvm install
+
+      - name: Resolve Flutter dependencies
+        run: fvm flutter pub get
 
       - name: Bootstrap project
         run: fvm dart run tool/harness.dart bootstrap

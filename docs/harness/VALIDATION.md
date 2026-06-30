@@ -8,8 +8,10 @@ For a fresh agent session, prefer the walkinglabs lifecycle wrapper:
 ./init.sh
 ```
 
-`init.sh` runs bootstrap first and then the full harness check. Use narrower
-commands below while iterating.
+`init.sh` first resolves Flutter packages with `fvm flutter pub get`, then runs
+bootstrap and the full harness check. The Flutter pub get preflight keeps fresh
+CI runners from invoking the Dart harness before Flutter SDK packages are
+discoverable. Use narrower commands below while iterating.
 
 ## Fast Checks
 
@@ -162,7 +164,8 @@ pushes to `main` or `master`:
 ```
 
 The workflow installs FVM, installs the configured Flutter SDK from
-`.fvm/fvm_config.json`, and then runs the standard startup path.
+`.fvm/fvm_config.json`, resolves Flutter packages, and then runs the standard
+startup path.
 
 ## Maestro CI
 
