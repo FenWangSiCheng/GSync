@@ -132,7 +132,10 @@ void main() {
       final runner = File('tool/harness.dart').readAsStringSync();
       expect(runner, contains("case 'eval'"));
       expect(runner, contains("case 'eval-ios'"));
-      expect(runner, contains("maestro', ['test', target]"));
+      expect(
+        runner,
+        contains("maestro', ['test', '--platform', plat, target]"),
+      );
     });
 
     test(
@@ -151,7 +154,7 @@ void main() {
         expect(runner, contains('spec-approved'));
         expect(runner, contains('build/harness/evidence'));
         // Gate B can run Maestro explicitly and reports when no device is ready.
-        expect(runner, contains('_deviceReady'));
+        expect(runner, contains('_buildAndInstall'));
         expect(runner, contains('--platform'));
         expect(runner, contains('Maestro acceptance blocked'));
 

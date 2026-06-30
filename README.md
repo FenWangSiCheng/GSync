@@ -3,46 +3,126 @@
 **Repository-local AI coding harness for a feature-first Flutter app.**
 
 This repository is a Flutter application wrapped in an agent-oriented harness.
-The harness is the main architecture: it makes instructions, state, validation,
+The harness is the primary architecture: it makes instructions, state, validation,
 scope, lifecycle, runtime signals, and project-local skills visible on disk so
 agents can restart work without hidden context.
 
-Start here when working with the project:
+## Why A Harness?
 
-1. [`AGENTS.md`](AGENTS.md) - short startup map for coding agents.
-2. [`docs/harness/README.md`](docs/harness/README.md) - harness subsystem map.
-3. [`feature_list.json`](feature_list.json) - feature status, dependencies, and
+AI coding agents need more than source code — they need repeatable entry points,
+mechanical verification, durable state tracking, and explicit scope boundaries.
+The harness encodes these as checked-in artifacts so every agent session starts
+from the same ground truth, not from whatever the last session left in memory.
+
+The approach follows the [OpenAI harness engineering field report][openai-harness]
+and the [walkinglabs learn-harness-engineering][walkinglabs] model:
+
+- Repository knowledge is the system of record.
+- The top-level agent file is a map, not a manual.
+- Architecture rules are explicit and tested.
+- Validation is runnable from a single local entry point.
+- Runtime behavior emits structured signals an agent can inspect.
+- Quality and cleanup work are tracked as durable repo artifacts.
+- Root state and lifecycle artifacts make sessions restartable.
+
+[openai-harness]: https://openai.com/index/harness-engineering/
+[walkinglabs]: https://github.com/walkinglabs/learn-harness-engineering
+
+## Start Here
+
+1. **[`AGENTS.md`](AGENTS.md)** — short startup map for coding agents.
+2. **[`docs/harness/README.md`](docs/harness/README.md)** — harness subsystem map.
+3. **[`feature_list.json`](feature_list.json)** — feature status, dependencies, and
    evidence.
-4. [`progress.md`](progress.md) - current session state and next steps.
-5. [`session-handoff.md`](session-handoff.md) - restart notes for future
+4. **[`progress.md`](progress.md)** — current session state and next steps.
+5. **[`session-handoff.md`](session-handoff.md)** — restart notes for future
    sessions.
 
 ## Harness Architecture
 
-The harness is split into durable subsystems. Each subsystem has checked-in
+The harness is split into six durable subsystems. Each subsystem has checked-in
 artifacts and a mechanical verification path.
 
-| Subsystem | Primary artifacts | Responsibility |
-| --- | --- | --- |
-| Instructions | `AGENTS.md`, `docs/harness/` | Route agents to the right local rules without turning the root file into a manual. |
-| State | `feature_list.json`, `progress.md` | Track active scope, feature status, dependencies, blockers, and evidence. |
-| Verification | `init.sh`, `tool/harness.dart`, `test/harness/` | Provide repeatable bootstrap, doctor, structure, format, analyzer, and test commands. |
-| Scope | `feature_list.json`, `docs/harness/TASKS.md` | Keep work feature-focused and record explicit dependencies before widening scope. |
-| Lifecycle | `progress.md`, `session-handoff.md` | Preserve decisions, touched files, verification output, and the next restart path. |
-| Skills | `.agents/skills/`, `docs/harness/SKILLS.md` | Keep Flutter and Dart task workflows local to the repository and progressively loaded. |
-| Runtime signals | `lib/core/harness/`, `docs/harness/OPERABILITY.md` | Emit searchable `[harness]` debug events for startup and networking behavior. |
+### Instructions
 
-The root harness intentionally stays small. Deeper rules live under
-`docs/harness/`:
+Route agents to the right local rules without turning the root file into a manual.
 
-| Document | Use it for |
+| Artifact | Purpose |
 | --- | --- |
+| [`AGENTS.md`](AGENTS.md) | One-page agent entry point with startup workflow and working loop. |
+| [`docs/harness/README.md`](docs/harness/README.md) | Harness subsystem map and repository layout. |
 | [`docs/harness/ARCHITECTURE.md`](docs/harness/ARCHITECTURE.md) | Flutter clean architecture boundaries and dependency rules. |
-| [`docs/harness/VALIDATION.md`](docs/harness/VALIDATION.md) | Local commands, full check behavior, and failure triage. |
-| [`docs/harness/SKILLS.md`](docs/harness/SKILLS.md) | Project-local Flutter and Dart agent skills. |
-| [`docs/harness/QUALITY.md`](docs/harness/QUALITY.md) | Quality scorecard and known follow-ups. |
-| [`docs/harness/OPERABILITY.md`](docs/harness/OPERABILITY.md) | Runtime logging and local observability notes. |
-| [`docs/harness/TASKS.md`](docs/harness/TASKS.md) | Durable execution plans and session lifecycle rules. |
+| [`docs/harness/TASKS.md`](docs/harness/TASKS.md) | How to write durable execution plans for multi-step work. |
+
+### State
+
+Track active scope, feature status, dependencies, blockers, and evidence on disk.
+
+| Artifact | Purpose |
+| --- | --- |
+| [`feature_list.json`](feature_list.json) | Feature tracker — status, dependencies, spec links, and completion evidence. |
+| [`progress.md`](progress.md) | Session continuity — decisions, risks, files touched, next step, and verification output. |
+
+### Verification
+
+Provide repeatable bootstrap, doctor, structure, format, analyzer, and test
+commands. Every check runs locally without secrets or remote state.
+
+| Artifact | Purpose |
+| --- | --- |
+| [`init.sh`](init.sh) | Walkinglabs-compatible lifecycle entrypoint — bootstrap then full check. |
+| [`tool/harness.dart`](tool/harness.dart) | Dart command runner with `doctor`, `structure`, `bootstrap`, `check`, and `spec` subcommands. |
+| [`test/harness/`](test/harness/) | Structural guard tests that protect harness assumptions (skill presence, architecture layering, generated-file freshness). |
+| [`docs/harness/VALIDATION.md`](docs/harness/VALIDATION.md) | Command reference, full check behavior, and failure triage order. |
+
+### Scope
+
+Keep work feature-focused and record explicit dependencies before widening scope.
+
+| Artifact | Purpose |
+| --- | --- |
+| [`feature_list.json`](feature_list.json) | Declares active feature, dependencies, and evidence gates. |
+| [`docs/harness/TASKS.md`](docs/harness/TASKS.md) | Rules for scoping multi-step work and writing durable plans. |
+
+### Lifecycle
+
+Preserve decisions, touched files, verification output, and the next restart path
+so sessions compose instead of conflicting.
+
+| Artifact | Purpose |
+| --- | --- |
+| [`progress.md`](progress.md) | Updated at end of session with current state and evidence. |
+| [`session-handoff.md`](session-handoff.md) | Restart instructions for the next agent session. |
+| [`.github/workflows/harness.yml`](.github/workflows/harness.yml) | CI gate that runs the standard harness startup (`./init.sh`). |
+
+### Skills
+
+Keep Flutter and Dart agent workflows local to the repository and progressively
+loaded so agents only pay for the skill they need.
+
+| Artifact | Purpose |
+| --- | --- |
+| [`.agents/skills/`](.agents/skills/) | Project-local Flutter and Dart agent skills from official sources. |
+| [`docs/harness/SKILLS.md`](docs/harness/SKILLS.md) | Skill inventory, update workflow, and usage rules. |
+
+### Runtime Signals
+
+Emit searchable `[harness]` debug events for startup and networking behavior so
+agents can inspect runtime state without guessing.
+
+| Artifact | Purpose |
+| --- | --- |
+| [`lib/core/harness/`](lib/core/harness/) | Lightweight `HarnessLogger` that emits structured JSON events. |
+| [`docs/harness/OPERABILITY.md`](docs/harness/OPERABILITY.md) | Event catalog, log format, and local observability notes. |
+
+### Quality Ledger
+
+Track where the project is strong, where it is thin, and what to improve next —
+so agents don't rediscover known gaps.
+
+| Artifact | Purpose |
+| --- | --- |
+| [`docs/harness/QUALITY.md`](docs/harness/QUALITY.md) | Scorecard across architecture, tests, observability, docs, skills, CI, and lifecycle. |
 
 ## Standard Workflow
 
@@ -74,10 +154,28 @@ off broad changes. Update `progress.md`, `feature_list.json`, and
 `session-handoff.md` when status, evidence, blockers, or restart instructions
 change.
 
-## Flutter App Architecture
+## Harness Definition Of Done
 
-The app remains a feature-first Flutter project. Business features follow clean
-architecture boundaries:
+A change is harness-ready when:
+
+- The target behavior or repository-visible outcome is implemented.
+- Relevant harness docs and root state artifacts match the change.
+- The smallest meaningful verification command has run and the result is recorded.
+- Any generated files affected by annotations are regenerated and committed.
+- The next agent can restart from `./init.sh` or from a documented failing
+  baseline with an exact next action.
+- The active feature in `feature_list.json` has explicit status, dependencies,
+  and evidence.
+- New operational signals are structured enough for an agent to search.
+- Any newly discovered recurring failure is captured in docs, tests, or tooling.
+
+## Flutter App (What The Harness Manages)
+
+The app is a feature-first Flutter project using clean architecture. The harness
+exists to make this app legible and checkable — the app is the work, the harness
+is how agents work on it.
+
+### Architecture
 
 ```text
 lib/features/<feature>/
@@ -105,13 +203,7 @@ Layer rules are enforced by `test/harness/architecture_guard_test.dart`:
 
 ![Clean Architecture Diagram](docs/images/clean_architecture.png)
 
-## Runtime And Data Flow
-
-The development flavor can run against checked-in mock API data. Networking,
-configuration, and startup behavior should stay inspectable through structured
-debug events documented in [`docs/harness/OPERABILITY.md`](docs/harness/OPERABILITY.md).
-
-![Data Flow Diagram](docs/images/data_flow.png)
+### Data Flow
 
 Request flow:
 
@@ -125,7 +217,9 @@ Response flow:
 API/mock data -> Model -> Entity -> UseCase -> BLoC -> State -> UI
 ```
 
-## Project Surface
+![Data Flow Diagram](docs/images/data_flow.png)
+
+### Tech Stack
 
 - Flutter SDK `3.44.0`, managed by FVM.
 - Dart SDK `>=3.9.2 <4.0.0`.
@@ -136,9 +230,8 @@ API/mock data -> Model -> Entity -> UseCase -> BLoC -> State -> UI
 - Dependency injection: `get_it` and `injectable`.
 - Generated Dart files are committed and must stay synchronized after annotation
   changes.
-- CI runs the standard harness lifecycle through `.github/workflows/harness.yml`.
 
-## Run The App
+### Run The App
 
 ```bash
 # Development flavor with local mock API support
@@ -151,7 +244,7 @@ fvm flutter run --flavor stg --dart-define-from-file=dart_defines/stg.json
 fvm flutter run --flavor prod --dart-define-from-file=dart_defines/prod.json
 ```
 
-## Build Commands
+### Build
 
 ```bash
 # Development APK
@@ -163,21 +256,9 @@ fvm flutter build apk --flavor stg --dart-define-from-file=dart_defines/stg.json
 # Production APK
 fvm flutter build apk --flavor prod --dart-define-from-file=dart_defines/prod.json
 
-# Production iOS build
+# Production iOS
 fvm flutter build ios --flavor prod --dart-define-from-file=dart_defines/prod.json
 ```
-
-## Definition Of Done
-
-A change is harness-ready when:
-
-- The target behavior or repository-visible outcome is implemented.
-- Relevant harness docs and root state artifacts match the change.
-- The smallest meaningful verification command has run and the result is
-  recorded.
-- Any generated files affected by annotations are regenerated and committed.
-- The next agent can restart from `./init.sh` or from a documented failing
-  baseline with an exact next action.
 
 ## License
 

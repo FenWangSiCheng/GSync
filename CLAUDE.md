@@ -35,6 +35,7 @@ adding new scope.
 - Feature state: `feature_list.json`
 - Session progress: `progress.md`
 - Session handoff: `session-handoff.md`
+- Acceptance evidence: `docs/harness/evidence/`
 
 ## Working Loop
 
@@ -58,6 +59,7 @@ adding new scope.
 - `tool/harness.dart` - Flutter-specific command runner.
 - `docs/harness/` - Project map, architecture, validation, quality, operability,
   and task patterns.
+- `docs/harness/evidence/` - Committed acceptance evidence for done features.
 - `.agents/skills/` - Project-local Flutter and Dart agent skills.
 - `docs/harness/SKILLS.md` - Skill inventory, update workflow, and usage rules.
 
@@ -80,8 +82,12 @@ A feature is done only when all of the following are true:
 - Relevant docs, feature state, and session progress match the code.
 - Required verification actually ran: tests, analyzer, structural checks, or a
   documented narrower check for the touched surface.
+- `fvm dart run tool/harness.dart spec accept <id> --maestro` has run and
+  reports PASS for every spec linked to the feature. If no device is available,
+  record BLOCKED with the reason instead of marking done.
 - Evidence is recorded in `feature_list.json`, `progress.md`, or
   `session-handoff.md`.
+- Acceptance report is committed to `docs/harness/evidence/{spec-id}/report.json`.
 - The repository remains restartable from `./init.sh` or a documented baseline
   command.
 
@@ -110,6 +116,8 @@ Required checks:
 - Run `fvm dart run tool/harness.dart structure` after harness or architecture
   edits.
 - Run `fvm dart run tool/harness.dart check` before handing off broad changes.
+- Run `fvm dart run tool/harness.dart spec accept <id> --maestro` before
+  marking a feature done. If no device is available, record BLOCKED instead.
 - Run `./init.sh` when proving the project is restartable from the standard
   walkinglabs lifecycle path.
 

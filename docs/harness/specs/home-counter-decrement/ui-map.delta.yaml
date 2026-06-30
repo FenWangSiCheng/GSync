@@ -1,0 +1,8 @@
+# New UI targets introduced by the "home-counter-decrement" spec.
+# These merge into docs/harness/specs/ui-map.yaml once approved.
+targets:
+  home.counter.decrement:
+    kind: button
+    text: "-1"
+    semantics_identifier: home.counter.decrement
+    description: Decrements the step counter by one (minimum zero).

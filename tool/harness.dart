@@ -150,10 +150,11 @@ class HarnessRunner {
     }
 
     final plat = platform ?? 'ios';
-    final ready = await _deviceReady(plat);
-    if (!ready.ready) {
-      stderr.writeln('Device not ready for platform "$plat":');
-      stderr.writeln(ready.reason);
+    final installExit = await _buildAndInstall(plat);
+    if (installExit != 0) {
+      stderr.writeln(
+        'Failed to build and install dev app for platform "$plat".',
+      );
       return 69;
     }
 
@@ -164,7 +165,7 @@ class HarnessRunner {
     };
 
     return _runAll([
-      CommandSpec('maestro', ['test', target]),
+      CommandSpec('maestro', ['test', '--platform', plat, target]),
     ]);
   }
 
@@ -183,8 +184,8 @@ class HarnessRunner {
   ///   `spec accept <id>`       AI runs acceptance and reports pass/fail (gate B).
   ///       `--maestro`          Also run device-backed Maestro criteria.
   ///       `--platform <p>`     Run Maestro on `ios` (default) or `android`.
-  /// Gate B writes a report. If Maestro is requested but no booted device with
-  /// the dev app installed is found, the report is marked BLOCKED.
+  /// Gate B writes a report. If Maestro is requested, the dev app is built and
+  /// installed on the booted device before running flows.
   Future<int> spec(List<String> args) async {
     final sub = args.isEmpty ? 'help' : args.first;
     switch (sub) {
@@ -398,13 +399,6 @@ appId: $appId
       }
 
       if (maestroBlockedReason.isEmpty) {
-        final ready = await _deviceReady(platform);
-        if (!ready.ready) {
-          maestroBlockedReason = ready.reason;
-        }
-      }
-
-      if (maestroBlockedReason.isEmpty) {
         final missing = maestroFlows
             .map((flow) => '.maestro/$platform/$flow.yaml')
             .where((path) => !File(path).existsSync())
@@ -417,11 +411,19 @@ appId: $appId
       }
 
       if (maestroBlockedReason.isEmpty) {
+        final installExit = await _buildAndInstall(platform);
+        if (installExit != 0) {
+          maestroBlockedReason =
+              'Failed to build and install dev app for platform "$platform".';
+        }
+      }
+
+      if (maestroBlockedReason.isEmpty) {
         for (final flow in maestroFlows) {
           final path = '.maestro/$platform/$flow.yaml';
           stdout.writeln('> running maestro flow $path');
           flowResults[flow] = await _run(
-            CommandSpec('maestro', ['test', path]),
+            CommandSpec('maestro', ['test', '--platform', platform, path]),
           );
         }
       } else {
@@ -504,11 +506,9 @@ appId: $appId
     return overall == 'PASS' ? 0 : 1;
   }
 
-  /// Detect whether a booted device for [platform] is ready and the dev app
-  /// is installed. Reads the app id from the first Maestro flow file found
-  /// under `.maestro/<platform>/` so the check stays in sync with the flows.
-  Future<_DeviceReadiness> _deviceReady(String platform) async {
-    final appId = _flowAppId(platform);
+  /// Build and install the dev app on a booted device for [platform].
+  /// Returns 0 on success, non-zero on failure.
+  Future<int> _buildAndInstall(String platform) async {
     if (platform == 'ios') {
       final booted = await _capture('xcrun', [
         'simctl',
@@ -520,40 +520,39 @@ appId: $appId
           booted['exit_code'] == 0 &&
           (booted['stdout'] as String).contains('Booted');
       if (!bootedOk) {
-        return _DeviceReadiness(
-          ready: false,
-          reason:
-              'No booted iOS simulator. Boot one with '
-              '`xcrun simctl boot "iPhone 16 Pro"` then open the Simulator '
-              'app, or run via `--platform android`.',
-        );
+        stderr.writeln('No booted iOS simulator. Boot one with:');
+        stderr.writeln('  xcrun simctl boot "iPhone 16 Pro"');
+        return 1;
       }
-      if (appId == null) {
-        return _DeviceReadiness(
-          ready: false,
-          reason:
-              'No Maestro flow found under .maestro/ios/ to read the '
-              'appId from. Run `spec new <id>` or add a flow file.',
-        );
+
+      stdout.writeln('Building iOS dev app for simulator...');
+      final buildResult = await _run(
+        CommandSpec('fvm', [
+          'flutter',
+          'build',
+          'ios',
+          '--flavor',
+          'dev',
+          '--dart-define-from-file',
+          'dart_defines/dev.json',
+          '--debug',
+          '--simulator',
+        ]),
+      );
+      if (buildResult != 0) {
+        stderr.writeln('iOS build failed.');
+        return buildResult;
       }
-      final installed = await _capture('xcrun', [
-        'simctl',
-        'get_app_container',
-        'booted',
-        appId,
-      ]);
-      if (installed['exit_code'] != 0) {
-        return _DeviceReadiness(
-          ready: false,
-          reason:
-              'Dev app "$appId" is not installed on the booted simulator. '
-              'Install it with:\n'
-              '  fvm flutter run -d <udid> --flavor dev '
-              '--dart-define-from-file=dart_defines/dev.json\n'
-              '(quit once installed; Maestro launches it itself).',
-        );
-      }
-      return _DeviceReadiness(ready: true, reason: '');
+
+      stdout.writeln('Installing on booted iOS simulator...');
+      return _run(
+        CommandSpec('xcrun', [
+          'simctl',
+          'install',
+          'booted',
+          'build/ios/iphonesimulator/Runner.app',
+        ]),
+      );
     }
 
     // android
@@ -562,61 +561,36 @@ appId: $appId
         devices['exit_code'] == 0 &&
         (devices['stdout'] as String).contains(RegExp(r'device\s*$'));
     if (!deviceOk) {
-      return _DeviceReadiness(
-        ready: false,
-        reason:
-            'No Android device/emulator connected via adb. Start an '
-            'emulator or connect a device, or run via `--platform ios`.',
-      );
+      stderr.writeln('No Android device/emulator connected via adb.');
+      return 1;
     }
-    if (appId == null) {
-      return _DeviceReadiness(
-        ready: false,
-        reason:
-            'No Maestro flow found under .maestro/android/ to read the '
-            'appId from. Run `spec new <id>` or add a flow file.',
-      );
-    }
-    final installed = await _capture('adb', ['shell', 'pm', 'path', appId]);
-    if (installed['exit_code'] != 0 ||
-        (installed['stdout'] as String).isEmpty) {
-      return _DeviceReadiness(
-        ready: false,
-        reason:
-            'Dev app "$appId" is not installed on the Android device. '
-            'Install it with:\n'
-            '  fvm flutter run --flavor dev '
-            '--dart-define-from-file=dart_defines/dev.json\n'
-            '(quit once installed; Maestro launches it itself).',
-      );
-    }
-    return _DeviceReadiness(ready: true, reason: '');
-  }
 
-  /// Read the `appId:` from the first `.maestro/<platform>/*.yaml` file.
-  String? _flowAppId(String platform) {
-    final dir = Directory('.maestro/$platform');
-    if (!dir.existsSync()) return null;
-    final files = dir
-        .listSync()
-        .whereType<File>()
-        .where((f) => f.path.endsWith('.yaml'))
-        .toList();
-    if (files.isEmpty) return null;
-    try {
-      final doc = yaml.loadYaml(files.first.readAsStringSync());
-      if (doc is yaml.YamlMap) {
-        return doc['appId']?.toString();
-      }
-    } on Object {
-      // fall through; some flow files use a multi-document YAML with appId as
-      // a bare leading scalar. Parse the first line defensively.
+    stdout.writeln('Building Android dev APK...');
+    final buildResult = await _run(
+      CommandSpec('fvm', [
+        'flutter',
+        'build',
+        'apk',
+        '--flavor',
+        'dev',
+        '--dart-define-from-file',
+        'dart_defines/dev.json',
+        '--debug',
+      ]),
+    );
+    if (buildResult != 0) {
+      stderr.writeln('Android build failed.');
+      return buildResult;
     }
-    for (final line in files.first.readAsLinesSync()) {
-      final m = RegExp(r'^appId:\s*(.+)$').firstMatch(line);
-      if (m != null) return m.group(1)!.trim();
-    }
-    return null;
+
+    stdout.writeln('Installing on Android device...');
+    return _run(
+      CommandSpec('adb', [
+        'install',
+        '-r',
+        'build/app/outputs/flutter-apk/app-dev-debug.apk',
+      ]),
+    );
   }
 
   File? _acceptanceFile(String id) {
@@ -861,11 +835,4 @@ class CommandSpec {
 
   final String executable;
   final List<String> arguments;
-}
-
-class _DeviceReadiness {
-  const _DeviceReadiness({required this.ready, required this.reason});
-
-  final bool ready;
-  final String reason;
 }

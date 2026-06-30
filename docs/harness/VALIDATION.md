@@ -41,10 +41,14 @@ UI behavior is verified by Maestro flows, not Flutter widget tests. Keep
 visible text. Use Flutter tests for logic, data mapping, repositories, BLoCs,
 configuration, networking, and harness rules.
 
-## Optional Spec Evaluation
+## Spec Evaluation (Required for Done)
 
 Maestro flows are device-backed E2E checks and are intentionally outside the
-default `check` command. Install Maestro, launch or install the `dev` app on a
+default `check` command. However, `spec accept --maestro` is a required step
+in the Definition of Done — do not mark a feature done without running it.
+If no simulator or device is available, record BLOCKED instead of done.
+
+Install Maestro, launch or install the `dev` app on a
 simulator or device, then run:
 
 ```bash
