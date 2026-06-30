@@ -146,7 +146,9 @@ void main() {
       expect(workflow, isNot(contains('flutter build appbundle')));
       expect(workflow, isNot(contains('upload-artifact')));
 
-      final androidScript = File('tool/ci_android_maestro.sh').readAsStringSync();
+      final androidScript = File(
+        'tool/ci_android_maestro.sh',
+      ).readAsStringSync();
       expect(androidScript, contains('set -euo pipefail'));
       expect(androidScript, contains('feature_list.json'));
       expect(androidScript, contains('--maestro --platform android'));
