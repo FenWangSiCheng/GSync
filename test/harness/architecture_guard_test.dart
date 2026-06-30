@@ -141,11 +141,15 @@ void main() {
       expect(workflow, contains('reactivecircus/android-emulator-runner@v2'));
       expect(workflow, contains('tool/harness.dart spec accept'));
       expect(workflow, contains('--maestro --platform ios'));
-      expect(workflow, contains('--maestro --platform android'));
-      expect(workflow, contains('set -eu\n            python3'));
+      expect(workflow, contains('bash tool/ci_android_maestro.sh'));
       expect(workflow, isNot(contains('flutter build ipa')));
       expect(workflow, isNot(contains('flutter build appbundle')));
       expect(workflow, isNot(contains('upload-artifact')));
+
+      final androidScript = File('tool/ci_android_maestro.sh').readAsStringSync();
+      expect(androidScript, contains('set -euo pipefail'));
+      expect(androidScript, contains('feature_list.json'));
+      expect(androidScript, contains('--maestro --platform android'));
     });
 
     test('coverage gate protects non-ui logic coverage', () {

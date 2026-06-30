@@ -188,6 +188,11 @@ The harness command builds and installs the `dev` app variant on the running
 simulator/emulator before each Maestro flow, so no signing certificates are
 required.
 
+Android emulator CI invokes `bash tool/ci_android_maestro.sh` from
+`reactivecircus/android-emulator-runner`. Keep the loop and Python spec
+discovery in that repository script because the action executes its inline
+`script` input through `/usr/bin/sh`.
+
 ## Flutter Version
 
 The local source of truth is `.fvm/fvm_config.json`. As of this harness update,
