@@ -1,245 +1,182 @@
 # Flutter Harness Project
 
-**Repository-local AI coding harness for a feature-first Flutter app.**
+This repository is a demo Flutter application used to showcase a
+repository-local AI coding harness. The app surface is intentionally modest; the
+important part is the framework around it: instructions, durable state,
+repeatable validation, architecture guards, feature specs, acceptance evidence,
+runtime signals, CI, and project-local agent skills.
 
-This repository is a Flutter application wrapped in an agent-oriented harness.
-The harness is the primary architecture: it makes instructions, state, validation,
-scope, lifecycle, runtime signals, and project-local skills visible on disk so
-agents can restart work without hidden context.
+The harness turns a Flutter codebase into a workspace that an agent can enter,
+inspect, validate, modify, and hand off without relying on hidden context. It is
+designed as a reusable pattern for Flutter projects that need predictable agent
+workflows instead of one-off prompt memory.
 
-## Why A Harness?
+## Harness Framework Goals
 
-AI coding agents need more than source code — they need repeatable entry points,
-mechanical verification, durable state tracking, and explicit scope boundaries.
-The harness encodes these as checked-in artifacts so every agent session starts
-from the same ground truth, not from whatever the last session left in memory.
-
-The approach follows the [OpenAI harness engineering field report][openai-harness]
-and the [walkinglabs learn-harness-engineering][walkinglabs] model:
-
-- Repository knowledge is the system of record.
-- The top-level agent file is a map, not a manual.
-- Architecture rules are explicit and tested.
-- Validation is runnable from a single local entry point.
-- Runtime behavior emits structured signals an agent can inspect.
-- Quality and cleanup work are tracked as durable repo artifacts.
-- Root state and lifecycle artifacts make sessions restartable.
-
-[openai-harness]: https://openai.com/index/harness-engineering/
-[walkinglabs]: https://github.com/walkinglabs/learn-harness-engineering
+- Keep repository knowledge on disk and make it the system of record.
+- Give every agent session a standard startup path.
+- Track feature scope, status, dependencies, blockers, and evidence explicitly.
+- Enforce clean architecture boundaries with structural tests.
+- Separate non-UI logic verification from device-backed UI acceptance.
+- Require committed evidence for user-visible feature completion.
+- Preserve session state so work can continue across agents and time.
+- Encode repeated failures into docs, tests, tooling, or state artifacts.
 
 ## Start Here
 
-1. **[`AGENTS.md`](AGENTS.md)** — short startup map for coding agents.
-2. **[`docs/harness/README.md`](docs/harness/README.md)** — harness subsystem map.
-3. **[`feature_list.json`](feature_list.json)** — feature status, dependencies, and
-   evidence.
-4. **[`progress.md`](progress.md)** — current session state and next steps.
-5. **[`session-handoff.md`](session-handoff.md)** — restart notes for future
-   sessions.
-
-## Harness Architecture
-
-The harness is split into durable subsystems. Each subsystem has checked-in
-artifacts and a mechanical verification path.
-
-### Instructions
-
-Route agents to the right local rules without turning the root file into a manual.
-
-| Artifact | Purpose |
+| File | Purpose |
 | --- | --- |
-| [`AGENTS.md`](AGENTS.md) | One-page agent entry point with startup workflow and working loop. |
-| [`docs/harness/README.md`](docs/harness/README.md) | Harness subsystem map and repository layout. |
-| [`docs/harness/ARCHITECTURE.md`](docs/harness/ARCHITECTURE.md) | Flutter clean architecture boundaries and dependency rules. |
-| [`docs/harness/TASKS.md`](docs/harness/TASKS.md) | How to write durable execution plans for multi-step work. |
+| [`AGENTS.md`](AGENTS.md) | Agent startup workflow, scope rules, verification commands, and Definition of Done. |
+| [`docs/harness/README.md`](docs/harness/README.md) | Harness map and subsystem overview. |
+| [`feature_list.json`](feature_list.json) | Feature status, dependencies, specs, and evidence. |
+| [`progress.md`](progress.md) | Current session state, decisions, risks, touched files, and verification evidence. |
+| [`session-handoff.md`](session-handoff.md) | Restart notes for the next session. |
+| [`docs/harness/VALIDATION.md`](docs/harness/VALIDATION.md) | Local command reference and failure triage. |
 
-### State
-
-Track active scope, feature status, dependencies, blockers, and evidence on disk.
-
-| Artifact | Purpose |
-| --- | --- |
-| [`feature_list.json`](feature_list.json) | Feature tracker — status, dependencies, spec links, and completion evidence. |
-| [`progress.md`](progress.md) | Session continuity — decisions, risks, files touched, next step, and verification output. |
-
-### Verification
-
-Provide repeatable bootstrap, doctor, structure, format, analyzer, coverage, and
-test commands. Every check runs locally without secrets or remote state.
-
-| Artifact | Purpose |
-| --- | --- |
-| [`init.sh`](init.sh) | Walkinglabs-compatible lifecycle entrypoint — resolves Flutter packages, bootstraps generated code, then runs the full check. |
-| [`tool/harness.dart`](tool/harness.dart) | Dart command runner with `doctor`, `structure`, `bootstrap`, `coverage`, `check`, `spec`, and Maestro helpers. |
-| [`test/harness/`](test/harness/) | Structural guard tests that protect harness assumptions (skill presence, architecture layering, generated-file freshness, canonical UI map coverage, committed evidence alignment, and CI wiring). |
-| [`docs/harness/VALIDATION.md`](docs/harness/VALIDATION.md) | Command reference, full check behavior, coverage gate, Maestro policy, and failure triage order. |
-
-### Scope
-
-Keep work feature-focused and record explicit dependencies before widening scope.
-
-| Artifact | Purpose |
-| --- | --- |
-| [`feature_list.json`](feature_list.json) | Declares active feature, dependencies, and evidence gates. |
-| [`docs/harness/TASKS.md`](docs/harness/TASKS.md) | Rules for scoping multi-step work and writing durable plans. |
-
-### Lifecycle
-
-Preserve decisions, touched files, verification output, and the next restart path
-so sessions compose instead of conflicting.
-
-| Artifact | Purpose |
-| --- | --- |
-| [`progress.md`](progress.md) | Updated at end of session with current state and evidence. |
-| [`session-handoff.md`](session-handoff.md) | Restart instructions for the next agent session. |
-| [`.github/workflows/harness.yml`](.github/workflows/harness.yml) | Primary CI gate that runs the standard harness startup (`./init.sh`). |
-| [`.github/workflows/maestro.yml`](.github/workflows/maestro.yml) | Simulator-backed Maestro CI that runs every `done` spec on iOS and Android. |
-
-### Skills
-
-Keep Flutter and Dart agent workflows local to the repository and progressively
-loaded so agents only pay for the skill they need.
-
-| Artifact | Purpose |
-| --- | --- |
-| [`.agents/skills/`](.agents/skills/) | Project-local Flutter and Dart agent skills from official sources. |
-| [`docs/harness/SKILLS.md`](docs/harness/SKILLS.md) | Skill inventory, update workflow, and usage rules. |
-
-### Runtime Signals
-
-Emit searchable `[harness]` debug events for startup and networking behavior so
-agents can inspect runtime state without guessing.
-
-| Artifact | Purpose |
-| --- | --- |
-| [`lib/core/harness/`](lib/core/harness/) | Lightweight `HarnessLogger` that emits structured JSON events. |
-| [`docs/harness/OPERABILITY.md`](docs/harness/OPERABILITY.md) | Event catalog, log format, and local observability notes. |
-
-### Quality Ledger
-
-Track where the project is strong, where it is thin, and what to improve next —
-so agents don't rediscover known gaps.
-
-| Artifact | Purpose |
-| --- | --- |
-| [`docs/harness/QUALITY.md`](docs/harness/QUALITY.md) | Scorecard across architecture, tests, observability, docs, skills, CI, and lifecycle. |
-
-## Standard Workflow
-
-For a fresh session, use the walkinglabs-compatible lifecycle entrypoint:
+For a fresh baseline:
 
 ```bash
 ./init.sh
 ```
 
-`init.sh` first resolves Flutter packages with `fvm flutter pub get`, then
-bootstraps generated code, and finally runs the full harness check. The pub get
-preflight keeps fresh CI runners from invoking the Dart harness before Flutter SDK
-packages are discoverable.
+`init.sh` resolves Flutter packages, runs bootstrap, and then runs the full
+harness check. Use it when proving that the repository is restartable from the
+standard lifecycle entrypoint.
 
-For narrower iteration, use the Dart harness runner directly:
+## What The Harness Provides
+
+### Durable Instructions
+
+Root instructions stay short and route agents to deeper docs:
+
+- [`AGENTS.md`](AGENTS.md) is the entry map.
+- [`docs/harness/ARCHITECTURE.md`](docs/harness/ARCHITECTURE.md) defines layer
+  rules.
+- [`docs/harness/TASKS.md`](docs/harness/TASKS.md) defines how larger work is
+  planned and handed off.
+- [`docs/harness/SKILLS.md`](docs/harness/SKILLS.md) lists project-local Flutter
+  and Dart skills.
+
+### Feature State
+
+Feature scope and completion evidence are tracked in
+[`feature_list.json`](feature_list.json). Session continuity lives in
+[`progress.md`](progress.md), with restart notes in
+[`session-handoff.md`](session-handoff.md).
+
+The working rule is one feature at a time. Do not mark a feature done until the
+behavior, docs/state updates, verification, dual-platform Maestro evidence, and
+committed reports are all present.
+
+### Validation Runner
+
+[`tool/harness.dart`](tool/harness.dart) is the stable command runner for local
+checks:
 
 ```bash
-# Inspect tools, generated files, harness docs, and local skills
+# Inspect tools, generated files, docs, and skills
 fvm dart run tool/harness.dart doctor
 
 # Run structural guard tests
 fvm dart run tool/harness.dart structure
 
-# Install dependencies and regenerate committed generated files
+# Resolve packages and regenerate committed generated files
 fvm dart run tool/harness.dart bootstrap
 
 # Run format, structure, analyzer, and coverage-gated tests
 fvm dart run tool/harness.dart check
 
-# Recheck an existing coverage/lcov.info report without rerunning tests
+# Recheck an existing coverage report without rerunning tests
 fvm dart run tool/harness.dart coverage --check-only
 ```
 
-Run `structure` after harness or architecture edits. Run `check` before handing
-off broad changes. Update `progress.md`, `feature_list.json`, and
-`session-handoff.md` when status, evidence, blockers, or restart instructions
-change.
+The default full check runs:
 
-## Coverage Gate
+1. `fvm dart format --set-exit-if-changed lib test tool`
+2. `fvm dart run tool/harness.dart structure`
+3. `fvm flutter analyze`
+4. `fvm dart run tool/harness.dart coverage`
 
-`tool/harness.dart coverage` runs the Flutter test suite with coverage enabled and
-enforces a 90% line-coverage threshold for non-UI logic. The gate intentionally
-excludes Maestro-owned UI surface (`presentation/pages`, `core/router`,
-`core/widgets`, `core/resources`, and `main.dart`) plus generated files, so the
-coverage number measures the code that Flutter tests are responsible for.
+### Structure Guards
+
+[`test/harness/architecture_guard_test.dart`](test/harness/architecture_guard_test.dart)
+protects harness assumptions, including:
+
+- Required root lifecycle artifacts.
+- Feature state and committed evidence alignment.
+- Flutter clean architecture import boundaries.
+- UI test policy.
+- Generated canonical UI map freshness.
+- Local skill availability.
+- CI wiring for standard checks and Maestro acceptance.
+
+### Coverage Gate
+
+`tool/harness.dart coverage` runs Flutter tests with coverage and enforces the
+default 90% line-coverage threshold for non-UI logic.
 
 ```bash
 fvm dart run tool/harness.dart coverage
 ```
 
-The full `check` command includes this coverage gate after format, structure, and
-analyzer. As of the latest harness update, included coverage is 259/279 lines
-(92.83%).
+The gate intentionally excludes Maestro-owned UI shell files, generated files,
+router/widgets/resources, and `main.dart`, so Flutter tests measure logic, data,
+BLoC, networking, configuration, and harness behavior.
 
-## UI Target Map
+### Specs, UI Map, And Maestro
 
-Approved specs add UI targets in per-spec `ui-map.delta.yaml` files. The shared
-[`docs/harness/specs/ui-map.yaml`](docs/harness/specs/ui-map.yaml) is generated
-from deltas whose linked features are past Gate A, and `structure` verifies it is
-current:
+Human-readable specs live under [`docs/harness/specs/`](docs/harness/specs/).
+Each UI spec can add targets through a `ui-map.delta.yaml`; the canonical target
+map is generated at [`docs/harness/specs/ui-map.yaml`](docs/harness/specs/ui-map.yaml):
 
 ```bash
-# Regenerate the canonical UI target map
 fvm dart run tool/harness.dart spec ui-map
-
-# Verify the generated file is up to date
 fvm dart run tool/harness.dart spec ui-map --check
 ```
 
-## Maestro Acceptance
-
-User-visible UI behavior is verified by Maestro flows, not Flutter widget tests.
-Device-backed Maestro checks are intentionally outside the default `check`
-command, but dual-platform acceptance is required before marking a feature done:
+User-visible UI behavior is accepted through Maestro, not Flutter widget tests.
+Before marking a feature done, run:
 
 ```bash
 fvm dart run tool/harness.dart spec accept <spec-id> --maestro --platform all
 ```
 
-The command runs the spec on an iOS simulator and an Android emulator, then writes
-`report-ios.json`, `report-android.json`, and a summary `report.json` under
-`build/harness/evidence/<spec-id>/`. Copy all three files into
-`docs/harness/evidence/<spec-id>/` and update `feature_list.json` before marking
-the feature done. If either platform is unavailable, record `BLOCKED` instead of
+The dual-platform run writes:
+
+- `report-ios.json`
+- `report-android.json`
+- `report.json`
+
+Copy those reports from `build/harness/evidence/<spec-id>/` into
+`docs/harness/evidence/<spec-id>/`, then update `feature_list.json`. If either
+iOS or Android is unavailable, record `BLOCKED` instead of marking the feature
 done.
 
-The [`.github/workflows/maestro.yml`](.github/workflows/maestro.yml) CI workflow
-runs the same dual-platform acceptance for every `done` spec on hosted
-simulators. It does not build or upload IPA, APK, or AAB artifacts, so no signing
-certificates are required.
+### CI
 
-## Harness Definition Of Done
+The repository has two harness-oriented GitHub Actions workflows:
 
-A change is harness-ready when:
+- [`.github/workflows/harness.yml`](.github/workflows/harness.yml) runs
+  `./init.sh`.
+- [`.github/workflows/maestro.yml`](.github/workflows/maestro.yml) boots hosted
+  iOS and Android simulators/emulators and runs every `done` spec through
+  Maestro.
 
-- The target behavior or repository-visible outcome is implemented.
-- Relevant harness docs and root state artifacts match the change.
-- The smallest meaningful verification command has run and the result is recorded.
-- Any generated files affected by annotations are regenerated and committed.
-- The next agent can restart from `./init.sh` or from a documented failing
-  baseline with an exact next action.
-- The active feature in `feature_list.json` has explicit status, dependencies,
-  and evidence.
-- For features with UI acceptance, `fvm dart run tool/harness.dart spec accept
-  <id> --maestro --platform all` reports PASS on both iOS and Android (or records
-  `BLOCKED`).
-- New operational signals are structured enough for an agent to search.
-- Any newly discovered recurring failure is captured in docs, tests, or tooling.
+The Maestro workflow installs and runs the dev app on simulators. It does not
+produce IPA, APK, or AAB release artifacts and does not require signing
+certificates.
 
-## Flutter App (What The Harness Manages)
+### Runtime Signals
 
-The app is a feature-first Flutter project using clean architecture. The harness
-exists to make this app legible and checkable — the app is the work, the harness
-is how agents work on it.
+App-side harness logging lives in [`lib/core/harness/`](lib/core/harness/). It
+emits searchable `[harness]` JSON-style debug events so agents can inspect
+startup and networking behavior from logs. See
+[`docs/harness/OPERABILITY.md`](docs/harness/OPERABILITY.md) for the event
+catalog and troubleshooting notes.
 
-### Architecture
+## Flutter App Surface
+
+The app follows a feature-first clean architecture layout:
 
 ```text
 lib/features/<feature>/
@@ -257,18 +194,6 @@ lib/features/<feature>/
     widgets/
 ```
 
-Layer rules are enforced by `test/harness/architecture_guard_test.dart`:
-
-- `domain` must not import `data` or `presentation`.
-- `data` may depend on `domain` and core infrastructure, but not presentation.
-- `presentation` owns Flutter UI, pages, widgets, and BLoCs.
-- `core/router/app_router.dart` is the explicit app composition point.
-- `AppConfig` owns flavor behavior; avoid ad hoc flavor checks.
-
-![Clean Architecture Diagram](docs/images/clean_architecture.png)
-
-### Data Flow
-
 Request flow:
 
 ```text
@@ -281,21 +206,19 @@ Response flow:
 API/mock data -> Model -> Entity -> UseCase -> BLoC -> State -> UI
 ```
 
-![Data Flow Diagram](docs/images/data_flow.png)
-
-### Tech Stack
+Current stack:
 
 - Flutter SDK `3.44.0`, managed by FVM.
 - Dart SDK `>=3.9.2 <4.0.0`.
 - Flavors: `dev`, `stg`, and `prod`.
 - State management: `flutter_bloc`.
 - Routing: `go_router`.
-- Networking: Dio with interceptors, mock API support, and proxy behavior.
+- Networking: Dio with mock API support.
 - Dependency injection: `get_it` and `injectable`.
 - Generated Dart files are committed and must stay synchronized after annotation
   changes.
 
-### Run The App
+## Run The App
 
 ```bash
 # Development flavor with local mock API support
@@ -308,7 +231,7 @@ fvm flutter run --flavor stg --dart-define-from-file=dart_defines/stg.json
 fvm flutter run --flavor prod --dart-define-from-file=dart_defines/prod.json
 ```
 
-### Build
+## Build
 
 ```bash
 # Development APK
@@ -323,6 +246,12 @@ fvm flutter build apk --flavor prod --dart-define-from-file=dart_defines/prod.js
 # Production iOS
 fvm flutter build ios --flavor prod --dart-define-from-file=dart_defines/prod.json
 ```
+
+## Harness References
+
+- [OpenAI harness engineering field report](https://openai.com/index/harness-engineering/)
+- [walkinglabs learn-harness-engineering](https://github.com/walkinglabs/learn-harness-engineering)
+- [walkinglabs awesome-harness-engineering](https://github.com/walkinglabs/awesome-harness-engineering)
 
 ## License
 
