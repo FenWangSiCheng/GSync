@@ -4,10 +4,9 @@
 
 **Last Updated:** 2026-07-08 CST
 **Active Feature:** `feat-github-repository-download-sync`
-**Current Activity:** Corrected the GitHub sync direction so real `stg` and
-`prod` runs download the remote GitHub repository path into the selected local
-device directory. Logic checks and dual-platform Maestro acceptance pass, and
-evidence is committed under `docs/harness/evidence/`.
+**Current Activity:** Corrected selected-directory display so iOS Files picker
+paths show user-facing labels instead of simulator or app-group container paths.
+The stg build was relaunched on the iOS simulator and targeted checks pass.
 
 ## Status
 
@@ -66,6 +65,9 @@ evidence is committed under `docs/harness/evidence/`.
   GitHub remote to local directory.
 - [x] Updated the selected directory display to show the directory name plus
   wrapped path context instead of one truncated absolute path.
+- [x] Hid iOS Files provider and app documents sandbox paths behind
+  user-facing selected-directory details such as `我的 iPhone 中的文件夹` and
+  `应用默认同步目录`.
 - [x] Updated the dev fixture success message to match the remote-download
   product semantics.
 - [x] Added datasource and repository regression coverage for directory listing,
@@ -167,6 +169,10 @@ evidence is committed under `docs/harness/evidence/`.
 - `lib/features/directory_git_sync/presentation/pages/directory_sync_page.dart`
   and `lib/features/directory_git_sync/presentation/bloc/directory_sync_bloc.dart`
   - Updated selected-directory presentation and sync-direction copy.
+- `lib/features/directory_git_sync/presentation/models/selected_directory_display.dart`
+  and `test/features/directory_git_sync/presentation/models/selected_directory_display_test.dart`
+  - Added user-facing selected-directory display mapping and regression tests
+  for iOS Files provider paths.
 - `test/features/directory_git_sync/data/datasources/github_contents_api_test.dart`
   and `test/features/directory_git_sync/data/repositories/github_api_git_sync_repository_test.dart`
   - Added remote download regression coverage.
@@ -227,3 +233,9 @@ evidence is committed under `docs/harness/evidence/`.
 - [x] `fvm dart run tool/harness.dart spec accept github-repository-download-sync --maestro --platform all`
   passes with iOS and Android both PASS; reports copied to
   `docs/harness/evidence/github-repository-download-sync/`.
+- [x] `fvm flutter test test/features/directory_git_sync/presentation/models/selected_directory_display_test.dart`
+  passes after hiding iOS file-provider sandbox paths from the selected
+  directory UI.
+- [x] `fvm flutter analyze` passes after the selected-directory display fix.
+- [x] `fvm dart run tool/harness.dart structure` passes after adding the
+  selected-directory presentation model.

@@ -39,6 +39,8 @@
   selected local directory.
 - [x] Updated the directory sync UI copy and selected-directory display so the
   sync direction and target directory are clear.
+- [x] Hid iOS Files provider and app documents sandbox paths in the
+  selected-directory UI, while preserving the real path for sync writes.
 - [x] Added GitHub Contents API datasource tests and repository regression tests
   for recursive download, empty remote directories, readable failures, and token
   redaction.
@@ -63,6 +65,9 @@
 | GitHub download sync targeted tests | `fvm flutter test test/features/directory_git_sync/data/datasources/github_contents_api_test.dart test/features/directory_git_sync/data/repositories/github_api_git_sync_repository_test.dart test/features/directory_git_sync/data/repositories/fixture_git_sync_repository_test.dart test/core/injection/injection_test.dart` | Pass | Datasource, recursive download repository behavior, fixture message, and DI behavior pass. |
 | Full harness check | `fvm dart run tool/harness.dart check` | Pass | Format, structure, analyzer, and coverage passed; coverage 589/647 lines (91.04%). |
 | GitHub download sync acceptance | `fvm dart run tool/harness.dart spec accept github-repository-download-sync --maestro --platform all` | Pass | iOS and Android both PASS; evidence copied to `docs/harness/evidence/github-repository-download-sync/`. |
+| Selected directory display regression | `fvm flutter test test/features/directory_git_sync/presentation/models/selected_directory_display_test.dart` | Pass | iOS Files provider paths now display as `我的 iPhone 中的文件夹` instead of raw container paths. |
+| Static analysis | `fvm flutter analyze` | Pass | No analyzer issues after the display fix. |
+| Structure guard | `fvm dart run tool/harness.dart structure` | Pass | Harness and architecture checks pass after adding the presentation model. |
 
 ## Blockers / Risks
 

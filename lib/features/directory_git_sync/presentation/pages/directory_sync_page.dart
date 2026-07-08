@@ -2,10 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' show LinearProgressIndicator;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:path/path.dart' as p;
 
 import '../../../../core/router/router_constants.dart';
 import '../bloc/directory_sync_bloc.dart';
+import '../models/selected_directory_display.dart';
 
 class DirectorySyncPage extends StatelessWidget {
   const DirectorySyncPage({super.key});
@@ -172,10 +172,11 @@ class _SelectedDirectoryText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (path.isEmpty) {
-      return const Text(
-        '未选择目录',
-        style: TextStyle(color: CupertinoColors.placeholderText),
+    final display = SelectedDirectoryDisplay.fromPath(path);
+    if (!display.hasDirectory) {
+      return Text(
+        display.name,
+        style: const TextStyle(color: CupertinoColors.placeholderText),
       );
     }
 
@@ -183,7 +184,7 @@ class _SelectedDirectoryText extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          p.basename(path),
+          display.name,
           style: const TextStyle(
             fontSize: 17,
             fontWeight: FontWeight.w600,
@@ -192,8 +193,8 @@ class _SelectedDirectoryText extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         Text(
-          path,
-          maxLines: 4,
+          display.detail,
+          maxLines: 2,
           overflow: TextOverflow.ellipsis,
           style: const TextStyle(
             fontSize: 13,
