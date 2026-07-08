@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' show LinearProgressIndicator;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:path/path.dart' as p;
 
 import '../../../../core/router/router_constants.dart';
 import '../bloc/directory_sync_bloc.dart';
@@ -91,7 +92,7 @@ class _Header extends StatelessWidget {
           ),
           SizedBox(height: 8),
           Text(
-            '选择一个本地目录,将其变更提交并推送到 Git 远程仓库。',
+            '选择一个本地目录,将 GitHub 远程仓库内容同步到这里。',
             style: TextStyle(
               fontSize: 15,
               height: 1.4,
@@ -150,15 +151,8 @@ class _DirectorySection extends StatelessWidget {
                   title: Semantics(
                     identifier: 'selected_directory_text',
                     label: '已选目录',
-                    child: Text(
-                      state.selectedDirectoryPath.isEmpty
-                          ? '未选择目录'
-                          : state.selectedDirectoryPath,
-                      style: TextStyle(
-                        color: state.selectedDirectoryPath.isEmpty
-                            ? CupertinoColors.placeholderText
-                            : CupertinoColors.label,
-                      ),
+                    child: _SelectedDirectoryText(
+                      path: state.selectedDirectoryPath,
                     ),
                   ),
                 ),
@@ -167,6 +161,47 @@ class _DirectorySection extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+}
+
+class _SelectedDirectoryText extends StatelessWidget {
+  const _SelectedDirectoryText({required this.path});
+
+  final String path;
+
+  @override
+  Widget build(BuildContext context) {
+    if (path.isEmpty) {
+      return const Text(
+        '未选择目录',
+        style: TextStyle(color: CupertinoColors.placeholderText),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          p.basename(path),
+          style: const TextStyle(
+            fontSize: 17,
+            fontWeight: FontWeight.w600,
+            color: CupertinoColors.label,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          path,
+          maxLines: 4,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(
+            fontSize: 13,
+            height: 1.3,
+            color: CupertinoColors.secondaryLabel,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -224,7 +259,7 @@ class _RemoteSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CupertinoFormSection.insetGrouped(
-      header: const Text('远程仓库'),
+      header: const Text('远程仓库来源'),
       children: [
         CupertinoFormRow(
           prefix: const Text('地址'),

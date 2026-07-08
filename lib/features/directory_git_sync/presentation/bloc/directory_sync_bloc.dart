@@ -111,7 +111,7 @@ class DirectorySyncBloc extends Bloc<DirectorySyncEvent, DirectorySyncState> {
       state.copyWith(
         hasCredential: true,
         status: DirectorySyncStatus.syncing,
-        statusMessage: '正在同步所选目录…',
+        statusMessage: '正在从 GitHub 同步到本地目录…',
       ),
     );
 

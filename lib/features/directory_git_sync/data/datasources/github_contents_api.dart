@@ -10,7 +10,36 @@ class GitHubContentsApi {
 
   final http.Client _client;
 
-  Future<String?> fetchFileSha({
+  Future<List<GitHubContentEntry>> fetchDirectoryEntries({
+    required GitHubRepositoryTarget target,
+    required String path,
+    required String token,
+  }) async {
+    final response = await _client.get(
+      _contentsUri(target, path, queryParameters: {'ref': target.branch}),
+      headers: _headers(token),
+    );
+
+    if (response.statusCode == HttpStatus.ok) {
+      final decoded = jsonDecode(response.body);
+      if (decoded is List<Object?>) {
+        return decoded
+            .whereType<Map<String, Object?>>()
+            .map(GitHubContentEntry.fromJson)
+            .where((entry) => entry.isFile || entry.isDirectory)
+            .toList(growable: false);
+      }
+      if (decoded is Map<String, Object?>) {
+        final entry = GitHubContentEntry.fromJson(decoded);
+        return entry.isFile || entry.isDirectory ? [entry] : const [];
+      }
+      return const [];
+    }
+
+    throw GitHubContentsApiException(_failureMessage(response));
+  }
+
+  Future<List<int>> fetchFileBytes({
     required GitHubRepositoryTarget target,
     required String path,
     required String token,
@@ -22,45 +51,11 @@ class GitHubContentsApi {
 
     if (response.statusCode == HttpStatus.ok) {
       final body = _decodeObject(response.body);
-      final sha = body['sha'];
-      return sha is String && sha.isNotEmpty ? sha : null;
-    }
-    if (response.statusCode == HttpStatus.notFound) {
-      return null;
-    }
-
-    throw GitHubContentsApiException(_failureMessage(response));
-  }
-
-  Future<void> putFile({
-    required GitHubRepositoryTarget target,
-    required String path,
-    required String contentBase64,
-    required String message,
-    required String token,
-    String? sha,
-  }) async {
-    final body = <String, String>{
-      'message': message,
-      'content': contentBase64,
-      'branch': target.branch,
-    };
-    if (sha != null) {
-      body['sha'] = sha;
-    }
-
-    final response = await _client.put(
-      _contentsUri(target, path),
-      headers: {
-        ..._headers(token),
-        HttpHeaders.contentTypeHeader: 'application/json; charset=utf-8',
-      },
-      body: jsonEncode(body),
-    );
-
-    if (response.statusCode == HttpStatus.ok ||
-        response.statusCode == HttpStatus.created) {
-      return;
+      final content = body['content'];
+      final encoding = body['encoding'];
+      if (content is String && encoding == 'base64') {
+        return base64Decode(content.replaceAll(RegExp(r'\s+'), ''));
+      }
     }
 
     throw GitHubContentsApiException(_failureMessage(response));
@@ -135,4 +130,22 @@ class GitHubContentsApiException implements Exception {
   const GitHubContentsApiException(this.message);
 
   final String message;
+}
+
+class GitHubContentEntry {
+  const GitHubContentEntry({required this.path, required this.type});
+
+  factory GitHubContentEntry.fromJson(Map<String, Object?> json) {
+    return GitHubContentEntry(
+      path: json['path'] is String ? json['path']! as String : '',
+      type: json['type'] is String ? json['type']! as String : '',
+    );
+  }
+
+  final String path;
+  final String type;
+
+  bool get isFile => type == 'file';
+
+  bool get isDirectory => type == 'dir';
 }

@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:path/path.dart' as p;
@@ -25,31 +24,19 @@ class GithubApiGitSyncRepository implements GitSyncRepository {
 
     try {
       final target = GitHubRepositoryTarget.parse(request.remoteUrl);
-      final files = await _listFiles(directory);
-      if (files.isEmpty) {
-        return DirectorySyncResult.noChanges(message: '同步成功:没有需要上传的本地文件。');
-      }
+      final downloadedCount = await _downloadRemoteDirectory(
+        target: target,
+        remotePath: target.targetPath,
+        localDirectory: directory,
+        token: request.credential,
+      );
 
-      for (final file in files) {
-        final relativePath = _relativePosixPath(directory, file);
-        final contentPath = target.contentPathFor(relativePath);
-        final sha = await _api.fetchFileSha(
-          target: target,
-          path: contentPath,
-          token: request.credential,
-        );
-        await _api.putFile(
-          target: target,
-          path: contentPath,
-          contentBase64: base64Encode(await file.readAsBytes()),
-          message: request.commitMessage,
-          token: request.credential,
-          sha: sha,
-        );
+      if (downloadedCount == 0) {
+        return DirectorySyncResult.noChanges(message: '同步完成:远程目录没有可下载的文件。');
       }
 
       return DirectorySyncResult.success(
-        message: '同步成功:已通过 GitHub API 上传 ${files.length} 个文件。',
+        message: '同步成功:已从 GitHub 下载 $downloadedCount 个文件到本地目录。',
       );
     } on GitHubRepositoryTargetFormatException {
       return DirectorySyncResult.failure(
@@ -67,28 +54,71 @@ class GithubApiGitSyncRepository implements GitSyncRepository {
     }
   }
 
-  Future<List<File>> _listFiles(Directory directory) async {
-    final files = <File>[];
-    await for (final entity in directory.list(
-      recursive: true,
-      followLinks: false,
-    )) {
-      if (entity is! File) continue;
-      if (_isInsideGitDirectory(directory, entity)) continue;
-      files.add(entity);
+  Future<int> _downloadRemoteDirectory({
+    required GitHubRepositoryTarget target,
+    required String remotePath,
+    required Directory localDirectory,
+    required String token,
+  }) async {
+    var downloadedCount = 0;
+    final entries = await _api.fetchDirectoryEntries(
+      target: target,
+      path: remotePath,
+      token: token,
+    );
+
+    for (final entry in entries) {
+      if (entry.isDirectory) {
+        downloadedCount += await _downloadRemoteDirectory(
+          target: target,
+          remotePath: entry.path,
+          localDirectory: localDirectory,
+          token: token,
+        );
+        continue;
+      }
+
+      if (!entry.isFile) continue;
+
+      final relativePath = _localRelativePath(target, entry.path);
+      final destination = File(p.join(localDirectory.path, relativePath));
+      await destination.parent.create(recursive: true);
+      await destination.writeAsBytes(
+        await _api.fetchFileBytes(
+          target: target,
+          path: entry.path,
+          token: token,
+        ),
+        flush: true,
+      );
+      downloadedCount += 1;
     }
-    files.sort((a, b) => a.path.compareTo(b.path));
-    return files;
+
+    return downloadedCount;
   }
 
-  bool _isInsideGitDirectory(Directory root, File file) {
-    final relative = _relativePosixPath(root, file);
-    return relative == '.git' || relative.startsWith('.git/');
+  String _localRelativePath(GitHubRepositoryTarget target, String contentPath) {
+    final normalizedContentPath = _normalizeRemotePath(contentPath);
+    if (target.targetPath.isEmpty) return normalizedContentPath;
+
+    final normalizedTargetPath = _normalizeRemotePath(target.targetPath);
+    if (normalizedContentPath == normalizedTargetPath) {
+      return p.posix.basename(normalizedContentPath);
+    }
+
+    final prefix = '$normalizedTargetPath/';
+    if (normalizedContentPath.startsWith(prefix)) {
+      return normalizedContentPath.substring(prefix.length);
+    }
+
+    return normalizedContentPath;
   }
 
-  String _relativePosixPath(Directory root, File file) {
-    final relative = p.relative(file.path, from: root.path);
-    return p.split(relative).join('/');
+  String _normalizeRemotePath(String path) {
+    return path
+        .split('/')
+        .where((segment) => segment.trim().isNotEmpty && segment != '.')
+        .join('/');
   }
 
   String _sanitize(String message, String credential) {

@@ -161,6 +161,51 @@
         "logic": "PASS: fvm dart run tool/harness.dart check; PASS: targeted GitHub API sync tests"
       },
       "next_step": "Feature complete. Dual-platform Maestro acceptance passes on both iOS and Android. No further action required."
+    },
+    {
+      "id": "feat-github-repository-download-sync",
+      "title": "从 GitHub 仓库同步到本地目录",
+      "status": "done",
+      "spec": "github-repository-download-sync",
+      "summary": "用户输入 GitHub 仓库或目录地址后,应用通过 GitHub Repository Contents API 将远端文件递归下载到当前选中的手机本地目录。",
+      "scope": [
+        "解析 GitHub 仓库或目录 URL",
+        "读取 GitHub 远端目录树",
+        "下载远端普通文件内容",
+        "在本地选中目录中保留相对路径写入文件",
+        "空远端目录显示无可下载文件",
+        "已选目录显示目录名和完整路径上下文",
+        "同步文案明确方向为 GitHub 远端到本地目录"
+      ],
+      "out_of_scope": [
+        "本地修改上传到远端",
+        "删除本地多余文件",
+        "双向冲突合并",
+        "GitHub OAuth 登录流程",
+        "大文件 Git LFS 支持",
+        "后台自动同步"
+      ],
+      "dependencies": [
+        "feat-encrypted-token-default-directory",
+        "feat-github-directory-api-sync"
+      ],
+      "evidence": [
+        "docs/harness/specs/github-repository-download-sync/spec.md",
+        "docs/harness/specs/github-repository-download-sync/acceptance.yaml",
+        ".maestro/ios/github_repository_download_sync_flow.yaml",
+        ".maestro/android/github_repository_download_sync_flow.yaml",
+        "test/features/directory_git_sync/data/datasources/github_contents_api_test.dart",
+        "test/features/directory_git_sync/data/repositories/github_api_git_sync_repository_test.dart",
+        "docs/harness/evidence/github-repository-download-sync/report.json",
+        "docs/harness/evidence/github-repository-download-sync/report-ios.json",
+        "docs/harness/evidence/github-repository-download-sync/report-android.json"
+      ],
+      "acceptance": {
+        "logic": "PASS: fvm dart run tool/harness.dart check; PASS: targeted GitHub download sync tests",
+        "ios": "PASS: fvm dart run tool/harness.dart spec accept github-repository-download-sync --maestro --platform ios",
+        "android": "PASS: fvm dart run tool/harness.dart spec accept github-repository-download-sync --maestro --platform android"
+      },
+      "next_step": "Feature complete. Dual-platform Maestro acceptance passes on both iOS and Android. No further action required."
     }
   ]
 }

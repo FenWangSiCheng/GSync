@@ -1,0 +1,46 @@
+{
+  "spec": "github-repository-download-sync",
+  "feature": "feat-github-repository-download-sync",
+  "platform": "ios",
+  "result": "PASS",
+  "maestro_run": true,
+  "maestro_blocked_reason": null,
+  "maestro_all_pass": true,
+  "acceptance": [
+    {
+      "id": "ui-download-sync-path",
+      "claim": "The sync screen shows a readable selected directory, lets the user save a token, enter a GitHub target, tap Sync, and see a success state in the dev fixture flow.",
+      "kind": "maestro",
+      "verdict": "pass",
+      "evidence": ".maestro/ios/github_repository_download_sync_flow.yaml"
+    },
+    {
+      "id": "logic-download-remote-files",
+      "claim": "The GitHub API sync repository recursively reads remote GitHub contents and writes downloaded files into the selected local directory.",
+      "kind": "test",
+      "verdict": "pass",
+      "evidence": "test/features/directory_git_sync/data/repositories/github_api_git_sync_repository_test.dart"
+    },
+    {
+      "id": "logic-empty-remote-directory",
+      "claim": "An empty remote GitHub directory returns a no-changes sync result instead of a misleading upload success.",
+      "kind": "test",
+      "verdict": "pass",
+      "evidence": "test/features/directory_git_sync/data/repositories/github_api_git_sync_repository_test.dart"
+    },
+    {
+      "id": "logic-readable-api-failures",
+      "claim": "GitHub target parsing, authentication, and API failures produce readable sync failure messages without exposing the saved token.",
+      "kind": "test",
+      "verdict": "pass",
+      "evidence": "test/features/directory_git_sync/data/repositories/github_api_git_sync_repository_test.dart"
+    },
+    {
+      "id": "logic-real-sync-uses-github-api",
+      "claim": "Dependency injection uses the GitHub API sync repository outside dev fixtures so mobile builds do not execute system git processes.",
+      "kind": "test",
+      "verdict": "pass",
+      "evidence": "test/core/injection/injection_test.dart"
+    }
+  ]
+}

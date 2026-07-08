@@ -1,0 +1,36 @@
+appId: com.example.basic_demo.dev
+---
+- launchApp:
+    clearState: true
+- assertVisible:
+    id: directory_sync_screen
+- assertVisible:
+    id: selected_directory_text
+- tapOn:
+    text: "设置"
+- assertVisible:
+    id: token_settings_screen
+- tapOn:
+    id: token_input_field
+- inputText: "test-token"
+- hideKeyboard
+- tapOn:
+    id: save_token_button
+- assertVisible:
+    id: saved_token_status_text
+- tapOn:
+    id: token_settings_back_button
+- assertVisible:
+    id: directory_token_status_text
+- tapOn:
+    id: remote_url_field
+- inputText: "https://example.invalid/gitsync-fixture.git"
+- hideKeyboard
+- tapOn:
+    id: sync_button
+- assertVisible:
+    id: sync_status_text
+- extendedWaitUntil:
+    visible:
+      id: sync_success_text
+    timeout: 30000

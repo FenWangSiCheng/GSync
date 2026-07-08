@@ -3,10 +3,11 @@
 ## Current State
 
 **Last Updated:** 2026-07-08 CST
-**Active Feature:** `feat-github-directory-api-sync`
-**Current Activity:** Implemented GitHub Repository Contents API-backed sync for
-real `stg` and `prod` runs. Dual-platform Maestro dev acceptance passes on iOS
-and Android, and evidence is committed under `docs/harness/evidence/`.
+**Active Feature:** `feat-github-repository-download-sync`
+**Current Activity:** Corrected the GitHub sync direction so real `stg` and
+`prod` runs download the remote GitHub repository path into the selected local
+device directory. Logic checks and dual-platform Maestro acceptance pass, and
+evidence is committed under `docs/harness/evidence/`.
 
 ## Status
 
@@ -54,13 +55,32 @@ and Android, and evidence is committed under `docs/harness/evidence/`.
   directory URL.
 - [x] Ran dual-platform Maestro acceptance for `github-directory-api-sync` on
   dev and copied the reports into `docs/harness/evidence/github-directory-api-sync/`.
+- [x] Drafted and approved `github-repository-download-sync` as a new harness
+  feature after clarifying that the product goal is remote GitHub repository to
+  local device directory sync.
+- [x] Changed the real GitHub API sync repository to recursively read GitHub
+  Contents API directory entries and write downloaded file bytes into the
+  selected local directory while preserving nested relative paths.
+- [x] Removed the unused real-sync upload path from `GitHubContentsApi`.
+- [x] Updated the directory sync screen copy so the direction is explicitly
+  GitHub remote to local directory.
+- [x] Updated the selected directory display to show the directory name plus
+  wrapped path context instead of one truncated absolute path.
+- [x] Updated the dev fixture success message to match the remote-download
+  product semantics.
+- [x] Added datasource and repository regression coverage for directory listing,
+  base64 file decoding, recursive download, empty remote directories, readable
+  failures, and token redaction.
+- [x] Ran dual-platform Maestro acceptance for
+  `github-repository-download-sync` and saved the reports under
+  `docs/harness/evidence/github-repository-download-sync/`.
 
 ### What's Next
 
 1. No outstanding implementation or acceptance work for
-   `feat-github-directory-api-sync`.
-2. Future work can add one-commit-per-sync behavior through Git Trees/Commits
-   API or GitHub OAuth.
+   `feat-github-repository-download-sync`.
+2. Future work can add delete-mirroring, conflict handling, large file support,
+   or background sync as separate features.
 
 ## Blockers / Risks
 
@@ -70,8 +90,8 @@ and Android, and evidence is committed under `docs/harness/evidence/`.
   Flutter release.
 - [ ] Android build warns that the Gradle, Android Gradle Plugin, and Kotlin
   versions will need upgrades before future Flutter versions drop support.
-- [ ] GitHub Contents API creates one commit per file. A future feature can move
-  to Git Trees/Commits API if a single commit per directory sync is required.
+- [ ] GitHub Contents API file content responses may need additional handling
+  for very large files or Git LFS pointers in a future feature.
 
 ## Decisions Made
 
@@ -88,8 +108,12 @@ and Android, and evidence is committed under `docs/harness/evidence/`.
 - **Keep UI behavior in Maestro:** Token settings navigation and the saved-token
   sync path are covered by iOS and Android Maestro flows.
 - **Use GitHub Contents API for mobile sync:** Mobile apps should not start a
-  system `git` process. The real sync path now uses GitHub REST API file
-  create/update calls for the user-specified repository or directory URL.
+  system `git` process. The active real sync path now uses GitHub REST API
+  directory and file reads to download the user-specified repository or
+  directory URL into the selected local device directory.
+- **Correct sync direction:** The product goal is remote GitHub repository to
+  local phone directory sync. Uploading local files to GitHub is out of scope
+  for `feat-github-repository-download-sync`.
 - **Keep dev deterministic:** The dev flavor remains on
   `FixtureGitSyncRepository` so Maestro acceptance does not require a live
   GitHub account or token.
@@ -133,6 +157,21 @@ and Android, and evidence is committed under `docs/harness/evidence/`.
 - `test/features/directory_git_sync/data/models/` and
   `test/features/directory_git_sync/data/repositories/github_api_git_sync_repository_test.dart`
   - Added parsing and API repository coverage.
+- `docs/harness/specs/github-repository-download-sync/`, `.maestro/ios/github_repository_download_sync_flow.yaml`,
+  and `.maestro/android/github_repository_download_sync_flow.yaml` - Added the
+  remote-to-local sync spec and dev fixture acceptance flows.
+- `lib/features/directory_git_sync/data/datasources/github_contents_api.dart`
+  and `lib/features/directory_git_sync/data/repositories/github_api_git_sync_repository.dart`
+  - Changed real GitHub sync to list remote contents and download files into
+  the selected local directory.
+- `lib/features/directory_git_sync/presentation/pages/directory_sync_page.dart`
+  and `lib/features/directory_git_sync/presentation/bloc/directory_sync_bloc.dart`
+  - Updated selected-directory presentation and sync-direction copy.
+- `test/features/directory_git_sync/data/datasources/github_contents_api_test.dart`
+  and `test/features/directory_git_sync/data/repositories/github_api_git_sync_repository_test.dart`
+  - Added remote download regression coverage.
+- `docs/harness/evidence/github-repository-download-sync/report-ios.json` -
+  Saved the passing iOS acceptance report.
 
 ## Evidence of Completion
 
@@ -172,3 +211,19 @@ and Android, and evidence is committed under `docs/harness/evidence/`.
 - [x] `fvm dart run tool/harness.dart spec accept github-directory-api-sync --maestro --platform all`
   passes with iOS and Android both PASS; reports copied to
   `docs/harness/evidence/github-directory-api-sync/`.
+- [x] `fvm dart run tool/harness.dart spec review github-repository-download-sync --approve`
+  passes and marks the new spec approved.
+- [x] `fvm flutter test test/features/directory_git_sync/data/datasources/github_contents_api_test.dart test/features/directory_git_sync/data/repositories/github_api_git_sync_repository_test.dart test/features/directory_git_sync/data/repositories/fixture_git_sync_repository_test.dart test/core/injection/injection_test.dart`
+  passes.
+- [x] `fvm dart run tool/harness.dart spec ui-map --check` passes after adding
+  the new spec delta.
+- [x] `fvm dart run tool/harness.dart check` passes: format clean, structure
+  green, analyzer clean, coverage-gated tests pass, coverage 589/647 lines
+  (91.04%) against the 90% threshold.
+- [x] `fvm dart run tool/harness.dart spec accept github-repository-download-sync --maestro --platform ios`
+  passes on iOS.
+- [x] `fvm dart run tool/harness.dart spec accept github-repository-download-sync --maestro --platform android`
+  passes on Android.
+- [x] `fvm dart run tool/harness.dart spec accept github-repository-download-sync --maestro --platform all`
+  passes with iOS and Android both PASS; reports copied to
+  `docs/harness/evidence/github-repository-download-sync/`.

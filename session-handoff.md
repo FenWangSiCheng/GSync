@@ -2,11 +2,12 @@
 
 ## Current Objective
 
-- Goal: Complete `feat-github-directory-api-sync`.
+- Goal: Complete `feat-github-repository-download-sync`.
 - Current status: Implemented, accepted on iOS and Android, and marked `done`.
 - Feature state: `feat-directory-git-sync`, `feat-ios-clean-ui`, and
   `feat-encrypted-token-default-directory` are `done`;
-  `feat-github-directory-api-sync` is `done`.
+  `feat-github-directory-api-sync` is `done`;
+  `feat-github-repository-download-sync` is `done`.
 
 ## Completed
 
@@ -30,6 +31,19 @@
   builds no longer need to launch a system `git` process.
 - [x] Ran dual-platform Maestro dev acceptance and copied reports to
   `docs/harness/evidence/github-directory-api-sync/`.
+- [x] Drafted and approved `github-repository-download-sync` after clarifying
+  that the app should sync a GitHub remote repository down to the selected local
+  phone directory, not upload local files to GitHub.
+- [x] Changed real `stg` and `prod` GitHub sync to recursively read GitHub
+  Contents API directory entries and write downloaded file bytes into the
+  selected local directory.
+- [x] Updated the directory sync UI copy and selected-directory display so the
+  sync direction and target directory are clear.
+- [x] Added GitHub Contents API datasource tests and repository regression tests
+  for recursive download, empty remote directories, readable failures, and token
+  redaction.
+- [x] Ran dual-platform Maestro dev acceptance and copied reports to
+  `docs/harness/evidence/github-repository-download-sync/`.
 
 ## Verification Evidence
 
@@ -45,14 +59,20 @@
 | Full harness check | `fvm dart run tool/harness.dart check` | Pass | Format, structure, analyzer, and coverage passed; coverage 573/631 lines (90.81%). |
 | GitHub API sync logic acceptance | `fvm dart run tool/harness.dart spec accept github-directory-api-sync` | Logic pass / command non-zero | Logic criteria pass; Maestro criterion is skipped without `--maestro`, so feature is not done. |
 | GitHub API sync acceptance | `fvm dart run tool/harness.dart spec accept github-directory-api-sync --maestro --platform all` | Pass | iOS and Android both PASS; evidence copied to `docs/harness/evidence/github-directory-api-sync/`. |
+| GitHub download sync Gate A | `fvm dart run tool/harness.dart spec review github-repository-download-sync --approve` | Pass | Spec approved. |
+| GitHub download sync targeted tests | `fvm flutter test test/features/directory_git_sync/data/datasources/github_contents_api_test.dart test/features/directory_git_sync/data/repositories/github_api_git_sync_repository_test.dart test/features/directory_git_sync/data/repositories/fixture_git_sync_repository_test.dart test/core/injection/injection_test.dart` | Pass | Datasource, recursive download repository behavior, fixture message, and DI behavior pass. |
+| Full harness check | `fvm dart run tool/harness.dart check` | Pass | Format, structure, analyzer, and coverage passed; coverage 589/647 lines (91.04%). |
+| GitHub download sync acceptance | `fvm dart run tool/harness.dart spec accept github-repository-download-sync --maestro --platform all` | Pass | iOS and Android both PASS; evidence copied to `docs/harness/evidence/github-repository-download-sync/`. |
 
 ## Blockers / Risks
 
-- No current blockers for `feat-github-directory-api-sync`.
+- No current blockers for `feat-github-repository-download-sync`.
 - Flutter reports future-compatibility warnings for Swift Package Manager
   support in some iOS plugins.
 - Android builds report future-compatibility warnings for Gradle, Android
   Gradle Plugin, and Kotlin versions.
+- GitHub Contents API file content responses may need additional handling for
+  very large files or Git LFS pointers in a future feature.
 
 ## Next Session Startup
 
