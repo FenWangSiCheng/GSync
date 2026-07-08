@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import '../../domain/entities/directory_sync_request.dart';
@@ -6,9 +7,13 @@ import '../../domain/repositories/git_sync_repository.dart';
 import '../datasources/git_command_runner.dart';
 
 class ProcessGitSyncRepository implements GitSyncRepository {
-  const ProcessGitSyncRepository(this._runner);
+  const ProcessGitSyncRepository(
+    this._runner, {
+    Duration commandTimeout = const Duration(seconds: 30),
+  }) : _commandTimeout = commandTimeout;
 
   final GitCommandRunner _runner;
+  final Duration _commandTimeout;
 
   @override
   Future<DirectorySyncResult> syncDirectory(
@@ -48,6 +53,21 @@ class ProcessGitSyncRepository implements GitSyncRepository {
       return DirectorySyncResult.failure(
         message: _sanitize('同步失败:${error.message}', request.credential),
       );
+    } on TimeoutException {
+      return DirectorySyncResult.failure(
+        message: '同步失败:Git 命令执行超时,请检查网络、远程仓库和凭据后重试。',
+      );
+    } on ProcessException catch (error) {
+      return DirectorySyncResult.failure(
+        message: _sanitize(
+          '同步失败:${_processExceptionMessage(error)}',
+          request.credential,
+        ),
+      );
+    } catch (error) {
+      return DirectorySyncResult.failure(
+        message: _sanitize('同步失败:${error.toString()}', request.credential),
+      );
     }
   }
 
@@ -76,11 +96,13 @@ class ProcessGitSyncRepository implements GitSyncRepository {
     DirectorySyncRequest request, {
     Map<String, String>? environment,
   }) async {
-    final result = await _runner.run(
-      arguments,
-      workingDirectory: request.directoryPath,
-      environment: environment,
-    );
+    final result = await _runner
+        .run(
+          arguments,
+          workingDirectory: request.directoryPath,
+          environment: environment,
+        )
+        .timeout(_commandTimeout);
     if (result.succeeded) return result;
 
     final details = result.stderr.trim().isEmpty
@@ -97,7 +119,9 @@ class ProcessGitSyncRepository implements GitSyncRepository {
     List<String> arguments,
     DirectorySyncRequest request,
   ) async {
-    await _runner.run(arguments, workingDirectory: request.directoryPath);
+    await _runner
+        .run(arguments, workingDirectory: request.directoryPath)
+        .timeout(_commandTimeout);
   }
 
   bool _isHttpRemote(String remoteUrl) {
@@ -118,9 +142,17 @@ class ProcessGitSyncRepository implements GitSyncRepository {
       'esac\n',
     );
     if (!Platform.isWindows) {
-      await Process.run('chmod', ['700', script.path]);
+      await Process.run('chmod', ['700', script.path]).timeout(_commandTimeout);
     }
     return script;
+  }
+
+  String _processExceptionMessage(ProcessException error) {
+    final details = error.message.trim();
+    if (details.isEmpty) {
+      return '无法执行 Git 命令,请确认当前平台支持系统 Git。';
+    }
+    return '无法执行 Git 命令:$details';
   }
 
   String _sanitize(String message, String credential) {

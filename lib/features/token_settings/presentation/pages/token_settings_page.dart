@@ -87,6 +87,8 @@ class _TokenSettingsContent extends StatelessWidget {
                       placeholder: '新的访问令牌',
                       obscureText: true,
                       textInputAction: TextInputAction.done,
+                      enableInteractiveSelection: true,
+                      contextMenuBuilder: _cupertinoTextFieldContextMenu,
                       onChanged: (value) {
                         context.read<TokenSettingsBloc>().add(
                           TokenSettingsTokenChanged(value),
@@ -167,4 +169,13 @@ class _TokenSettingsContent extends StatelessWidget {
       },
     );
   }
+}
+
+Widget _cupertinoTextFieldContextMenu(
+  BuildContext context,
+  EditableTextState editableTextState,
+) {
+  return CupertinoAdaptiveTextSelectionToolbar.editableText(
+    editableTextState: editableTextState,
+  );
 }

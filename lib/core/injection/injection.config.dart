@@ -16,6 +16,8 @@ import 'package:flutter_foundations/core/network/dio_client.dart' as _i542;
 import 'package:flutter_foundations/core/router/app_router.dart' as _i177;
 import 'package:flutter_foundations/features/directory_git_sync/data/datasources/git_command_runner.dart'
     as _i873;
+import 'package:flutter_foundations/features/directory_git_sync/data/datasources/github_contents_api.dart'
+    as _i134;
 import 'package:flutter_foundations/features/directory_git_sync/domain/repositories/default_sync_directory_repository.dart'
     as _i79;
 import 'package:flutter_foundations/features/directory_git_sync/domain/repositories/directory_picker_repository.dart'
@@ -44,6 +46,7 @@ import 'package:flutter_foundations/features/token_settings/presentation/bloc/to
     as _i312;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart' as _i558;
 import 'package:get_it/get_it.dart' as _i174;
+import 'package:http/http.dart' as _i519;
 import 'package:injectable/injectable.dart' as _i526;
 
 extension GetItInjectableX on _i174.GetIt {
@@ -55,6 +58,7 @@ extension GetItInjectableX on _i174.GetIt {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
     final registerModule = _$RegisterModule();
     gh.singleton<_i531.AppConfig>(() => registerModule.appConfig);
+    gh.lazySingleton<_i519.Client>(() => registerModule.httpClient());
     gh.lazySingleton<_i873.GitCommandRunner>(
       () => registerModule.gitCommandRunner(),
     );
@@ -88,16 +92,8 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i925.DirectoryPickerRepository>(),
       ),
     );
-    gh.lazySingleton<_i451.GitSyncRepository>(
-      () => registerModule.gitSyncRepository(
-        gh<_i531.AppConfig>(),
-        gh<_i873.GitCommandRunner>(),
-      ),
-    );
-    gh.lazySingleton<_i320.SyncDirectoryToGitRepository>(
-      () => registerModule.syncDirectoryToGitRepository(
-        gh<_i451.GitSyncRepository>(),
-      ),
+    gh.lazySingleton<_i134.GitHubContentsApi>(
+      () => registerModule.gitHubContentsApi(gh<_i519.Client>()),
     );
     gh.lazySingleton<_i361.Dio>(
       () => registerModule.dio(gh<_i542.DioClient>()),
@@ -110,6 +106,17 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i929.DeleteGitToken>(
       () => registerModule.deleteGitToken(gh<_i282.GitTokenRepository>()),
+    );
+    gh.lazySingleton<_i451.GitSyncRepository>(
+      () => registerModule.gitSyncRepository(
+        gh<_i531.AppConfig>(),
+        gh<_i134.GitHubContentsApi>(),
+      ),
+    );
+    gh.lazySingleton<_i320.SyncDirectoryToGitRepository>(
+      () => registerModule.syncDirectoryToGitRepository(
+        gh<_i451.GitSyncRepository>(),
+      ),
     );
     gh.factory<_i745.DirectorySyncBloc>(
       () => registerModule.directorySyncBloc(

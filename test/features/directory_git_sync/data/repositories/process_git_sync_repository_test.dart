@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter_foundations/features/directory_git_sync/data/datasources/git_command_runner.dart';
@@ -53,6 +54,43 @@ void main() {
       expect(pushCall.environment?['GIT_TERMINAL_PROMPT'], '0');
       expect(pushCall.environment?['GIT_ASKPASS'], isNotEmpty);
     });
+
+    test('reports failure when the platform cannot execute git', () async {
+      runner.exceptionToThrow = const ProcessException('git', [
+        'init',
+      ], 'No such file or directory');
+
+      final result = await repository.syncDirectory(
+        DirectorySyncRequest(
+          directoryPath: tempDirectory.path,
+          remoteUrl: 'https://example.com/repo.git',
+          credential: 'token-123',
+        ),
+      );
+
+      expect(result.type, DirectorySyncResultType.failure);
+      expect(result.message, contains('无法执行 Git 命令'));
+      expect(result.message, isNot(contains('token-123')));
+    });
+
+    test('reports failure when a git command times out', () async {
+      runner.hangCommands = true;
+      repository = ProcessGitSyncRepository(
+        runner,
+        commandTimeout: const Duration(milliseconds: 10),
+      );
+
+      final result = await repository.syncDirectory(
+        DirectorySyncRequest(
+          directoryPath: tempDirectory.path,
+          remoteUrl: 'https://example.com/repo.git',
+          credential: 'token-123',
+        ),
+      );
+
+      expect(result.type, DirectorySyncResultType.failure);
+      expect(result.message, contains('Git 命令执行超时'));
+    });
   });
 }
 
@@ -60,6 +98,8 @@ class _RecordingGitCommandRunner implements GitCommandRunner {
   final List<_GitCall> calls = [];
   String statusOutput = '';
   String revParseOutput = '';
+  bool hangCommands = false;
+  Object? exceptionToThrow;
 
   List<String> get commandLines {
     return calls.map((call) => call.arguments.join(' ')).toList();
@@ -71,6 +111,13 @@ class _RecordingGitCommandRunner implements GitCommandRunner {
     required String workingDirectory,
     Map<String, String>? environment,
   }) async {
+    final exception = exceptionToThrow;
+    if (exception != null) {
+      throw exception;
+    }
+    if (hangCommands) {
+      return Completer<GitCommandResult>().future;
+    }
     calls.add(
       _GitCall(
         arguments: arguments,

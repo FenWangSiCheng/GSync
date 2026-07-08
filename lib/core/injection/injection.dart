@@ -4,10 +4,11 @@ import 'injection.config.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_foundations/features/directory_git_sync/data/datasources/git_command_runner.dart';
+import 'package:flutter_foundations/features/directory_git_sync/data/datasources/github_contents_api.dart';
 import 'package:flutter_foundations/features/directory_git_sync/data/repositories/app_documents_default_sync_directory_repository.dart';
 import 'package:flutter_foundations/features/directory_git_sync/data/repositories/file_picker_directory_picker_repository.dart';
 import 'package:flutter_foundations/features/directory_git_sync/data/repositories/fixture_git_sync_repository.dart';
-import 'package:flutter_foundations/features/directory_git_sync/data/repositories/process_git_sync_repository.dart';
+import 'package:flutter_foundations/features/directory_git_sync/data/repositories/github_api_git_sync_repository.dart';
 import 'package:flutter_foundations/features/directory_git_sync/domain/repositories/default_sync_directory_repository.dart';
 import 'package:flutter_foundations/features/directory_git_sync/domain/repositories/directory_picker_repository.dart';
 import 'package:flutter_foundations/features/directory_git_sync/domain/repositories/git_sync_repository.dart';
@@ -23,6 +24,7 @@ import 'package:flutter_foundations/features/token_settings/domain/usecases/get_
 import 'package:flutter_foundations/features/token_settings/domain/usecases/save_git_token.dart';
 import 'package:flutter_foundations/features/token_settings/presentation/bloc/token_settings_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:http/http.dart' as http;
 import 'package:injectable/injectable.dart';
 
 final getIt = GetIt.instance;
@@ -50,6 +52,14 @@ abstract class RegisterModule {
 
   @lazySingleton
   Dio dio(DioClient dioClient) => dioClient.dio;
+
+  @lazySingleton
+  http.Client httpClient() => http.Client();
+
+  @lazySingleton
+  GitHubContentsApi gitHubContentsApi(http.Client client) {
+    return GitHubContentsApi(client);
+  }
 
   @lazySingleton
   GitCommandRunner gitCommandRunner() => const ProcessGitCommandRunner();
@@ -82,12 +92,12 @@ abstract class RegisterModule {
   @lazySingleton
   GitSyncRepository gitSyncRepository(
     AppConfig appConfig,
-    GitCommandRunner gitCommandRunner,
+    GitHubContentsApi gitHubContentsApi,
   ) {
     if (appConfig.mockApiDataSource) {
       return const FixtureGitSyncRepository();
     }
-    return ProcessGitSyncRepository(gitCommandRunner);
+    return GithubApiGitSyncRepository(gitHubContentsApi);
   }
 
   @lazySingleton

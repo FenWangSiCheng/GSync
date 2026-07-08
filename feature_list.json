@@ -119,6 +119,48 @@
         "android": "PASS: fvm dart run tool/harness.dart spec accept encrypted-token-default-directory --maestro --platform android"
       },
       "next_step": "Feature complete. Dual-platform Maestro acceptance passes on both iOS and Android. No further action required."
+    },
+    {
+      "id": "feat-github-directory-api-sync",
+      "title": "使用 GitHub API 同步指定目录",
+      "status": "done",
+      "spec": "github-directory-api-sync",
+      "summary": "移动端不启动系统 git 进程,而是使用 GitHub Repository Contents API 将本地默认同步目录的文件上传到用户指定的 GitHub 仓库目录。",
+      "scope": [
+        "解析 GitHub 仓库或目录 URL",
+        "扫描本地同步目录中的普通文件",
+        "使用保存的 GitHub token 调用 GitHub Contents API 创建或更新文件",
+        "支持同步到仓库根目录或 URL 中指定的目标子目录",
+        "移动端真实同步路径不再调用系统 git 进程",
+        "保留现有同步中、成功和失败状态"
+      ],
+      "out_of_scope": [
+        "任意 Git 服务商同步",
+        "SSH 远程仓库",
+        "完整 Git clone/fetch/merge",
+        "删除远端多余文件",
+        "复杂冲突处理",
+        "GitHub OAuth 登录流程"
+      ],
+      "dependencies": [
+        "feat-directory-git-sync",
+        "feat-encrypted-token-default-directory"
+      ],
+      "evidence": [
+        "docs/harness/specs/github-directory-api-sync/spec.md",
+        "docs/harness/specs/github-directory-api-sync/acceptance.yaml",
+        ".maestro/ios/github_directory_api_sync_flow.yaml",
+        ".maestro/android/github_directory_api_sync_flow.yaml",
+        "docs/harness/evidence/github-directory-api-sync/report.json",
+        "docs/harness/evidence/github-directory-api-sync/report-ios.json",
+        "docs/harness/evidence/github-directory-api-sync/report-android.json"
+      ],
+      "acceptance": {
+        "ios": "PASS: fvm dart run tool/harness.dart spec accept github-directory-api-sync --maestro --platform ios",
+        "android": "PASS: fvm dart run tool/harness.dart spec accept github-directory-api-sync --maestro --platform android",
+        "logic": "PASS: fvm dart run tool/harness.dart check; PASS: targeted GitHub API sync tests"
+      },
+      "next_step": "Feature complete. Dual-platform Maestro acceptance passes on both iOS and Android. No further action required."
     }
   ]
 }

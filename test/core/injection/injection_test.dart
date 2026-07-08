@@ -3,9 +3,10 @@ import 'package:flutter_foundations/core/config/app_config.dart';
 import 'package:flutter_foundations/core/injection/injection.dart';
 import 'package:flutter_foundations/core/network/dio_client.dart';
 import 'package:flutter_foundations/features/directory_git_sync/data/datasources/git_command_runner.dart';
+import 'package:flutter_foundations/features/directory_git_sync/data/datasources/github_contents_api.dart';
 import 'package:flutter_foundations/features/directory_git_sync/domain/repositories/default_sync_directory_repository.dart';
 import 'package:flutter_foundations/features/directory_git_sync/data/repositories/fixture_git_sync_repository.dart';
-import 'package:flutter_foundations/features/directory_git_sync/data/repositories/process_git_sync_repository.dart';
+import 'package:flutter_foundations/features/directory_git_sync/data/repositories/github_api_git_sync_repository.dart';
 import 'package:flutter_foundations/features/directory_git_sync/domain/repositories/directory_picker_repository.dart';
 import 'package:flutter_foundations/features/directory_git_sync/domain/repositories/git_sync_repository.dart';
 import 'package:flutter_foundations/features/directory_git_sync/domain/usecases/get_default_sync_directory.dart';
@@ -18,6 +19,7 @@ import 'package:flutter_foundations/features/token_settings/domain/usecases/get_
 import 'package:flutter_foundations/features/token_settings/domain/usecases/save_git_token.dart';
 import 'package:flutter_foundations/features/token_settings/presentation/bloc/token_settings_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
 
 void main() {
   group('Dependency Injection', () {
@@ -125,6 +127,8 @@ void main() {
       await configureDependencies(testConfig);
 
       expect(getIt<GitCommandRunner>(), isA<ProcessGitCommandRunner>());
+      expect(getIt<http.Client>(), isA<http.Client>());
+      expect(getIt<GitHubContentsApi>(), isA<GitHubContentsApi>());
       expect(
         getIt<DefaultSyncDirectoryRepository>(),
         isA<DefaultSyncDirectoryRepository>(),
@@ -152,12 +156,12 @@ void main() {
       );
     });
 
-    test('registers real git sync repository outside dev fixtures', () async {
+    test('registers GitHub API sync repository outside dev fixtures', () async {
       const testConfig = AppConfig(currentFlavor: Flavor.prod);
 
       await configureDependencies(testConfig);
 
-      expect(getIt<GitSyncRepository>(), isA<ProcessGitSyncRepository>());
+      expect(getIt<GitSyncRepository>(), isA<GithubApiGitSyncRepository>());
     });
   });
 }

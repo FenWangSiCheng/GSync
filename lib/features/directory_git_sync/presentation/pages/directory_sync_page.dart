@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart' show LinearProgressIndicator;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -230,11 +231,13 @@ class _RemoteSection extends StatelessWidget {
           child: Semantics(
             identifier: 'remote_url_field',
             textField: true,
-            label: '远程仓库地址',
+            label: 'GitHub 仓库或目录地址',
             child: CupertinoTextField(
-              placeholder: '远程仓库地址',
+              placeholder: 'GitHub 仓库或目录地址',
               keyboardType: TextInputType.url,
               textInputAction: TextInputAction.done,
+              enableInteractiveSelection: true,
+              contextMenuBuilder: _cupertinoTextFieldContextMenu,
               onChanged: (value) {
                 context.read<DirectorySyncBloc>().add(
                   DirectorySyncRemoteUrlChanged(value),
@@ -246,6 +249,15 @@ class _RemoteSection extends StatelessWidget {
       ],
     );
   }
+}
+
+Widget _cupertinoTextFieldContextMenu(
+  BuildContext context,
+  EditableTextState editableTextState,
+) {
+  return CupertinoAdaptiveTextSelectionToolbar.editableText(
+    editableTextState: editableTextState,
+  );
 }
 
 class _SyncActionSection extends StatelessWidget {
@@ -273,6 +285,18 @@ class _SyncActionSection extends StatelessWidget {
                   ),
                 ),
               ),
+              if (state.status == DirectorySyncStatus.syncing) ...[
+                const SizedBox(height: 10),
+                Semantics(
+                  identifier: 'sync_progress_indicator',
+                  label: '同步进度',
+                  child: const LinearProgressIndicator(
+                    minHeight: 3,
+                    color: CupertinoColors.activeBlue,
+                    backgroundColor: CupertinoColors.systemGrey5,
+                  ),
+                ),
+              ],
               if (state.status == DirectorySyncStatus.success) ...[
                 const SizedBox(height: 8),
                 Semantics(
