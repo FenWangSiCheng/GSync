@@ -19,13 +19,11 @@ class FixtureGitSyncRepository implements GitSyncRepository {
         request.remoteUrl == fixtureRemoteUrl &&
         request.credential == fixtureCredential) {
       return DirectorySyncResult.success(
-        message: 'Sync succeeded. Directory pushed to remote.',
+        message: '同步成功:目录已推送到远程仓库。',
         commitHash: 'fixture-sync',
       );
     }
 
-    return DirectorySyncResult.failure(
-      message: 'Sync failed. Check the directory, remote URL, and credential.',
-    );
+    return DirectorySyncResult.failure(message: '同步失败:请检查目录、远程地址和凭据。');
   }
 }

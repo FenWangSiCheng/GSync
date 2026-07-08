@@ -16,9 +16,7 @@ class ProcessGitSyncRepository implements GitSyncRepository {
   ) async {
     final directory = Directory(request.directoryPath);
     if (!directory.existsSync()) {
-      return DirectorySyncResult.failure(
-        message: 'Sync failed. The selected directory does not exist.',
-      );
+      return DirectorySyncResult.failure(message: '同步失败:所选目录不存在。');
     }
 
     final remoteUrl = _remoteUrlWithCredential(
@@ -39,9 +37,7 @@ class ProcessGitSyncRepository implements GitSyncRepository {
 
       final status = await _run(['status', '--porcelain'], request);
       if (status.stdout.trim().isEmpty) {
-        return DirectorySyncResult.noChanges(
-          message: 'Sync succeeded. No local changes to commit.',
-        );
+        return DirectorySyncResult.noChanges(message: '同步成功:没有需要提交的本地变更。');
       }
 
       await _run(['commit', '-m', request.commitMessage], request);
@@ -50,12 +46,12 @@ class ProcessGitSyncRepository implements GitSyncRepository {
 
       final rev = await _run(['rev-parse', '--short', 'HEAD'], request);
       return DirectorySyncResult.success(
-        message: 'Sync succeeded. Directory pushed to remote.',
+        message: '同步成功:目录已推送到远程仓库。',
         commitHash: rev.stdout.trim().isEmpty ? null : rev.stdout.trim(),
       );
     } on _GitCommandException catch (error) {
       return DirectorySyncResult.failure(
-        message: _sanitize('Sync failed. ${error.message}', request.credential),
+        message: _sanitize('同步失败:${error.message}', request.credential),
       );
     }
   }

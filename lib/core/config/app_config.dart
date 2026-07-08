@@ -15,11 +15,11 @@ class AppConfig {
   String get appName {
     switch (currentFlavor) {
       case Flavor.dev:
-        return 'Flutter Harness Template Dev';
+        return 'GitSync 开发版';
       case Flavor.stg:
-        return 'Flutter Harness Template Stg';
+        return 'GitSync 预发布版';
       case Flavor.prod:
-        return 'Flutter Harness Template';
+        return 'GitSync';
     }
   }
 

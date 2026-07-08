@@ -43,6 +43,41 @@
         "android": "PASS: fvm dart run tool/harness.dart spec accept directory-git-sync --maestro --platform android"
       },
       "next_step": "Feature complete. Dual-platform Maestro acceptance passes on both iOS and Android. No further action required."
+    },
+    {
+      "id": "feat-ios-clean-ui",
+      "title": "iOS 简洁风格界面与中文文案",
+      "status": "done",
+      "spec": "ios-clean-ui",
+      "summary": "将应用界面重构为 iOS 简洁风格(Cupertino 分组表单、大标题导航、系统配色),并将所有可见文案改为中文。",
+      "scope": [
+        "使用 Cupertino 组件重写目录同步页(Sliver 大标题、分组表单、ActionSheet 选择器)",
+        "应用主体改为 CupertinoApp,中文 locale 与 Cupertino 主题",
+        "目录同步相关的状态、结果、校验等可见文案改为中文",
+        "保留原有 semantics identifier,确保现有 Maestro 验收流程不受影响"
+      ],
+      "out_of_scope": [
+        "新增业务功能或新的数据/领域逻辑",
+        "多语言 i18n 框架(ARB)接入",
+        "目录同步流程的行为变更"
+      ],
+      "dependencies": [
+        "feat-directory-git-sync"
+      ],
+      "evidence": [
+        "docs/harness/specs/ios-clean-ui/spec.md",
+        "docs/harness/specs/ios-clean-ui/acceptance.yaml",
+        ".maestro/ios/ios_clean_ui_flow.yaml",
+        ".maestro/android/ios_clean_ui_flow.yaml",
+        "docs/harness/evidence/ios-clean-ui/report.json",
+        "docs/harness/evidence/ios-clean-ui/report-ios.json",
+        "docs/harness/evidence/ios-clean-ui/report-android.json"
+      ],
+      "acceptance": {
+        "ios": "PASS: fvm dart run tool/harness.dart spec accept ios-clean-ui --maestro --platform ios",
+        "android": "PASS: fvm dart run tool/harness.dart spec accept ios-clean-ui --maestro --platform android"
+      },
+      "next_step": "Feature complete. Dual-platform Maestro acceptance passes on both iOS and Android. No further action required."
     }
   ]
 }

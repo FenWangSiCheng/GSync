@@ -8,7 +8,7 @@ class DirectorySyncState extends Equatable {
     this.remoteUrl = '',
     this.credential = '',
     this.status = DirectorySyncStatus.idle,
-    this.statusMessage = 'Choose a directory to start.',
+    this.statusMessage = '请先选择一个目录。',
   });
 
   final String selectedDirectoryPath;

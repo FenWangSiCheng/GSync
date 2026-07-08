@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_foundations/core/injection/injection.dart';
 import 'package:flutter_foundations/features/directory_git_sync/presentation/bloc/directory_sync_bloc.dart';
@@ -22,24 +22,36 @@ class AppRouter {
         ),
       ),
     ],
-    errorBuilder: (context, state) => Scaffold(
-      appBar: AppBar(title: const Text('Error')),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, color: Colors.red, size: 48),
-            const SizedBox(height: 16),
-            Text(
-              'Page not found: ${state.matchedLocation}',
-              style: const TextStyle(fontSize: 16),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () => context.go(RouterPaths.home),
-              child: const Text('Go to GitSync'),
-            ),
-          ],
+    errorBuilder: (context, state) => CupertinoPageScaffold(
+      navigationBar: const CupertinoNavigationBar(
+        middle: Text('错误'),
+        backgroundColor: CupertinoColors.systemGroupedBackground,
+      ),
+      child: SafeArea(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                CupertinoIcons.exclamationmark_triangle,
+                color: CupertinoColors.destructiveRed,
+                size: 48,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                '找不到页面:${state.matchedLocation}',
+                style: const TextStyle(
+                  fontSize: 16,
+                  color: CupertinoColors.label,
+                ),
+              ),
+              const SizedBox(height: 16),
+              CupertinoButton.filled(
+                onPressed: () => context.go(RouterPaths.home),
+                child: const Text('返回 GitSync'),
+              ),
+            ],
+          ),
         ),
       ),
     ),

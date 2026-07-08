@@ -36,9 +36,7 @@ class DirectorySyncBloc extends Bloc<DirectorySyncEvent, DirectorySyncState> {
       state.copyWith(
         selectedDirectoryPath: directoryPath ?? state.selectedDirectoryPath,
         status: DirectorySyncStatus.idle,
-        statusMessage: directoryPath == null
-            ? 'Directory selection cancelled.'
-            : 'Directory selected.',
+        statusMessage: directoryPath == null ? '已取消选择目录。' : '已选择目录。',
       ),
     );
   }
@@ -51,7 +49,7 @@ class DirectorySyncBloc extends Bloc<DirectorySyncEvent, DirectorySyncState> {
       state.copyWith(
         selectedDirectoryPath: FixtureGitSyncRepository.fixtureDirectoryPath,
         status: DirectorySyncStatus.idle,
-        statusMessage: 'Directory selected.',
+        statusMessage: '已选择目录。',
       ),
     );
   }
@@ -77,7 +75,7 @@ class DirectorySyncBloc extends Bloc<DirectorySyncEvent, DirectorySyncState> {
     emit(
       state.copyWith(
         status: DirectorySyncStatus.syncing,
-        statusMessage: 'Syncing selected directory...',
+        statusMessage: '正在同步所选目录…',
       ),
     );
 

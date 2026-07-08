@@ -9,8 +9,6 @@ class FilePickerDirectoryPickerRepository implements DirectoryPickerRepository {
 
   @override
   Future<String?> pickDirectory() {
-    return FilePicker.getDirectoryPath(
-      dialogTitle: 'Choose a directory to sync',
-    );
+    return FilePicker.getDirectoryPath(dialogTitle: '选择要同步的目录');
   }
 }

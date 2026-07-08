@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../bloc/directory_sync_bloc.dart';
@@ -10,25 +10,29 @@ class DirectorySyncPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Semantics(
       identifier: 'directory_sync_screen',
-      label: 'Directory sync',
+      label: '目录同步',
       container: true,
-      child: Scaffold(
-        appBar: AppBar(title: const Text('GitSync')),
-        body: SafeArea(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              return Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 640),
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
+      child: CupertinoPageScaffold(
+        backgroundColor: CupertinoColors.systemGroupedBackground,
+        child: CustomScrollView(
+          slivers: [
+            const CupertinoSliverNavigationBar(
+              largeTitle: Text('GitSync'),
+              backgroundColor: CupertinoColors.systemGroupedBackground,
+            ),
+            SliverToBoxAdapter(
+              child: SafeArea(
+                top: false,
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 640),
+                    child: const Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: const [
+                      children: [
                         _Header(),
                         SizedBox(height: 20),
                         _DirectorySection(),
-                        SizedBox(height: 16),
+                        SizedBox(height: 12),
                         _RemoteSection(),
                         SizedBox(height: 16),
                         _SyncActionSection(),
@@ -36,9 +40,9 @@ class DirectorySyncPage extends StatelessWidget {
                     ),
                   ),
                 ),
-              );
-            },
-          ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -50,17 +54,30 @@ class _Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Directory sync', style: textTheme.headlineSmall),
-        const SizedBox(height: 8),
-        Text(
-          'Choose one local directory and push its changes to a Git remote.',
-          style: textTheme.bodyMedium,
-        ),
-      ],
+    return const Padding(
+      padding: EdgeInsets.fromLTRB(20, 8, 20, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '目录同步',
+            style: TextStyle(
+              fontSize: 26,
+              fontWeight: FontWeight.w600,
+              color: CupertinoColors.label,
+            ),
+          ),
+          SizedBox(height: 8),
+          Text(
+            '选择一个本地目录,将其变更提交并推送到 Git 远程仓库。',
+            style: TextStyle(
+              fontSize: 15,
+              height: 1.4,
+              color: CupertinoColors.secondaryLabel,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -71,38 +88,57 @@ class _DirectorySection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<DirectorySyncBloc, DirectorySyncState>(
-      buildWhen: (previous, current) {
-        return previous.selectedDirectoryPath !=
-                current.selectedDirectoryPath ||
-            previous.status != current.status;
-      },
+      buildWhen: (previous, current) =>
+          previous.selectedDirectoryPath != current.selectedDirectoryPath ||
+          previous.status != current.status,
       builder: (context, state) {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Semantics(
-              identifier: 'directory_picker_button',
-              button: true,
-              label: 'Choose directory',
-              child: FilledButton.icon(
-                key: const ValueKey('directory_picker_button'),
-                onPressed: state.status == DirectorySyncStatus.syncing
-                    ? null
-                    : () => _showDirectoryPicker(context),
-                icon: const Icon(Icons.folder_open),
-                label: const Text('Choose directory'),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Semantics(
+                identifier: 'directory_picker_button',
+                button: true,
+                label: '选择目录',
+                child: CupertinoButton.filled(
+                  onPressed: state.status == DirectorySyncStatus.syncing
+                      ? null
+                      : () => _showDirectoryPicker(context),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(CupertinoIcons.folder_open),
+                      SizedBox(width: 6),
+                      Text('选择目录'),
+                    ],
+                  ),
+                ),
               ),
             ),
-            const SizedBox(height: 10),
-            Semantics(
-              identifier: 'selected_directory_text',
-              label: 'Selected directory',
-              child: Text(
-                state.selectedDirectoryPath.isEmpty
-                    ? 'No directory selected'
-                    : state.selectedDirectoryPath,
-                key: const ValueKey('selected_directory_text'),
-              ),
+            const SizedBox(height: 12),
+            CupertinoListSection.insetGrouped(
+              header: const Text('已选目录'),
+              topMargin: 0,
+              hasLeading: false,
+              children: [
+                CupertinoListTile.notched(
+                  title: Semantics(
+                    identifier: 'selected_directory_text',
+                    label: '已选目录',
+                    child: Text(
+                      state.selectedDirectoryPath.isEmpty
+                          ? '未选择目录'
+                          : state.selectedDirectoryPath,
+                      style: TextStyle(
+                        color: state.selectedDirectoryPath.isEmpty
+                            ? CupertinoColors.placeholderText
+                            : CupertinoColors.label,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         );
@@ -112,41 +148,49 @@ class _DirectorySection extends StatelessWidget {
 
   Future<void> _showDirectoryPicker(BuildContext context) async {
     final bloc = context.read<DirectorySyncBloc>();
-    await showModalBottomSheet<void>(
+    await showCupertinoModalPopup<void>(
       context: context,
-      showDragHandle: true,
       builder: (sheetContext) {
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Semantics(
-                  identifier: 'directory_fixture_option',
-                  button: true,
-                  label: 'GitSync Fixture Notes',
-                  child: ListTile(
-                    key: const ValueKey('directory_fixture_option'),
-                    leading: const Icon(Icons.folder_copy_outlined),
-                    title: const Text('GitSync Fixture Notes'),
-                    onTap: () {
-                      Navigator.of(sheetContext).pop();
-                      bloc.add(const DirectorySyncFixtureDirectorySelected());
-                    },
-                  ),
+        return CupertinoActionSheet(
+          title: const Text('选择同步目录'),
+          actions: [
+            CupertinoActionSheetAction(
+              onPressed: () {
+                Navigator.of(sheetContext).pop();
+                bloc.add(const DirectorySyncFixtureDirectorySelected());
+              },
+              child: Semantics(
+                identifier: 'directory_fixture_option',
+                button: true,
+                label: 'GitSync 示例笔记',
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(CupertinoIcons.folder_badge_plus),
+                    SizedBox(width: 8),
+                    Text('GitSync 示例笔记'),
+                  ],
                 ),
-                ListTile(
-                  leading: const Icon(Icons.drive_folder_upload_outlined),
-                  title: const Text('System picker'),
-                  onTap: () {
-                    Navigator.of(sheetContext).pop();
-                    bloc.add(const DirectorySyncSystemDirectoryRequested());
-                  },
-                ),
-              ],
+              ),
             ),
+            CupertinoActionSheetAction(
+              onPressed: () {
+                Navigator.of(sheetContext).pop();
+                bloc.add(const DirectorySyncSystemDirectoryRequested());
+              },
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(CupertinoIcons.folder),
+                  SizedBox(width: 8),
+                  Text('系统选择器'),
+                ],
+              ),
+            ),
+          ],
+          cancelButton: CupertinoActionSheetAction(
+            onPressed: () => Navigator.of(sheetContext).pop(),
+            child: const Text('取消'),
           ),
         );
       },
@@ -159,45 +203,43 @@ class _RemoteSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return CupertinoFormSection.insetGrouped(
+      header: const Text('远程仓库'),
       children: [
-        Semantics(
-          identifier: 'remote_url_field',
-          textField: true,
-          label: 'Remote Git repository URL',
-          child: TextField(
-            key: const ValueKey('remote_url_field'),
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              labelText: 'Remote Git repository URL',
+        CupertinoFormRow(
+          prefix: const Text('地址'),
+          child: Semantics(
+            identifier: 'remote_url_field',
+            textField: true,
+            label: '远程仓库地址',
+            child: CupertinoTextField(
+              placeholder: '远程仓库地址',
+              keyboardType: TextInputType.url,
+              textInputAction: TextInputAction.next,
+              onChanged: (value) {
+                context.read<DirectorySyncBloc>().add(
+                  DirectorySyncRemoteUrlChanged(value),
+                );
+              },
             ),
-            keyboardType: TextInputType.url,
-            textInputAction: TextInputAction.next,
-            onChanged: (value) {
-              context.read<DirectorySyncBloc>().add(
-                DirectorySyncRemoteUrlChanged(value),
-              );
-            },
           ),
         ),
-        const SizedBox(height: 12),
-        Semantics(
-          identifier: 'auth_token_field',
-          textField: true,
-          label: 'Authentication token',
-          child: TextField(
-            key: const ValueKey('auth_token_field'),
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              labelText: 'Authentication token',
+        CupertinoFormRow(
+          prefix: const Text('令牌'),
+          child: Semantics(
+            identifier: 'auth_token_field',
+            textField: true,
+            label: '访问令牌',
+            child: CupertinoTextField(
+              placeholder: '访问令牌',
+              obscureText: true,
+              textInputAction: TextInputAction.done,
+              onChanged: (value) {
+                context.read<DirectorySyncBloc>().add(
+                  DirectorySyncCredentialChanged(value),
+                );
+              },
             ),
-            obscureText: true,
-            textInputAction: TextInputAction.done,
-            onChanged: (value) {
-              context.read<DirectorySyncBloc>().add(
-                DirectorySyncCredentialChanged(value),
-              );
-            },
           ),
         ),
       ],
@@ -212,66 +254,87 @@ class _SyncActionSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<DirectorySyncBloc, DirectorySyncState>(
       builder: (context, state) {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Semantics(
-              identifier: 'sync_status_text',
-              liveRegion: true,
-              label: 'Sync status',
-              child: Text(
-                state.statusMessage,
-                key: const ValueKey('sync_status_text'),
-              ),
-            ),
-            if (state.status == DirectorySyncStatus.success) ...[
-              const SizedBox(height: 8),
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
               Semantics(
-                identifier: 'sync_success_text',
+                identifier: 'sync_status_text',
                 liveRegion: true,
-                label: 'Sync succeeded',
-                child: const Text(
-                  'Sync succeeded',
-                  key: ValueKey('sync_success_text'),
+                label: '同步状态',
+                child: Text(
+                  state.statusMessage,
+                  key: const ValueKey('sync_status_text'),
+                  style: const TextStyle(
+                    fontSize: 15,
+                    color: CupertinoColors.secondaryLabel,
+                  ),
+                ),
+              ),
+              if (state.status == DirectorySyncStatus.success) ...[
+                const SizedBox(height: 8),
+                Semantics(
+                  identifier: 'sync_success_text',
+                  liveRegion: true,
+                  label: '同步成功',
+                  child: Text(
+                    '同步成功',
+                    key: ValueKey('sync_success_text'),
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: CupertinoColors.activeGreen,
+                    ),
+                  ),
+                ),
+              ],
+              if (state.status == DirectorySyncStatus.failure) ...[
+                const SizedBox(height: 8),
+                Semantics(
+                  identifier: 'sync_error_text',
+                  liveRegion: true,
+                  label: '同步失败',
+                  child: Text(
+                    '同步失败',
+                    key: ValueKey('sync_error_text'),
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: CupertinoColors.destructiveRed,
+                    ),
+                  ),
+                ),
+              ],
+              const SizedBox(height: 16),
+              Semantics(
+                identifier: 'sync_button',
+                button: true,
+                label: '同步',
+                child: CupertinoButton.filled(
+                  onPressed: state.canSync
+                      ? () {
+                          context.read<DirectorySyncBloc>().add(
+                            const DirectorySyncRequested(),
+                          );
+                        }
+                      : null,
+                  child: state.status == DirectorySyncStatus.syncing
+                      ? const CupertinoActivityIndicator(
+                          color: CupertinoColors.white,
+                        )
+                      : const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(CupertinoIcons.arrow_2_circlepath),
+                            SizedBox(width: 6),
+                            Text('同步'),
+                          ],
+                        ),
                 ),
               ),
             ],
-            if (state.status == DirectorySyncStatus.failure) ...[
-              const SizedBox(height: 8),
-              Semantics(
-                identifier: 'sync_error_text',
-                liveRegion: true,
-                label: 'Sync failed',
-                child: const Text(
-                  'Sync failed',
-                  key: ValueKey('sync_error_text'),
-                ),
-              ),
-            ],
-            const SizedBox(height: 12),
-            Semantics(
-              identifier: 'sync_button',
-              button: true,
-              label: 'Sync',
-              child: FilledButton.icon(
-                key: const ValueKey('sync_button'),
-                onPressed: state.canSync
-                    ? () {
-                        context.read<DirectorySyncBloc>().add(
-                          const DirectorySyncRequested(),
-                        );
-                      }
-                    : null,
-                icon: state.status == DirectorySyncStatus.syncing
-                    ? const SizedBox.square(
-                        dimension: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.sync),
-                label: const Text('Sync'),
-              ),
-            ),
-          ],
+          ),
         );
       },
     );

@@ -30,7 +30,7 @@ void main() {
       );
 
       expect(result.type, DirectorySyncResultType.failure);
-      expect(result.message, contains('Sync failed'));
+      expect(result.message, contains('同步失败'));
     });
   });
 }

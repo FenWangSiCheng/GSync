@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart' show Banner, BannerLocation, Colors;
+import 'package:flutter_localizations/flutter_localizations.dart';
 import '../config/app_config.dart';
 import '../injection/injection.dart';
 import '../router/app_router.dart';
@@ -12,9 +14,20 @@ class App extends StatelessWidget {
     final appConfig = getIt<AppConfig>();
     final appRouter = getIt<AppRouter>();
 
-    return MaterialApp.router(
+    return CupertinoApp.router(
       title: appConfig.appName,
-      theme: ThemeData(primarySwatch: Colors.blue),
+      locale: const Locale('zh'),
+      supportedLocales: const <Locale>[Locale('zh')],
+      localizationsDelegates: const <LocalizationsDelegate<dynamic>>[
+        GlobalCupertinoLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
+      theme: const CupertinoThemeData(
+        brightness: Brightness.light,
+        primaryColor: CupertinoColors.activeBlue,
+        scaffoldBackgroundColor: CupertinoColors.systemGroupedBackground,
+      ),
       routerConfig: appRouter.router,
       builder: (context, child) {
         return _flavorBanner(

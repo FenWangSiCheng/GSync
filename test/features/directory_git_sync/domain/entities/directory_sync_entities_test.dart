@@ -64,7 +64,7 @@ void main() {
       expect(empty.canSync, isFalse);
       expect(ready.canSync, isTrue);
       expect(syncing.canSync, isFalse);
-      expect(ready.statusMessage, 'Choose a directory to start.');
+      expect(ready.statusMessage, '请先选择一个目录。');
     });
 
     test('events expose value props', () {

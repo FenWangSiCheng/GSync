@@ -48,11 +48,7 @@ void main() {
               'selectedDirectoryPath',
               FixtureGitSyncRepository.fixtureDirectoryPath,
             )
-            .having(
-              (state) => state.statusMessage,
-              'statusMessage',
-              'Directory selected.',
-            ),
+            .having((state) => state.statusMessage, 'statusMessage', '已选择目录。'),
         isA<DirectorySyncState>().having(
           (state) => state.remoteUrl,
           'remoteUrl',
@@ -77,7 +73,7 @@ void main() {
             .having(
               (state) => state.statusMessage,
               'statusMessage',
-              'Sync succeeded. Directory pushed to remote.',
+              '同步成功:目录已推送到远程仓库。',
             ),
       ],
     );
@@ -137,7 +133,7 @@ void main() {
             .having(
               (state) => state.statusMessage,
               'statusMessage',
-              'Sync failed. Authentication rejected.',
+              '同步失败:认证被拒绝。',
             ),
       ],
     );
@@ -157,7 +153,7 @@ class _SuccessfulGitSyncRepository implements GitSyncRepository {
     DirectorySyncRequest request,
   ) async {
     return DirectorySyncResult.success(
-      message: 'Sync succeeded. Directory pushed to remote.',
+      message: '同步成功:目录已推送到远程仓库。',
       commitHash: 'abc123',
     );
   }
@@ -168,8 +164,6 @@ class _FailingGitSyncRepository implements GitSyncRepository {
   Future<DirectorySyncResult> syncDirectory(
     DirectorySyncRequest request,
   ) async {
-    return DirectorySyncResult.failure(
-      message: 'Sync failed. Authentication rejected.',
-    );
+    return DirectorySyncResult.failure(message: '同步失败:认证被拒绝。');
   }
 }

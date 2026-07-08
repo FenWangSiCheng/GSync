@@ -29,19 +29,19 @@ void main() {
       test('should return correct app name for dev flavor', () {
         const config = AppConfig(currentFlavor: Flavor.dev);
 
-        expect(config.appName, 'Flutter Harness Template Dev');
+        expect(config.appName, 'GitSync 开发版');
       });
 
       test('should return correct app name for stg flavor', () {
         const config = AppConfig(currentFlavor: Flavor.stg);
 
-        expect(config.appName, 'Flutter Harness Template Stg');
+        expect(config.appName, 'GitSync 预发布版');
       });
 
       test('should return correct app name for prod flavor', () {
         const config = AppConfig(currentFlavor: Flavor.prod);
 
-        expect(config.appName, 'Flutter Harness Template');
+        expect(config.appName, 'GitSync');
       });
     });
 

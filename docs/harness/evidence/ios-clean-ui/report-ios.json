@@ -1,0 +1,18 @@
+{
+  "spec": "ios-clean-ui",
+  "feature": "feat-ios-clean-ui",
+  "platform": "ios",
+  "result": "PASS",
+  "maestro_run": true,
+  "maestro_blocked_reason": null,
+  "maestro_all_pass": true,
+  "acceptance": [
+    {
+      "id": "ui-ios-clean-happy-path",
+      "claim": "A user can open the restyled iOS-clean screen, choose the fixture directory, enter Git credentials, tap Sync, and see a success state.",
+      "kind": "maestro",
+      "verdict": "pass",
+      "evidence": ".maestro/ios/ios_clean_ui_flow.yaml"
+    }
+  ]
+}

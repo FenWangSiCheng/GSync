@@ -2,30 +2,31 @@
 
 ## Current Objective
 
-- Goal: Prepare a reviewable evaluation script for the first real feature:
-  selecting one local directory and syncing it to one Git remote.
-- Current status: The `directory-git-sync` spec was approved, implemented, and
-  accepted on both iOS and Android.
-- Feature state: `feat-directory-git-sync` is `done`.
+- Goal: Complete the `ios-clean-ui` feature by restyling the directory sync
+  screen with a clean Cupertino/iOS aesthetic and Simplified Chinese copy.
+- Current status: `ios-clean-ui` is implemented, accepted on iOS and Android,
+  and marked `done`.
+- Feature state: `feat-directory-git-sync` and `feat-ios-clean-ui` are both
+  `done`.
 
 ## Completed
 
-- [x] App route now renders a minimal blank template page.
-- [x] Feature directories are empty placeholders ready for real project work.
-- [x] Canonical UI map is empty and generated from future approved spec deltas.
-- [x] Maestro CI skips cleanly when there are no `done` specs.
-- [x] Harness guard tests were updated for blank-template state.
-- [x] Drafted `docs/harness/specs/directory-git-sync/spec.md`.
-- [x] Drafted `docs/harness/specs/directory-git-sync/acceptance.yaml`.
-- [x] Drafted iOS and Android Maestro flows for the directory sync happy path.
-- [x] Implemented the directory sync page, BLoC, use cases, and Git repository
-  adapters.
-- [x] Added focused feature tests for push, no-empty-commit, and failure state.
-- [x] iOS Maestro acceptance passes for `directory-git-sync`.
-- [x] Android Maestro acceptance passes for `directory-git-sync`.
-- [x] Dual-platform `spec accept --maestro --platform all` reports PASS.
-- [x] Acceptance reports committed to `docs/harness/evidence/directory-git-sync/`.
-- [x] Feature marked `done` in `feature_list.json`.
+- [x] `feat-directory-git-sync` remains complete with refreshed dual-platform
+  evidence after the UI restyle.
+- [x] Drafted `docs/harness/specs/ios-clean-ui/spec.md`.
+- [x] Drafted `docs/harness/specs/ios-clean-ui/acceptance.yaml`.
+- [x] Added iOS and Android Maestro flows for the `ios-clean-ui` happy path.
+- [x] Approved the `ios-clean-ui` Gate A checklist.
+- [x] Switched the app shell to `CupertinoApp.router` with Chinese locale and
+  Cupertino localizations.
+- [x] Rebuilt the directory sync page with Cupertino navigation, grouped form
+  sections, system colors, and an action-sheet directory picker.
+- [x] Converted visible copy and status messages to Simplified Chinese while
+  keeping existing semantics identifiers.
+- [x] Updated Maestro keyboard handling for the Cupertino form.
+- [x] Copied `ios-clean-ui` acceptance reports into
+  `docs/harness/evidence/ios-clean-ui/`.
+- [x] Marked `feat-ios-clean-ui` as `done` in `feature_list.json`.
 
 ## Verification Evidence
 
@@ -33,35 +34,29 @@
 |---|---|---|---|
 | Structure guard | `fvm dart run tool/harness.dart structure` | Pass | 19/19 harness structure tests. |
 | Analyzer | `fvm flutter analyze` | Pass | No issues found. |
-| Tests | `fvm flutter test` | Pass | 95/95 tests. |
-| Full harness check | `fvm dart run tool/harness.dart check` | Pass | Format, structure, analyzer, and coverage gate passed; included coverage 153/166 lines (92.17%). |
-| Spec review printout | `fvm dart run tool/harness.dart spec review directory-git-sync` | Pass | Gate A checklist prints with status `spec-drafting`. |
-| Structure guard | `fvm dart run tool/harness.dart structure` | Pass | 19/19 harness structure tests after adding draft spec. |
-| Analyzer | `fvm flutter analyze` | Pass | No issues found after implementation. |
-| Feature tests | `fvm flutter test test/features/directory_git_sync/domain/usecases/sync_directory_to_git_repository_test.dart test/features/directory_git_sync/presentation/bloc/directory_sync_bloc_test.dart` | Pass | 3/3 feature tests. |
-| Full check | `fvm dart run tool/harness.dart check` | Pass | Format, structure, analyzer, and coverage gate passed; coverage 325/353 lines (92.07%). |
-| iOS acceptance | `fvm dart run tool/harness.dart spec accept directory-git-sync --maestro --platform ios` | Pass | iOS simulator flow and linked logic checks passed. |
-| Android acceptance | `fvm dart run tool/harness.dart spec accept directory-git-sync --maestro --platform android` | Pass | Android emulator flow and linked logic checks passed. |
-| Dual-platform acceptance | `fvm dart run tool/harness.dart spec accept directory-git-sync --maestro --platform all` | Pass | Summary reports PASS for both iOS and Android. |
-| Full check (final) | `fvm dart run tool/harness.dart check` | Pass | 110 tests pass; coverage 325/353 lines (92.07%). |
+| Full harness check | `fvm dart run tool/harness.dart check` | Pass | Format, structure, analyzer, and coverage passed; coverage 325/353 lines (92.07%). |
+| iOS clean UI review | `fvm dart run tool/harness.dart spec review ios-clean-ui --approve` | Pass | Gate A approved. |
+| iOS clean UI acceptance | `fvm dart run tool/harness.dart spec accept ios-clean-ui --maestro --platform all` | Pass | iOS and Android both PASS. |
+| Directory sync regression acceptance | `fvm dart run tool/harness.dart spec accept directory-git-sync --maestro --platform all` | Pass | Original feature still passes on the Cupertino UI. |
 
 ## Blockers / Risks
 
-- Device-backed Maestro remains required before any future user-visible feature
-  is marked `done`.
-- `feat-directory-git-sync` has no blockers; it is `done` with committed
-  dual-platform evidence.
+- No current blockers.
+- Flutter reports future-compatibility warnings for Swift Package Manager support
+  in some iOS plugins.
+- Android builds report future-compatibility warnings for Gradle, AGP, and
+  Kotlin versions.
 
 ## Next Session Startup
 
 1. Read `AGENTS.md`.
 2. Read `docs/harness/README.md` and relevant harness docs.
 3. Read `feature_list.json` and `progress.md`.
-4. Run `./init.sh` to confirm the baseline is restartable.
+4. Run `./init.sh` to confirm the baseline is restartable when a fresh baseline
+   is needed.
 
 ## Recommended Next Step
 
-- No further action required. `feat-directory-git-sync` is `done`.
-- The next feature should follow the same spec-first lifecycle (draft spec,
-  Gate A review, implementation, dual-platform acceptance, evidence commit,
-  then mark `done`).
+- No further action required for `feat-ios-clean-ui`.
+- Pick the next feature in `feature_list.json` or draft a new feature using the
+  same spec-first lifecycle.

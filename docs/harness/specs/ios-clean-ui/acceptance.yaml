@@ -1,0 +1,13 @@
+spec: ios-clean-ui
+feature: feat-ios-clean-ui
+goal: 'The directory sync screen is restyled to a clean iOS aesthetic with Simplified Chinese copy and the sync happy path still works end to end.'
+preconditions:
+  - Run the dev flavor.
+  - Dev fixture directory labeled GitSync 示例笔记 is available.
+  - Dev fixture remote https://example.invalid/gitsync-fixture.git is available.
+  - Dev fixture credential test-token is accepted without a real account.
+acceptance:
+  - id: ui-ios-clean-happy-path
+    claim: 'A user can open the restyled iOS-clean screen, choose the fixture directory, enter Git credentials, tap Sync, and see a success state.'
+    kind: maestro
+    flow: ios_clean_ui_flow

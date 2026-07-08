@@ -22,20 +22,18 @@ class SyncDirectoryToGitRepository {
     final credential = request.credential.trim();
 
     if (directoryPath.isEmpty) {
-      throw const SyncDirectoryValidationException('Choose a directory first.');
+      throw const SyncDirectoryValidationException('请先选择一个目录。');
     }
     if (remoteUrl.isEmpty) {
-      throw const SyncDirectoryValidationException('Enter a Git remote URL.');
+      throw const SyncDirectoryValidationException('请输入 Git 远程仓库地址。');
     }
     if (!_isSupportedRemoteUrl(remoteUrl)) {
       throw const SyncDirectoryValidationException(
-        'Enter an HTTP(S) or SSH Git remote URL.',
+        '请输入 HTTP(S) 或 SSH 格式的 Git 远程地址。',
       );
     }
     if (credential.isEmpty && remoteUrl.startsWith('http')) {
-      throw const SyncDirectoryValidationException(
-        'Enter an authentication token.',
-      );
+      throw const SyncDirectoryValidationException('请输入访问令牌。');
     }
 
     return _repository.syncDirectory(
