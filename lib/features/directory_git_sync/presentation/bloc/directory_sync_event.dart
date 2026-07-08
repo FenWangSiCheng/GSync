@@ -7,25 +7,20 @@ sealed class DirectorySyncEvent extends Equatable {
   List<Object?> get props => [];
 }
 
+class DirectorySyncStarted extends DirectorySyncEvent {
+  const DirectorySyncStarted();
+}
+
 class DirectorySyncSystemDirectoryRequested extends DirectorySyncEvent {
   const DirectorySyncSystemDirectoryRequested();
 }
 
-class DirectorySyncFixtureDirectorySelected extends DirectorySyncEvent {
-  const DirectorySyncFixtureDirectorySelected();
+class DirectorySyncTokenStatusRequested extends DirectorySyncEvent {
+  const DirectorySyncTokenStatusRequested();
 }
 
 class DirectorySyncRemoteUrlChanged extends DirectorySyncEvent {
   const DirectorySyncRemoteUrlChanged(this.value);
-
-  final String value;
-
-  @override
-  List<Object?> get props => [value];
-}
-
-class DirectorySyncCredentialChanged extends DirectorySyncEvent {
-  const DirectorySyncCredentialChanged(this.value);
 
   final String value;
 

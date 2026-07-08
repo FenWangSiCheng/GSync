@@ -6,21 +6,21 @@ class DirectorySyncState extends Equatable {
   const DirectorySyncState({
     this.selectedDirectoryPath = '',
     this.remoteUrl = '',
-    this.credential = '',
+    this.hasCredential = false,
     this.status = DirectorySyncStatus.idle,
-    this.statusMessage = '请先选择一个目录。',
+    this.statusMessage = '正在准备默认同步目录。',
   });
 
   final String selectedDirectoryPath;
   final String remoteUrl;
-  final String credential;
+  final bool hasCredential;
   final DirectorySyncStatus status;
   final String statusMessage;
 
   bool get canSync {
     return selectedDirectoryPath.trim().isNotEmpty &&
         remoteUrl.trim().isNotEmpty &&
-        credential.trim().isNotEmpty &&
+        hasCredential &&
         status != DirectorySyncStatus.syncing &&
         status != DirectorySyncStatus.picking;
   }
@@ -28,7 +28,7 @@ class DirectorySyncState extends Equatable {
   DirectorySyncState copyWith({
     String? selectedDirectoryPath,
     String? remoteUrl,
-    String? credential,
+    bool? hasCredential,
     DirectorySyncStatus? status,
     String? statusMessage,
   }) {
@@ -36,7 +36,7 @@ class DirectorySyncState extends Equatable {
       selectedDirectoryPath:
           selectedDirectoryPath ?? this.selectedDirectoryPath,
       remoteUrl: remoteUrl ?? this.remoteUrl,
-      credential: credential ?? this.credential,
+      hasCredential: hasCredential ?? this.hasCredential,
       status: status ?? this.status,
       statusMessage: statusMessage ?? this.statusMessage,
     );
@@ -46,7 +46,7 @@ class DirectorySyncState extends Equatable {
   List<Object?> get props => [
     selectedDirectoryPath,
     remoteUrl,
-    credential,
+    hasCredential,
     status,
     statusMessage,
   ];

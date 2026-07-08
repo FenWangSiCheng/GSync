@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../core/router/router_constants.dart';
 import '../bloc/directory_sync_bloc.dart';
 
 class DirectorySyncPage extends StatelessWidget {
@@ -16,9 +18,26 @@ class DirectorySyncPage extends StatelessWidget {
         backgroundColor: CupertinoColors.systemGroupedBackground,
         child: CustomScrollView(
           slivers: [
-            const CupertinoSliverNavigationBar(
-              largeTitle: Text('GitSync'),
+            CupertinoSliverNavigationBar(
+              largeTitle: const Text('GitSync'),
               backgroundColor: CupertinoColors.systemGroupedBackground,
+              trailing: Semantics(
+                identifier: 'token_settings_button',
+                button: true,
+                label: '令牌设置',
+                child: CupertinoButton(
+                  padding: EdgeInsets.zero,
+                  onPressed: () async {
+                    await context.push(RouterPaths.tokenSettings);
+                    if (context.mounted) {
+                      context.read<DirectorySyncBloc>().add(
+                        const DirectorySyncTokenStatusRequested(),
+                      );
+                    }
+                  },
+                  child: const Icon(CupertinoIcons.lock_shield),
+                ),
+              ),
             ),
             SliverToBoxAdapter(
               child: SafeArea(
@@ -32,6 +51,8 @@ class DirectorySyncPage extends StatelessWidget {
                         _Header(),
                         SizedBox(height: 20),
                         _DirectorySection(),
+                        SizedBox(height: 12),
+                        _TokenSection(),
                         SizedBox(height: 12),
                         _RemoteSection(),
                         SizedBox(height: 16),
@@ -104,13 +125,15 @@ class _DirectorySection extends StatelessWidget {
                 child: CupertinoButton.filled(
                   onPressed: state.status == DirectorySyncStatus.syncing
                       ? null
-                      : () => _showDirectoryPicker(context),
+                      : () => context.read<DirectorySyncBloc>().add(
+                          const DirectorySyncSystemDirectoryRequested(),
+                        ),
                   child: const Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(CupertinoIcons.folder_open),
                       SizedBox(width: 6),
-                      Text('选择目录'),
+                      Text('更改目录'),
                     ],
                   ),
                 ),
@@ -145,53 +168,49 @@ class _DirectorySection extends StatelessWidget {
       },
     );
   }
+}
 
-  Future<void> _showDirectoryPicker(BuildContext context) async {
-    final bloc = context.read<DirectorySyncBloc>();
-    await showCupertinoModalPopup<void>(
-      context: context,
-      builder: (sheetContext) {
-        return CupertinoActionSheet(
-          title: const Text('选择同步目录'),
-          actions: [
-            CupertinoActionSheetAction(
-              onPressed: () {
-                Navigator.of(sheetContext).pop();
-                bloc.add(const DirectorySyncFixtureDirectorySelected());
-              },
-              child: Semantics(
-                identifier: 'directory_fixture_option',
-                button: true,
-                label: 'GitSync 示例笔记',
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(CupertinoIcons.folder_badge_plus),
-                    SizedBox(width: 8),
-                    Text('GitSync 示例笔记'),
-                  ],
+class _TokenSection extends StatelessWidget {
+  const _TokenSection();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<DirectorySyncBloc, DirectorySyncState>(
+      buildWhen: (previous, current) =>
+          previous.hasCredential != current.hasCredential,
+      builder: (context, state) {
+        return CupertinoListSection.insetGrouped(
+          header: const Text('访问令牌'),
+          topMargin: 0,
+          hasLeading: false,
+          children: [
+            CupertinoListTile.notched(
+              title: Semantics(
+                identifier: 'directory_token_status_text',
+                label: '目录同步令牌状态',
+                child: Text(
+                  state.hasCredential ? '已配置访问令牌' : '未配置访问令牌',
+                  style: TextStyle(
+                    color: state.hasCredential
+                        ? CupertinoColors.activeGreen
+                        : CupertinoColors.secondaryLabel,
+                  ),
                 ),
               ),
-            ),
-            CupertinoActionSheetAction(
-              onPressed: () {
-                Navigator.of(sheetContext).pop();
-                bloc.add(const DirectorySyncSystemDirectoryRequested());
-              },
-              child: const Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(CupertinoIcons.folder),
-                  SizedBox(width: 8),
-                  Text('系统选择器'),
-                ],
+              trailing: CupertinoButton(
+                padding: EdgeInsets.zero,
+                onPressed: () async {
+                  await context.push(RouterPaths.tokenSettings);
+                  if (context.mounted) {
+                    context.read<DirectorySyncBloc>().add(
+                      const DirectorySyncTokenStatusRequested(),
+                    );
+                  }
+                },
+                child: const Text('设置'),
               ),
             ),
           ],
-          cancelButton: CupertinoActionSheetAction(
-            onPressed: () => Navigator.of(sheetContext).pop(),
-            child: const Text('取消'),
-          ),
         );
       },
     );
@@ -215,28 +234,10 @@ class _RemoteSection extends StatelessWidget {
             child: CupertinoTextField(
               placeholder: '远程仓库地址',
               keyboardType: TextInputType.url,
-              textInputAction: TextInputAction.next,
-              onChanged: (value) {
-                context.read<DirectorySyncBloc>().add(
-                  DirectorySyncRemoteUrlChanged(value),
-                );
-              },
-            ),
-          ),
-        ),
-        CupertinoFormRow(
-          prefix: const Text('令牌'),
-          child: Semantics(
-            identifier: 'auth_token_field',
-            textField: true,
-            label: '访问令牌',
-            child: CupertinoTextField(
-              placeholder: '访问令牌',
-              obscureText: true,
               textInputAction: TextInputAction.done,
               onChanged: (value) {
                 context.read<DirectorySyncBloc>().add(
-                  DirectorySyncCredentialChanged(value),
+                  DirectorySyncRemoteUrlChanged(value),
                 );
               },
             ),

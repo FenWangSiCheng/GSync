@@ -4,19 +4,27 @@ appId: com.example.basic_demo.dev
     clearState: true
 - assertVisible:
     id: directory_sync_screen
-- tapOn:
-    id: directory_picker_button
-- tapOn:
-    id: directory_fixture_option
 - assertVisible:
     id: selected_directory_text
 - tapOn:
-    id: remote_url_field
-- inputText: "https://example.invalid/gitsync-fixture.git"
+    id: token_settings_button
+- assertVisible:
+    id: token_settings_screen
+- tapOn:
+    id: token_input_field
+- inputText: "test-token"
 - hideKeyboard
 - tapOn:
-    id: auth_token_field
-- inputText: "test-token"
+    id: save_token_button
+- assertVisible:
+    id: saved_token_status_text
+- tapOn:
+    id: token_settings_back_button
+- assertVisible:
+    id: directory_token_status_text
+- tapOn:
+    id: remote_url_field
+- inputText: "https://example.invalid/gitsync-fixture.git"
 - hideKeyboard
 - tapOn:
     id: sync_button

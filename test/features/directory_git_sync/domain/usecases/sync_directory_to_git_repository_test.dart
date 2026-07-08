@@ -150,6 +150,7 @@ class _FakeGitCommandRunner implements GitCommandRunner {
   Future<GitCommandResult> run(
     List<String> arguments, {
     required String workingDirectory,
+    Map<String, String>? environment,
   }) async {
     commands.add(arguments);
     if (arguments.join(' ') == failCommand) {

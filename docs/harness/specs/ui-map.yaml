@@ -10,10 +10,6 @@ targets:
     role: button
     label: Choose directory
     semantics_identifier: directory_picker_button
-  directory_fixture_option:
-    role: button
-    label: GitSync Fixture Notes
-    semantics_identifier: directory_fixture_option
   selected_directory_text:
     role: text
     label: Selected directory
@@ -22,10 +18,6 @@ targets:
     role: textField
     label: Remote Git repository URL
     semantics_identifier: remote_url_field
-  auth_token_field:
-    role: textField
-    label: Authentication token
-    semantics_identifier: auth_token_field
   sync_button:
     role: button
     label: Sync
@@ -42,3 +34,39 @@ targets:
     role: text
     label: Sync failed
     semantics_identifier: sync_error_text
+  token_settings_button:
+    role: button
+    label: Token settings
+    semantics_identifier: token_settings_button
+  directory_token_status_text:
+    role: text
+    label: Directory sync token status
+    semantics_identifier: directory_token_status_text
+  token_settings_screen:
+    role: screen
+    label: Token settings
+    semantics_identifier: token_settings_screen
+  token_settings_back_button:
+    role: button
+    label: Back from token settings
+    semantics_identifier: token_settings_back_button
+  saved_token_status_text:
+    role: text
+    label: Saved token status
+    semantics_identifier: saved_token_status_text
+  token_input_field:
+    role: textField
+    label: Git access token
+    semantics_identifier: token_input_field
+  save_token_button:
+    role: button
+    label: Save token
+    semantics_identifier: save_token_button
+  delete_token_button:
+    role: button
+    label: Delete token
+    semantics_identifier: delete_token_button
+  token_settings_status_text:
+    role: text
+    label: Token settings status
+    semantics_identifier: token_settings_status_text

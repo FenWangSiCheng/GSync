@@ -10,7 +10,7 @@ void main() {
     test('returns success for the dev fixture request', () async {
       final result = await repository.syncDirectory(
         const DirectorySyncRequest(
-          directoryPath: FixtureGitSyncRepository.fixtureDirectoryPath,
+          directoryPath: '/any/default/GitSync',
           remoteUrl: FixtureGitSyncRepository.fixtureRemoteUrl,
           credential: FixtureGitSyncRepository.fixtureCredential,
         ),

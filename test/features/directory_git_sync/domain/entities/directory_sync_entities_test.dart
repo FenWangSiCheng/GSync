@@ -57,26 +57,26 @@ void main() {
       final ready = empty.copyWith(
         selectedDirectoryPath: '/notes',
         remoteUrl: 'https://example.com/repo.git',
-        credential: 'token',
+        hasCredential: true,
       );
       final syncing = ready.copyWith(status: DirectorySyncStatus.syncing);
 
       expect(empty.canSync, isFalse);
       expect(ready.canSync, isTrue);
       expect(syncing.canSync, isFalse);
-      expect(ready.statusMessage, '请先选择一个目录。');
+      expect(ready.statusMessage, '正在准备默认同步目录。');
     });
 
     test('events expose value props', () {
+      expect(const DirectorySyncStarted().props, isEmpty);
       expect(const DirectorySyncSystemDirectoryRequested().props, isEmpty);
-      expect(const DirectorySyncFixtureDirectorySelected().props, isEmpty);
+      expect(const DirectorySyncTokenStatusRequested().props, isEmpty);
       expect(
         const DirectorySyncRemoteUrlChanged(
           'https://example.com/repo.git',
         ).props,
         ['https://example.com/repo.git'],
       );
-      expect(const DirectorySyncCredentialChanged('token').props, ['token']);
       expect(const DirectorySyncRequested().props, isEmpty);
     });
   });

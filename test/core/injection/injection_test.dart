@@ -3,13 +3,20 @@ import 'package:flutter_foundations/core/config/app_config.dart';
 import 'package:flutter_foundations/core/injection/injection.dart';
 import 'package:flutter_foundations/core/network/dio_client.dart';
 import 'package:flutter_foundations/features/directory_git_sync/data/datasources/git_command_runner.dart';
+import 'package:flutter_foundations/features/directory_git_sync/domain/repositories/default_sync_directory_repository.dart';
 import 'package:flutter_foundations/features/directory_git_sync/data/repositories/fixture_git_sync_repository.dart';
 import 'package:flutter_foundations/features/directory_git_sync/data/repositories/process_git_sync_repository.dart';
 import 'package:flutter_foundations/features/directory_git_sync/domain/repositories/directory_picker_repository.dart';
 import 'package:flutter_foundations/features/directory_git_sync/domain/repositories/git_sync_repository.dart';
+import 'package:flutter_foundations/features/directory_git_sync/domain/usecases/get_default_sync_directory.dart';
 import 'package:flutter_foundations/features/directory_git_sync/domain/usecases/pick_sync_directory.dart';
 import 'package:flutter_foundations/features/directory_git_sync/domain/usecases/sync_directory_to_git_repository.dart';
 import 'package:flutter_foundations/features/directory_git_sync/presentation/bloc/directory_sync_bloc.dart';
+import 'package:flutter_foundations/features/token_settings/domain/repositories/git_token_repository.dart';
+import 'package:flutter_foundations/features/token_settings/domain/usecases/delete_git_token.dart';
+import 'package:flutter_foundations/features/token_settings/domain/usecases/get_git_token.dart';
+import 'package:flutter_foundations/features/token_settings/domain/usecases/save_git_token.dart';
+import 'package:flutter_foundations/features/token_settings/presentation/bloc/token_settings_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -119,9 +126,18 @@ void main() {
 
       expect(getIt<GitCommandRunner>(), isA<ProcessGitCommandRunner>());
       expect(
+        getIt<DefaultSyncDirectoryRepository>(),
+        isA<DefaultSyncDirectoryRepository>(),
+      );
+      expect(
         getIt<DirectoryPickerRepository>(),
         isA<DirectoryPickerRepository>(),
       );
+      expect(getIt<GitTokenRepository>(), isA<GitTokenRepository>());
+      expect(getIt<GetDefaultSyncDirectory>(), isA<GetDefaultSyncDirectory>());
+      expect(getIt<GetGitToken>(), isA<GetGitToken>());
+      expect(getIt<SaveGitToken>(), isA<SaveGitToken>());
+      expect(getIt<DeleteGitToken>(), isA<DeleteGitToken>());
       expect(getIt<GitSyncRepository>(), isA<FixtureGitSyncRepository>());
       expect(getIt<PickSyncDirectory>(), isA<PickSyncDirectory>());
       expect(
@@ -129,6 +145,7 @@ void main() {
         isA<SyncDirectoryToGitRepository>(),
       );
       expect(getIt<DirectorySyncBloc>(), isA<DirectorySyncBloc>());
+      expect(getIt<TokenSettingsBloc>(), isA<TokenSettingsBloc>());
       expect(
         getIt<DirectorySyncBloc>(),
         isNot(same(getIt<DirectorySyncBloc>())),

@@ -8,8 +8,6 @@ remote from the app.
 ## Preconditions
 
 - Run the `dev` flavor.
-- The dev build exposes a deterministic test directory fixture named
-  `GitSync Fixture Notes`.
 - The dev build exposes a deterministic test remote named
   `https://example.invalid/gitsync-fixture.git`.
 - The dev build accepts `test-token` as a non-secret fixture credential and
@@ -19,11 +17,12 @@ remote from the app.
 
 1. Launch the app.
 2. Open the directory sync screen.
-3. Choose the local directory fixture.
-4. Enter the remote Git repository URL.
-5. Enter the authentication token.
-6. Tap Sync.
-7. Wait for the sync to finish.
+3. Confirm the default local sync directory is selected.
+4. Open token settings and save the authentication token.
+5. Return to the directory sync screen.
+6. Enter the remote Git repository URL.
+7. Tap Sync.
+8. Wait for the sync to finish.
 
 ## Acceptance Criteria
 

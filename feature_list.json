@@ -13,9 +13,9 @@
       "title": "指定目录一键同步到 Git 仓库",
       "status": "done",
       "spec": "directory-git-sync",
-      "summary": "用户选择一个本地目录，配置远程 Git 仓库和认证信息，点击同步后将目录内容提交并推送到远程仓库。",
+      "summary": "用户使用默认目录或选择一个本地目录，配置远程 Git 仓库和认证信息，点击同步后将目录内容提交并推送到远程仓库。",
       "scope": [
-        "选择一个本地目录",
+        "使用默认目录或选择一个本地目录",
         "输入远程 Git 仓库 URL",
         "输入认证 token 或等价凭据",
         "点击同步",
@@ -76,6 +76,47 @@
       "acceptance": {
         "ios": "PASS: fvm dart run tool/harness.dart spec accept ios-clean-ui --maestro --platform ios",
         "android": "PASS: fvm dart run tool/harness.dart spec accept ios-clean-ui --maestro --platform android"
+      },
+      "next_step": "Feature complete. Dual-platform Maestro acceptance passes on both iOS and Android. No further action required."
+    },
+    {
+      "id": "feat-encrypted-token-default-directory",
+      "title": "加密令牌设置与默认同步目录",
+      "status": "done",
+      "spec": "encrypted-token-default-directory",
+      "summary": "用户在单独页面保存 Git 访问令牌,应用使用系统安全存储加密保存;目录同步页默认填入应用同步目录,并允许用户改选本地目录。",
+      "scope": [
+        "新增令牌设置页面",
+        "使用系统安全存储保存、读取和删除 Git 访问令牌",
+        "目录同步页显示令牌配置状态,不直接输入令牌",
+        "目录同步页启动时自动创建并选中默认同步目录",
+        "保留系统目录选择器以改选目录",
+        "移除示例笔记目录入口",
+        "真实 Git 推送不把令牌写入 remote URL"
+      ],
+      "out_of_scope": [
+        "多令牌或多账号管理",
+        "生物识别解锁令牌",
+        "后台自动同步",
+        "复杂 Git 冲突处理",
+        "远程仓库创建"
+      ],
+      "dependencies": [
+        "feat-directory-git-sync",
+        "feat-ios-clean-ui"
+      ],
+      "evidence": [
+        "docs/harness/specs/encrypted-token-default-directory/spec.md",
+        "docs/harness/specs/encrypted-token-default-directory/acceptance.yaml",
+        ".maestro/ios/encrypted_token_default_directory_flow.yaml",
+        ".maestro/android/encrypted_token_default_directory_flow.yaml",
+        "docs/harness/evidence/encrypted-token-default-directory/report.json",
+        "docs/harness/evidence/encrypted-token-default-directory/report-ios.json",
+        "docs/harness/evidence/encrypted-token-default-directory/report-android.json"
+      ],
+      "acceptance": {
+        "ios": "PASS: fvm dart run tool/harness.dart spec accept encrypted-token-default-directory --maestro --platform ios",
+        "android": "PASS: fvm dart run tool/harness.dart spec accept encrypted-token-default-directory --maestro --platform android"
       },
       "next_step": "Feature complete. Dual-platform Maestro acceptance passes on both iOS and Android. No further action required."
     }

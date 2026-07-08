@@ -10,7 +10,7 @@ Simplified Chinese, without breaking the existing sync happy path.
 ## Preconditions
 
 - Run the `dev` flavor.
-- The dev fixture directory, remote, and credential from the
+- The dev default sync directory, fixture remote, and credential from the
   `directory-git-sync` spec remain available.
 - The app shell renders a `CupertinoApp` with a Simplified Chinese locale.
 
@@ -18,11 +18,11 @@ Simplified Chinese, without breaking the existing sync happy path.
 
 1. Launch the app.
 2. The directory sync screen is visible with a large-title navigation bar.
-3. Tap the directory picker button.
-4. Choose the GitSync fixture notes directory from the action sheet.
-5. The selected directory path is visible.
+3. The default sync directory path is visible.
+4. Open token settings and save the authentication token.
+5. Return to the directory sync screen.
 6. Enter the remote Git repository URL.
-7. Enter the authentication token.
+7. The configured token status is visible.
 8. Tap Sync.
 9. Wait for the sync success state to appear.
 
@@ -30,7 +30,7 @@ Simplified Chinese, without breaking the existing sync happy path.
 
 Mirrored as machine-checkable items in `acceptance.yaml`.
 
-- The restyled screen is reachable and the directory picker still works.
+- The restyled screen is reachable and the default directory is selected.
 - The selected directory is visible before syncing.
 - The Sync action completes with a visible success state.
 - All user-visible copy on the screen is Simplified Chinese.

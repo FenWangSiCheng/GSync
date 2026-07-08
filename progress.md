@@ -3,46 +3,47 @@
 ## Current State
 
 **Last Updated:** 2026-07-08 CST
-**Active Feature:** `feat-ios-clean-ui`
-**Current Activity:** Feature complete. The iOS clean UI restyle and Simplified
-Chinese copy have been implemented and accepted on both iOS and Android.
+**Active Feature:** `feat-encrypted-token-default-directory`
+**Current Activity:** Feature complete. Git token settings now live on a
+dedicated page backed by secure storage, directory sync starts from a default
+app directory, and all linked specs pass dual-platform Maestro acceptance.
 
 ## Status
 
 ### What's Done
 
-- [x] Completed `feat-directory-git-sync` with committed dual-platform
-  acceptance evidence.
-- [x] Drafted `ios-clean-ui` spec, acceptance checklist, and platform Maestro
-  flows.
-- [x] Approved the `ios-clean-ui` Gate A checklist with
-  `fvm dart run tool/harness.dart spec review ios-clean-ui --approve`.
-- [x] Reworked the app shell to `CupertinoApp.router` with Simplified Chinese
-  locale and Cupertino localizations.
-- [x] Restyled the directory sync page with Cupertino large-title navigation,
-  grouped form sections, system colors, and a Cupertino action sheet.
-- [x] Converted visible directory sync, validation, status, fixture, flavor, and
-  error-route copy to Simplified Chinese.
-- [x] Preserved existing semantics identifiers used by Maestro.
-- [x] Updated Maestro keyboard handling for the current Cupertino form: iOS uses
-  keyboard `next`/`done`, Android hides the keyboard between fields.
-- [x] Re-ran `directory-git-sync` dual-platform acceptance after the UI restyle;
-  both platforms still pass.
-- [x] Ran `ios-clean-ui` dual-platform acceptance; both platforms pass.
-- [x] Copied acceptance reports into
-  `docs/harness/evidence/ios-clean-ui/`.
-- [x] Marked `feat-ios-clean-ui` as `done` in `feature_list.json`.
+- [x] Completed `feat-directory-git-sync` and refreshed dual-platform
+  acceptance evidence after the token/default-directory workflow change.
+- [x] Completed `feat-ios-clean-ui` and refreshed dual-platform acceptance
+  evidence on the updated workflow.
+- [x] Drafted, approved, implemented, and accepted
+  `feat-encrypted-token-default-directory`.
+- [x] Added `flutter_secure_storage` for platform secure token storage and
+  `path_provider` for resolving the app documents directory.
+- [x] Added a dedicated Cupertino token settings page for saving and deleting
+  the Git access token.
+- [x] Changed directory sync to load the saved token from secure storage instead
+  of taking token input on the sync page.
+- [x] Changed directory sync startup to create and select a default `GitSync`
+  app documents directory.
+- [x] Removed the GitSync example notes directory UI path; users can still use
+  the system directory picker to choose a different directory.
+- [x] Updated real Git sync so HTTP credentials are passed through temporary
+  `GIT_ASKPASS` environment state during push rather than embedded in the saved
+  remote URL.
+- [x] Updated specs, UI target map, Maestro flows, feature state, and committed
+  evidence paths.
 
 ### What's Next
 
-1. No outstanding work for `feat-ios-clean-ui`.
-2. Future features should continue the spec-first lifecycle: draft spec, Gate A
-   review, implementation, dual-platform `spec accept --maestro --platform all`,
-   evidence copy, then mark `done`.
+1. No outstanding implementation work for
+   `feat-encrypted-token-default-directory`.
+2. Future credential work can add multi-account support or biometric gating as
+   a separate feature.
 
 ## Blockers / Risks
 
-- [ ] No blockers for `feat-ios-clean-ui`; it is `done`.
+- [ ] No blockers for `feat-encrypted-token-default-directory`; it is `done`.
 - [ ] Flutter warns that some iOS plugins do not support Swift Package Manager.
   This is not blocking current validation but may become an issue in a future
   Flutter release.
@@ -51,56 +52,48 @@ Chinese copy have been implemented and accepted on both iOS and Android.
 
 ## Decisions Made
 
-- **Use Cupertino without ARB localization:** The feature requires Simplified
-  Chinese visible copy and a Chinese locale, but full ARB/i18n plumbing remains
-  out of scope.
-- **Keep semantics stable:** Existing Maestro identifiers are retained so the
-  original directory sync acceptance path remains valid.
-- **Use platform-specific keyboard handling:** The iOS simulator did not
-  reliably support Maestro `hideKeyboard`, so iOS flows use keyboard
-  `next`/`done`; Android flows continue to use `hideKeyboard`.
-- **Refresh old acceptance evidence:** Since the original directory sync flow was
-  adjusted for the new Cupertino keyboard behavior, its evidence reports were
-  regenerated after a fresh dual-platform PASS.
+- **Use platform secure storage:** Git tokens are stored through
+  `flutter_secure_storage`, keeping key management with the OS instead of app
+  code.
+- **Keep one saved Git token:** Multi-account and per-repository credentials are
+  out of scope for this feature.
+- **Default to an app documents directory:** On startup, GitSync creates and
+  selects a `GitSync` directory under the app documents directory.
+- **Avoid token-in-remote URLs:** HTTP push authentication uses a temporary
+  askpass script and environment variables so `.git/config` keeps the clean
+  remote URL.
+- **Keep UI behavior in Maestro:** Token settings navigation and the saved-token
+  sync path are covered by iOS and Android Maestro flows.
 
 ## Files Modified This Session
 
-- `feature_list.json` - Added and completed `feat-ios-clean-ui` with evidence
-  and platform acceptance results.
-- `pubspec.yaml` and `pubspec.lock` - Added `flutter_localizations`.
-- `lib/core/widgets/app.dart` - Switched the shell to `CupertinoApp.router` with
-  Chinese locale and Cupertino theme.
-- `lib/core/router/app_router.dart` and `lib/core/widgets/blank_page.dart` -
-  Converted shell/error surfaces to Cupertino styling and Chinese copy.
-- `lib/core/config/app_config.dart` - Updated app names to GitSync Chinese flavor
-  labels.
-- `lib/features/directory_git_sync/` - Converted visible validation/status
-  strings and the directory sync page to the iOS clean UI.
-- `test/core/config/` and `test/features/directory_git_sync/` - Updated tests for
-  Chinese copy and status strings.
-- `docs/harness/specs/ios-clean-ui/` - Added the spec, acceptance checklist, and
-  UI map delta.
-- `.maestro/ios/` and `.maestro/android/` - Added `ios_clean_ui_flow.yaml` and
-  updated directory sync flows for keyboard-safe form entry.
-- `docs/harness/evidence/directory-git-sync/` - Refreshed acceptance reports
-  after revalidating the original feature on the new UI.
-- `docs/harness/evidence/ios-clean-ui/` - Added dual-platform acceptance reports.
-- `progress.md` and `session-handoff.md` - Updated session state and restart
-  notes.
+- `feature_list.json`, `progress.md`, and `session-handoff.md` - Updated
+  feature state, evidence, and restart notes.
+- `pubspec.yaml` and `pubspec.lock` - Added `flutter_secure_storage` and
+  `path_provider`.
+- `lib/core/router/` and `lib/core/injection/` - Added token settings route and
+  dependency registrations.
+- `lib/features/directory_git_sync/` - Added default directory resolution,
+  saved-token sync behavior, clean remote URL push handling, and removed the
+  example notes UI path.
+- `lib/features/token_settings/` - Added secure token storage, use cases, BLoC,
+  and settings page.
+- `test/features/directory_git_sync/`, `test/features/token_settings/`, and
+  `test/core/` - Added and updated unit tests for the new behavior.
+- `docs/harness/specs/` and `.maestro/` - Added the new spec and refreshed all
+  affected Maestro flows.
+- `docs/harness/evidence/` - Refreshed acceptance reports for all three specs.
 
 ## Evidence of Completion
 
-- [x] `fvm dart run tool/harness.dart structure` passes: 19/19 harness structure
-  tests.
-- [x] `fvm flutter analyze` passes: no issues found.
 - [x] `fvm dart run tool/harness.dart check` passes: format clean, structure
-  green, analyzer clean, 110 coverage-gated tests pass, coverage 325/353 lines
-  (92.07%) against the 90% threshold.
-- [x] `fvm dart run tool/harness.dart spec review ios-clean-ui --approve`
+  green, analyzer clean, 123 coverage-gated tests pass, coverage 423/468 lines
+  (90.38%) against the 90% threshold.
+- [x] `fvm dart run tool/harness.dart spec review encrypted-token-default-directory --approve`
   passes and marks the spec approved.
-- [x] `fvm dart run tool/harness.dart spec accept ios-clean-ui --maestro --platform ios`
-  passes.
-- [x] `fvm dart run tool/harness.dart spec accept ios-clean-ui --maestro --platform all`
+- [x] `fvm dart run tool/harness.dart spec accept encrypted-token-default-directory --maestro --platform all`
   passes with iOS and Android both PASS.
 - [x] `fvm dart run tool/harness.dart spec accept directory-git-sync --maestro --platform all`
-  passes after the UI restyle.
+  passes after refreshing the workflow.
+- [x] `fvm dart run tool/harness.dart spec accept ios-clean-ui --maestro --platform all`
+  passes after refreshing the workflow.
