@@ -15,11 +15,11 @@ class AppConfig {
   String get appName {
     switch (currentFlavor) {
       case Flavor.dev:
-        return 'Flutter Foundations Dev';
+        return 'Flutter Harness Template Dev';
       case Flavor.stg:
-        return 'Flutter Foundations Stg';
+        return 'Flutter Harness Template Stg';
       case Flavor.prod:
-        return 'Flutter Foundations';
+        return 'Flutter Harness Template';
     }
   }
 
@@ -61,11 +61,11 @@ class AppConfig {
   String get flavorTitle {
     switch (currentFlavor) {
       case Flavor.dev:
-        return 'flutter dev';
+        return 'template dev';
       case Flavor.stg:
-        return 'flutter stg';
+        return 'template stg';
       case Flavor.prod:
-        return 'flutter prod';
+        return 'template prod';
     }
   }
 

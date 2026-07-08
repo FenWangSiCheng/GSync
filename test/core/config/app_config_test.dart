@@ -29,19 +29,19 @@ void main() {
       test('should return correct app name for dev flavor', () {
         const config = AppConfig(currentFlavor: Flavor.dev);
 
-        expect(config.appName, 'Flutter Foundations Dev');
+        expect(config.appName, 'Flutter Harness Template Dev');
       });
 
       test('should return correct app name for stg flavor', () {
         const config = AppConfig(currentFlavor: Flavor.stg);
 
-        expect(config.appName, 'Flutter Foundations Stg');
+        expect(config.appName, 'Flutter Harness Template Stg');
       });
 
       test('should return correct app name for prod flavor', () {
         const config = AppConfig(currentFlavor: Flavor.prod);
 
-        expect(config.appName, 'Flutter Foundations');
+        expect(config.appName, 'Flutter Harness Template');
       });
     });
 
@@ -129,19 +129,19 @@ void main() {
       test('should return correct flavor title for dev', () {
         const config = AppConfig(currentFlavor: Flavor.dev);
 
-        expect(config.flavorTitle, 'flutter dev');
+        expect(config.flavorTitle, 'template dev');
       });
 
       test('should return correct flavor title for stg', () {
         const config = AppConfig(currentFlavor: Flavor.stg);
 
-        expect(config.flavorTitle, 'flutter stg');
+        expect(config.flavorTitle, 'template stg');
       });
 
       test('should return correct flavor title for prod', () {
         const config = AppConfig(currentFlavor: Flavor.prod);
 
-        expect(config.flavorTitle, 'flutter prod');
+        expect(config.flavorTitle, 'template prod');
       });
     });
 

@@ -1138,11 +1138,7 @@ acceptance:
   }
 
   List<Map<String, Object?>> _generatedFiles() {
-    const files = [
-      'lib/core/injection/injection.config.dart',
-      'lib/features/user/data/models/user_model.freezed.dart',
-      'lib/features/user/data/models/user_model.g.dart',
-    ];
+    const files = ['lib/core/injection/injection.config.dart'];
 
     return files.map((path) {
       return {'path': path, 'exists': File(path).existsSync()};

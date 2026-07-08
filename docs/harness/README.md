@@ -40,9 +40,10 @@ walkinglabs learn-harness-engineering model:
 
 ## Current App Surface
 
-- Feature-first Flutter app using BLoC, Dio, get_it, injectable, and go_router.
+- Blank Flutter app shell using Dio, get_it, injectable, and go_router.
 - Three flavors: `dev`, `stg`, and `prod`.
-- Development flavor uses local mock API data from `assets/mock/`.
+- Development flavor can use mock API hooks, but no demo mock payloads are
+  bundled in the template.
 - Generated code is committed in this repo and must stay in sync with source
   annotations.
 

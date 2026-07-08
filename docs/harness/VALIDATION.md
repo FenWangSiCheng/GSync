@@ -184,6 +184,10 @@ dispatch. It does not build downloadable IPA, APK, or AAB artifacts. Instead it:
 3. Boots an Android emulator and runs every `done` spec with
    `fvm dart run tool/harness.dart spec accept <id> --maestro --platform android`.
 
+If `feature_list.json` contains no `done` specs, Maestro CI logs that there is
+nothing to accept and exits successfully. This is expected for a fresh blank
+template.
+
 The harness command builds and installs the `dev` app variant on the running
 simulator/emulator before each Maestro flow, so no signing certificates are
 required.

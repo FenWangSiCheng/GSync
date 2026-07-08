@@ -29,10 +29,9 @@ builds these events are printed with a `[harness]` prefix and JSON payloads.
 | `dio.mock_adapter.ready` | Mock API adapter is configured. |
 | `dio.http_adapter.ready` | Real HTTP adapter is configured. |
 | `dio.initialize.ready` | Dio initialization finished. |
-| `flow.user_profile.loading` | User profile flow entered a loading state. |
-| `flow.user_profile.user_loaded` | User profile data loaded for a mock user. |
-| `flow.user_profile.switch_user.requested` | A user-switch action was requested from the UI. |
-| `flow.user_profile.error` | User profile flow entered an error state. |
+
+Feature-specific events should be added here when real product flows are
+implemented.
 
 ## Agent Usage
 

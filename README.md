@@ -1,7 +1,7 @@
 # Flutter Harness Project
 
-This repository is a demo Flutter application used to showcase a
-repository-local AI coding harness. The app surface is intentionally modest; the
+This repository is a blank Flutter project template with a repository-local AI
+coding harness already wired in. The app surface is intentionally empty; the
 important part is the framework around it: instructions, durable state,
 repeatable validation, architecture guards, feature specs, acceptance evidence,
 runtime signals, CI, and project-local agent skills.
@@ -63,6 +63,10 @@ Feature scope and completion evidence are tracked in
 [`feature_list.json`](feature_list.json). Session continuity lives in
 [`progress.md`](progress.md), with restart notes in
 [`session-handoff.md`](session-handoff.md).
+
+Fresh templates can have an empty feature list. Add the first real feature to
+`feature_list.json`, then create a reviewable spec with
+`fvm dart run tool/harness.dart spec new <spec-id>`.
 
 The working rule is one feature at a time. Do not mark a feature done until the
 behavior, docs/state updates, verification, dual-platform Maestro evidence, and
@@ -162,8 +166,9 @@ The repository has two harness-oriented GitHub Actions workflows:
   iOS and Android simulators/emulators and runs every `done` spec through
   Maestro.
 
-The Maestro workflow installs and runs the dev app on simulators. It does not
-produce IPA, APK, or AAB release artifacts and does not require signing
+The Maestro workflow installs and runs the dev app on simulators when done specs
+exist. A blank template with no done specs skips acceptance cleanly. The workflow
+does not produce IPA, APK, or AAB release artifacts and does not require signing
 certificates.
 
 ### Runtime Signals
@@ -194,13 +199,13 @@ lib/features/<feature>/
     widgets/
 ```
 
-Request flow:
+Suggested request flow for future features:
 
 ```text
 UI -> Event -> BLoC -> UseCase -> Repository -> DataSource -> API/mock data
 ```
 
-Response flow:
+Suggested response flow for future features:
 
 ```text
 API/mock data -> Model -> Entity -> UseCase -> BLoC -> State -> UI

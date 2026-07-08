@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
 import 'package:flutter/services.dart';
@@ -30,28 +28,21 @@ void main() {
       mockApiDataSource: false,
       isProduction: false,
     );
-    _clearMockAssetBundle();
     _clearMockProxyResponse(proxyChannel);
   });
 
   tearDown(() {
-    _clearMockAssetBundle();
     _clearMockProxyResponse(proxyChannel);
   });
 
   test(
     'initialize configures mock adapter when mock data source is enabled',
     () async {
-      const mockUsersJson =
-          '[{"id":"1","name":"Alice"},{"id":"2","name":"Bob"}]';
-
       config.update(
         baseUrl: 'https://mock.example.com',
         mockApiDataSource: true,
         isProduction: false,
       );
-
-      _setMockAssetBundle({'assets/mock/users.json': mockUsersJson});
 
       await client.initialize();
 
@@ -63,11 +54,6 @@ void main() {
         dio.interceptors.any((interceptor) => interceptor is AuthInterceptor),
         isTrue,
       );
-
-      final response = await dio.get('/users');
-      expect(response.statusCode, equals(200));
-      expect(response.data, isA<List<dynamic>>());
-      expect(response.data.length, equals(2));
     },
   );
 
@@ -345,26 +331,6 @@ void main() {
       equals('https://fresh.example.com'),
     );
   });
-}
-
-void _setMockAssetBundle(Map<String, String> assets) {
-  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-      .setMockMessageHandler('flutter/assets', (message) async {
-        final keyBytes = message!.buffer.asUint8List();
-        final key = utf8.decode(keyBytes);
-        final asset = assets[key];
-        if (asset == null) {
-          return null;
-        }
-        final encoded = utf8.encode(asset);
-        final bytes = Uint8List.fromList(encoded);
-        return ByteData.view(bytes.buffer);
-      });
-}
-
-void _clearMockAssetBundle() {
-  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-      .setMockMessageHandler('flutter/assets', null);
 }
 
 void _setMockProxyResponse(
