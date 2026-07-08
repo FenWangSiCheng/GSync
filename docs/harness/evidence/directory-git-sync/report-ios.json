@@ -1,0 +1,39 @@
+{
+  "spec": "directory-git-sync",
+  "feature": "feat-directory-git-sync",
+  "platform": "ios",
+  "result": "PASS",
+  "maestro_run": true,
+  "maestro_blocked_reason": null,
+  "maestro_all_pass": true,
+  "acceptance": [
+    {
+      "id": "ui-happy-path",
+      "claim": "A user can choose a local directory, enter remote Git credentials, tap Sync, and see a success state.",
+      "kind": "maestro",
+      "verdict": "pass",
+      "evidence": ".maestro/ios/directory_git_sync_flow.yaml"
+    },
+    {
+      "id": "logic-push-selected-directory",
+      "claim": "The sync use case stages, commits, and pushes files from the selected directory to the configured remote.",
+      "kind": "test",
+      "verdict": "pass",
+      "evidence": "test/features/directory_git_sync/domain/usecases/sync_directory_to_git_repository_test.dart"
+    },
+    {
+      "id": "logic-no-empty-commit",
+      "claim": "The sync use case reports success without creating an empty commit when the selected directory has no changes.",
+      "kind": "test",
+      "verdict": "pass",
+      "evidence": "test/features/directory_git_sync/domain/usecases/sync_directory_to_git_repository_test.dart"
+    },
+    {
+      "id": "logic-failure-state",
+      "claim": "Authentication or transport failures produce a failed sync state with a readable error message.",
+      "kind": "test",
+      "verdict": "pass",
+      "evidence": "test/features/directory_git_sync/presentation/bloc/directory_sync_bloc_test.dart"
+    }
+  ]
+}

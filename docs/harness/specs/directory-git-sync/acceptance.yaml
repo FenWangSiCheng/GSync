@@ -1,0 +1,25 @@
+spec: directory-git-sync
+feature: feat-directory-git-sync
+goal: 'User can choose one local directory and sync it to one configured Git remote.'
+preconditions:
+  - Run the dev flavor.
+  - Dev fixture directory GitSync Fixture Notes is available.
+  - Dev fixture remote https://example.invalid/gitsync-fixture.git is available.
+  - Dev fixture credential test-token is accepted without a real account.
+acceptance:
+  - id: ui-happy-path
+    claim: 'A user can choose a local directory, enter remote Git credentials, tap Sync, and see a success state.'
+    kind: maestro
+    flow: directory_git_sync_flow
+  - id: logic-push-selected-directory
+    claim: 'The sync use case stages, commits, and pushes files from the selected directory to the configured remote.'
+    kind: test
+    file: test/features/directory_git_sync/domain/usecases/sync_directory_to_git_repository_test.dart
+  - id: logic-no-empty-commit
+    claim: 'The sync use case reports success without creating an empty commit when the selected directory has no changes.'
+    kind: test
+    file: test/features/directory_git_sync/domain/usecases/sync_directory_to_git_repository_test.dart
+  - id: logic-failure-state
+    claim: 'Authentication or transport failures produce a failed sync state with a readable error message.'
+    kind: test
+    file: test/features/directory_git_sync/presentation/bloc/directory_sync_bloc_test.dart

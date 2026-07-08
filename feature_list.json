@@ -7,5 +7,42 @@
     "accepted",
     "done"
   ],
-  "features": []
+  "features": [
+    {
+      "id": "feat-directory-git-sync",
+      "title": "指定目录一键同步到 Git 仓库",
+      "status": "done",
+      "spec": "directory-git-sync",
+      "summary": "用户选择一个本地目录，配置远程 Git 仓库和认证信息，点击同步后将目录内容提交并推送到远程仓库。",
+      "scope": [
+        "选择一个本地目录",
+        "输入远程 Git 仓库 URL",
+        "输入认证 token 或等价凭据",
+        "点击同步",
+        "显示同步中、成功或失败状态"
+      ],
+      "out_of_scope": [
+        "后台自动同步",
+        "多仓库管理",
+        "文件编辑器",
+        "PR、Issue、AI 集成",
+        "复杂冲突可视化处理"
+      ],
+      "dependencies": [],
+      "evidence": [
+        "docs/harness/specs/directory-git-sync/spec.md",
+        "docs/harness/specs/directory-git-sync/acceptance.yaml",
+        ".maestro/ios/directory_git_sync_flow.yaml",
+        ".maestro/android/directory_git_sync_flow.yaml",
+        "docs/harness/evidence/directory-git-sync/report.json",
+        "docs/harness/evidence/directory-git-sync/report-ios.json",
+        "docs/harness/evidence/directory-git-sync/report-android.json"
+      ],
+      "acceptance": {
+        "ios": "PASS: fvm dart run tool/harness.dart spec accept directory-git-sync --maestro --platform ios",
+        "android": "PASS: fvm dart run tool/harness.dart spec accept directory-git-sync --maestro --platform android"
+      },
+      "next_step": "Feature complete. Dual-platform Maestro acceptance passes on both iOS and Android. No further action required."
+    }
+  ]
 }

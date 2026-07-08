@@ -1,8 +1,16 @@
 import 'package:dio/dio.dart';
-import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_foundations/core/config/app_config.dart';
 import 'package:flutter_foundations/core/injection/injection.dart';
 import 'package:flutter_foundations/core/network/dio_client.dart';
+import 'package:flutter_foundations/features/directory_git_sync/data/datasources/git_command_runner.dart';
+import 'package:flutter_foundations/features/directory_git_sync/data/repositories/fixture_git_sync_repository.dart';
+import 'package:flutter_foundations/features/directory_git_sync/data/repositories/process_git_sync_repository.dart';
+import 'package:flutter_foundations/features/directory_git_sync/domain/repositories/directory_picker_repository.dart';
+import 'package:flutter_foundations/features/directory_git_sync/domain/repositories/git_sync_repository.dart';
+import 'package:flutter_foundations/features/directory_git_sync/domain/usecases/pick_sync_directory.dart';
+import 'package:flutter_foundations/features/directory_git_sync/domain/usecases/sync_directory_to_git_repository.dart';
+import 'package:flutter_foundations/features/directory_git_sync/presentation/bloc/directory_sync_bloc.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('Dependency Injection', () {
@@ -102,6 +110,37 @@ void main() {
       final dio2 = getIt<Dio>();
 
       expect(dio1, same(dio2));
+    });
+
+    test('registers directory sync dependencies for dev fixtures', () async {
+      const testConfig = AppConfig(currentFlavor: Flavor.dev);
+
+      await configureDependencies(testConfig);
+
+      expect(getIt<GitCommandRunner>(), isA<ProcessGitCommandRunner>());
+      expect(
+        getIt<DirectoryPickerRepository>(),
+        isA<DirectoryPickerRepository>(),
+      );
+      expect(getIt<GitSyncRepository>(), isA<FixtureGitSyncRepository>());
+      expect(getIt<PickSyncDirectory>(), isA<PickSyncDirectory>());
+      expect(
+        getIt<SyncDirectoryToGitRepository>(),
+        isA<SyncDirectoryToGitRepository>(),
+      );
+      expect(getIt<DirectorySyncBloc>(), isA<DirectorySyncBloc>());
+      expect(
+        getIt<DirectorySyncBloc>(),
+        isNot(same(getIt<DirectorySyncBloc>())),
+      );
+    });
+
+    test('registers real git sync repository outside dev fixtures', () async {
+      const testConfig = AppConfig(currentFlavor: Flavor.prod);
+
+      await configureDependencies(testConfig);
+
+      expect(getIt<GitSyncRepository>(), isA<ProcessGitSyncRepository>());
     });
   });
 }

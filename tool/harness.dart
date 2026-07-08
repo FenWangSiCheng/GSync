@@ -1070,12 +1070,18 @@ acceptance:
 
   Future<int> _run(CommandSpec command) async {
     stdout.writeln('> ${command.executable} ${command.arguments.join(' ')}');
-    final process = await Process.start(
-      command.executable,
-      command.arguments,
-      mode: ProcessStartMode.inheritStdio,
-    );
-    return process.exitCode;
+    try {
+      final process = await Process.start(
+        command.executable,
+        command.arguments,
+        environment: _commandEnvironment(command.executable),
+        mode: ProcessStartMode.inheritStdio,
+      );
+      return process.exitCode;
+    } on ProcessException catch (error) {
+      stderr.writeln(error.message);
+      return 127;
+    }
   }
 
   Future<Map<String, Object?>> _capture(
@@ -1084,34 +1090,11 @@ acceptance:
   ) async {
     final command = '$executable ${arguments.join(' ')}';
 
-    // Try to find adb in common Android SDK locations if not on PATH
-    final env = <String, String>{};
-    if (executable == 'adb') {
-      final candidatePaths = <String>[
-        if (Platform.environment.containsKey('ANDROID_HOME'))
-          '${Platform.environment['ANDROID_HOME']}/platform-tools',
-        if (Platform.environment.containsKey('ANDROID_SDK_ROOT'))
-          '${Platform.environment['ANDROID_SDK_ROOT']}/platform-tools',
-        '${Platform.environment['HOME']}/Library/Android/sdk/platform-tools',
-        '${Platform.environment['HOME']}/Android/Sdk/platform-tools',
-        '/usr/local/share/android-sdk/platform-tools',
-        '/opt/android-sdk/platform-tools',
-      ];
-
-      for (final path in candidatePaths) {
-        final adbPath = '$path/adb';
-        if (File(adbPath).existsSync()) {
-          env['PATH'] = '${Platform.environment['PATH']}:$path';
-          break;
-        }
-      }
-    }
-
     try {
       final result = await Process.run(
         executable,
         arguments,
-        environment: env.isEmpty ? null : env,
+        environment: _commandEnvironment(executable),
       );
       return {
         'command': command,
@@ -1127,6 +1110,30 @@ acceptance:
         'stderr': error.message,
       };
     }
+  }
+
+  Map<String, String>? _commandEnvironment(String executable) {
+    if (executable != 'adb') return null;
+
+    final candidatePaths = <String>[
+      if (Platform.environment.containsKey('ANDROID_HOME'))
+        '${Platform.environment['ANDROID_HOME']}/platform-tools',
+      if (Platform.environment.containsKey('ANDROID_SDK_ROOT'))
+        '${Platform.environment['ANDROID_SDK_ROOT']}/platform-tools',
+      '${Platform.environment['HOME']}/Library/Android/sdk/platform-tools',
+      '${Platform.environment['HOME']}/Android/Sdk/platform-tools',
+      '/usr/local/share/android-sdk/platform-tools',
+      '/opt/android-sdk/platform-tools',
+    ];
+
+    for (final path in candidatePaths) {
+      final adbPath = '$path/adb';
+      if (File(adbPath).existsSync()) {
+        return {'PATH': '${Platform.environment['PATH']}:$path'};
+      }
+    }
+
+    return null;
   }
 
   Future<Object?> _readJsonFile(String path) async {

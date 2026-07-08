@@ -1,0 +1,26 @@
+appId: cn.com.fenrir-inc.iosAppTest.dev
+---
+- launchApp:
+    clearState: true
+- assertVisible:
+    id: directory_sync_screen
+- tapOn:
+    id: directory_picker_button
+- tapOn:
+    id: directory_fixture_option
+- assertVisible:
+    id: selected_directory_text
+- tapOn:
+    id: remote_url_field
+- inputText: "https://example.invalid/gitsync-fixture.git"
+- tapOn:
+    id: auth_token_field
+- inputText: "test-token"
+- tapOn:
+    id: sync_button
+- assertVisible:
+    id: sync_status_text
+- extendedWaitUntil:
+    visible:
+      id: sync_success_text
+    timeout: 30000
