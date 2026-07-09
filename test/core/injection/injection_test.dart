@@ -13,17 +13,16 @@ import 'package:flutter_foundations/features/directory_git_sync/domain/usecases/
 import 'package:flutter_foundations/features/directory_git_sync/domain/usecases/pick_sync_directory.dart';
 import 'package:flutter_foundations/features/directory_git_sync/domain/usecases/sync_directory_to_git_repository.dart';
 import 'package:flutter_foundations/features/directory_git_sync/presentation/bloc/directory_sync_bloc.dart';
-import 'package:flutter_foundations/features/token_settings/data/datasources/github_oauth_api.dart';
-import 'package:flutter_foundations/features/token_settings/data/datasources/oauth_browser_launcher.dart';
-import 'package:flutter_foundations/features/token_settings/data/repositories/fixture_github_oauth_redirect_repository.dart';
-import 'package:flutter_foundations/features/token_settings/data/repositories/github_api_oauth_redirect_repository.dart';
+import 'package:flutter_foundations/features/token_settings/data/datasources/github_device_flow_api.dart';
+import 'package:flutter_foundations/features/token_settings/data/repositories/fixture_github_device_flow_repository.dart';
+import 'package:flutter_foundations/features/token_settings/data/repositories/github_api_device_flow_repository.dart';
 import 'package:flutter_foundations/features/token_settings/domain/repositories/git_token_repository.dart';
-import 'package:flutter_foundations/features/token_settings/domain/repositories/github_oauth_redirect_repository.dart';
-import 'package:flutter_foundations/features/token_settings/domain/usecases/complete_github_oauth_redirect_authorization.dart';
+import 'package:flutter_foundations/features/token_settings/domain/repositories/github_device_flow_repository.dart';
 import 'package:flutter_foundations/features/token_settings/domain/usecases/delete_git_token.dart';
 import 'package:flutter_foundations/features/token_settings/domain/usecases/get_git_token.dart';
+import 'package:flutter_foundations/features/token_settings/domain/usecases/poll_github_device_token.dart';
+import 'package:flutter_foundations/features/token_settings/domain/usecases/request_github_device_authorization.dart';
 import 'package:flutter_foundations/features/token_settings/domain/usecases/save_git_token.dart';
-import 'package:flutter_foundations/features/token_settings/domain/usecases/start_github_oauth_redirect_authorization.dart';
 import 'package:flutter_foundations/features/token_settings/presentation/bloc/token_settings_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -136,8 +135,7 @@ void main() {
       expect(getIt<GitCommandRunner>(), isA<ProcessGitCommandRunner>());
       expect(getIt<http.Client>(), isA<http.Client>());
       expect(getIt<GitHubContentsApi>(), isA<GitHubContentsApi>());
-      expect(getIt<GitHubOAuthApi>(), isA<GitHubOAuthApi>());
-      expect(getIt<OAuthBrowserLauncher>(), isA<OAuthBrowserLauncher>());
+      expect(getIt<GitHubDeviceFlowApi>(), isA<GitHubDeviceFlowApi>());
       expect(
         getIt<DefaultSyncDirectoryRepository>(),
         isA<DefaultSyncDirectoryRepository>(),
@@ -152,17 +150,14 @@ void main() {
       expect(getIt<SaveGitToken>(), isA<SaveGitToken>());
       expect(getIt<DeleteGitToken>(), isA<DeleteGitToken>());
       expect(
-        getIt<GitHubOAuthRedirectRepository>(),
-        isA<FixtureGitHubOAuthRedirectRepository>(),
+        getIt<GitHubDeviceFlowRepository>(),
+        isA<FixtureGitHubDeviceFlowRepository>(),
       );
       expect(
-        getIt<StartGitHubOAuthRedirectAuthorization>(),
-        isA<StartGitHubOAuthRedirectAuthorization>(),
+        getIt<RequestGitHubDeviceAuthorization>(),
+        isA<RequestGitHubDeviceAuthorization>(),
       );
-      expect(
-        getIt<CompleteGitHubOAuthRedirectAuthorization>(),
-        isA<CompleteGitHubOAuthRedirectAuthorization>(),
-      );
+      expect(getIt<PollGitHubDeviceToken>(), isA<PollGitHubDeviceToken>());
       expect(getIt<GitSyncRepository>(), isA<FixtureGitSyncRepository>());
       expect(getIt<PickSyncDirectory>(), isA<PickSyncDirectory>());
       expect(
@@ -184,8 +179,8 @@ void main() {
 
       expect(getIt<GitSyncRepository>(), isA<GithubApiGitSyncRepository>());
       expect(
-        getIt<GitHubOAuthRedirectRepository>(),
-        isA<GitHubApiOAuthRedirectRepository>(),
+        getIt<GitHubDeviceFlowRepository>(),
+        isA<GitHubApiDeviceFlowRepository>(),
       );
     });
   });

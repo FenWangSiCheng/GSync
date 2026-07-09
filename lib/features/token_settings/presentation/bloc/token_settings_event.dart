@@ -11,17 +11,8 @@ class TokenSettingsStarted extends TokenSettingsEvent {
   const TokenSettingsStarted();
 }
 
-class TokenSettingsOAuthRedirectRequested extends TokenSettingsEvent {
-  const TokenSettingsOAuthRedirectRequested();
-}
-
-class TokenSettingsOAuthCallbackReceived extends TokenSettingsEvent {
-  const TokenSettingsOAuthCallbackReceived(this.callbackUri);
-
-  final Uri callbackUri;
-
-  @override
-  List<Object?> get props => [callbackUri];
+class TokenSettingsDeviceFlowRequested extends TokenSettingsEvent {
+  const TokenSettingsDeviceFlowRequested();
 }
 
 class TokenSettingsDeleteRequested extends TokenSettingsEvent {

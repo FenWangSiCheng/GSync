@@ -33,7 +33,6 @@ void main() {
       expect(routes.map((route) => (route as GoRoute).path), [
         RouterPaths.home,
         RouterPaths.tokenSettings,
-        RouterPaths.githubOAuthCallback,
       ]);
     });
 

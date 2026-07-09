@@ -1,64 +1,11 @@
-import 'dart:async';
-
-import 'package:app_links/app_links.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/router/router_constants.dart';
 import '../bloc/token_settings_bloc.dart';
 
-class TokenSettingsPage extends StatefulWidget {
-  const TokenSettingsPage({super.key, this.initialOAuthCallback});
-
-  final Uri? initialOAuthCallback;
-
-  @override
-  State<TokenSettingsPage> createState() => _TokenSettingsPageState();
-}
-
-class _TokenSettingsPageState extends State<TokenSettingsPage> {
-  StreamSubscription<Uri>? _linkSubscription;
-
-  @override
-  void initState() {
-    super.initState();
-    _listenForOAuthCallbacks();
-    final initialOAuthCallback = widget.initialOAuthCallback;
-    if (initialOAuthCallback != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _handleLink(initialOAuthCallback);
-      });
-    }
-  }
-
-  void _listenForOAuthCallbacks() {
-    final appLinks = AppLinks();
-    _linkSubscription = appLinks.uriLinkStream.listen(_handleLink);
-  }
-
-  void _handleLink(Uri uri) {
-    if (!mounted || uri.host != 'oauth' || uri.path != '/github/callback') {
-      return;
-    }
-    context.read<TokenSettingsBloc>().add(
-      TokenSettingsOAuthCallbackReceived(uri),
-    );
-  }
-
-  void _returnToSync() {
-    if (context.canPop()) {
-      context.pop();
-      return;
-    }
-    context.go(RouterPaths.home);
-  }
-
-  @override
-  void dispose() {
-    unawaited(_linkSubscription?.cancel());
-    super.dispose();
-  }
+class TokenSettingsPage extends StatelessWidget {
+  const TokenSettingsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +22,7 @@ class _TokenSettingsPageState extends State<TokenSettingsPage> {
             label: '返回',
             child: CupertinoButton(
               padding: EdgeInsets.zero,
-              onPressed: _returnToSync,
+              onPressed: () => context.pop(),
               child: const Icon(CupertinoIcons.back),
             ),
           ),
@@ -128,33 +75,37 @@ class _TokenSettingsContent extends StatelessWidget {
               ],
             ),
             CupertinoListSection.insetGrouped(
-              header: const Text('浏览器授权'),
-              footer: const Text('打开 GitHub 完成授权后,会自动回到 GitSync 并保存访问令牌。'),
+              header: const Text('设备码授权'),
+              footer: const Text('前往 GitHub 设备授权页面输入代码。应用会自动等待授权完成并安全保存访问令牌。'),
               hasLeading: false,
               children: [
                 CupertinoListTile.notched(
                   title: const Text('授权地址'),
                   subtitle: Semantics(
-                    identifier: 'oauth_redirect_url_text',
+                    identifier: 'device_flow_verification_url_text',
                     liveRegion: true,
-                    label: 'GitHub OAuth 授权地址',
+                    label: 'GitHub 设备授权地址',
                     child: Text(
-                      state.oauthRedirectUrl.isEmpty
-                          ? '等待打开 GitHub 授权页面'
-                          : state.oauthRedirectUrl,
+                      state.verificationUri.isEmpty
+                          ? 'https://github.com/login/device'
+                          : state.verificationUri,
                     ),
                   ),
                 ),
                 CupertinoListTile.notched(
-                  title: const Text('回调状态'),
+                  title: const Text('设备码'),
                   subtitle: Semantics(
-                    identifier: 'oauth_callback_status_text',
+                    identifier: 'device_flow_code_text',
                     liveRegion: true,
-                    label: 'GitHub OAuth 回调状态',
+                    label: 'GitHub 设备码',
                     child: Text(
-                      state.oauthCallbackStatus.isEmpty
-                          ? '等待开始授权'
-                          : state.oauthCallbackStatus,
+                      state.userCode.isEmpty ? '等待生成' : state.userCode,
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0,
+                        color: CupertinoColors.label,
+                      ),
                     ),
                   ),
                 ),
@@ -179,14 +130,14 @@ class _TokenSettingsContent extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Semantics(
-                identifier: 'start_oauth_redirect_button',
+                identifier: 'start_device_flow_button',
                 button: true,
-                label: '打开 GitHub 授权',
+                label: '开始 GitHub 授权',
                 child: CupertinoButton.filled(
-                  onPressed: state.canStartOAuthRedirect
+                  onPressed: state.canStartDeviceFlow
                       ? () {
                           context.read<TokenSettingsBloc>().add(
-                            const TokenSettingsOAuthRedirectRequested(),
+                            const TokenSettingsDeviceFlowRequested(),
                           );
                         }
                       : null,

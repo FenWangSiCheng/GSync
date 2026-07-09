@@ -32,14 +32,6 @@ class AppRouter {
           child: const TokenSettingsPage(),
         ),
       ),
-      GoRoute(
-        path: RouterPaths.githubOAuthCallback,
-        builder: (context, state) => BlocProvider(
-          create: (_) =>
-              getIt<TokenSettingsBloc>()..add(const TokenSettingsStarted()),
-          child: TokenSettingsPage(initialOAuthCallback: state.uri),
-        ),
-      ),
     ],
     errorBuilder: (context, state) => CupertinoPageScaffold(
       navigationBar: const CupertinoNavigationBar(

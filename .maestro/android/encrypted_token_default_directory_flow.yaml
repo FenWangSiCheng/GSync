@@ -13,10 +13,11 @@ appId: com.example.basic_demo.dev
       id: token_settings_screen
     timeout: 10000
 - tapOn:
-    id: start_oauth_redirect_button
+    id: start_device_flow_button
 - assertVisible:
-    id: oauth_redirect_url_text
-- openLink: gitsync-dev://oauth/github/callback?code=fixture-code&state=fixture-state
+    id: device_flow_code_text
+- assertVisible:
+    id: device_flow_verification_url_text
 - extendedWaitUntil:
     visible:
       id: saved_token_status_text

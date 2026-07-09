@@ -1,5 +1,5 @@
 {
   "flavor": "prod",
-  "githubOAuthRedirectUri": "",
+  "githubOAuthClientId": "Ov23liCpVbeNSbSRKr3M",
   "githubOAuthScope": "repo"
 }

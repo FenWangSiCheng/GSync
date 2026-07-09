@@ -5,7 +5,6 @@ class AppConfig {
     required this.currentFlavor,
     this.githubOAuthClientId = '',
     this.githubOAuthScope = 'repo',
-    this.githubOAuthRedirectUri = '',
   });
 
   factory AppConfig.fromEnvironment() {
@@ -18,22 +17,16 @@ class AppConfig {
       'githubOAuthScope',
       defaultValue: 'repo',
     );
-    const githubOAuthRedirectUri = String.fromEnvironment(
-      'githubOAuthRedirectUri',
-      defaultValue: '',
-    );
     return AppConfig(
       currentFlavor: _parseFlavorFromString(flavorString),
       githubOAuthClientId: githubOAuthClientId,
       githubOAuthScope: githubOAuthScope,
-      githubOAuthRedirectUri: githubOAuthRedirectUri,
     );
   }
 
   final Flavor currentFlavor;
   final String githubOAuthClientId;
   final String githubOAuthScope;
-  final String githubOAuthRedirectUri;
 
   String get appName => switch (currentFlavor) {
     Flavor.dev => 'GitSync 开发版',
@@ -76,9 +69,6 @@ class AppConfig {
     'is_production': isProduction,
     'github_oauth_client_id_configured': githubOAuthClientId.trim().isNotEmpty,
     'github_oauth_scope': githubOAuthScope,
-    'github_oauth_redirect_uri_configured': githubOAuthRedirectUri
-        .trim()
-        .isNotEmpty,
   };
 }
 

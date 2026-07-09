@@ -3,11 +3,20 @@
 ## Current State
 
 **Last Updated:** 2026-07-09 CST
-**Active Feature:** `feat-github-oauth-redirect-auth`
-**Current Activity:** Completed GitHub browser redirect authorization with
-PKCE, native callback handling, deterministic dev fixture behavior, and
-dual-platform Maestro acceptance. Removed the GitHub Device Flow authorization
-path; browser redirect is now the only authorization method.
+**Active Feature:** `feat-github-device-flow-auth`
+**Current Activity:** Switched GitHub authorization back to OAuth Device Flow
+this session by reverting the browser-redirect replacement commit (`009df0d`).
+Removed the OAuth redirect path (datasource, fixture and real repositories, use
+cases, entities, BLoC handling, settings UI, callback routing, platform URL
+schemes, `githubOAuthRedirectUri` config, spec, evidence, and Maestro flow) and
+restored the previously accepted Device Flow implementation as the only
+authorization method. Kept the real `githubOAuthClientId`
+(`Ov23liCpVbeNSbSRKr3M`) for `stg`/`prod`; Device Flow needs no redirect URI or
+client secret. `fvm dart run tool/harness.dart check` passes (format, structure,
+analyzer, 160 tests, coverage 91.59%). Dual-platform Maestro acceptance was not
+re-run this session at the user's request; restored evidence under
+`docs/harness/evidence/github-device-flow-auth/` remains valid for the unchanged
+dev-fixture Device Flow.
 
 ## Status
 
@@ -97,42 +106,20 @@ path; browser redirect is now the only authorization method.
 - [x] Updated all Maestro token setup steps to use the Device Flow fixture and
   refreshed the generated UI target map.
 - [x] Saved dual-platform acceptance reports for `github-device-flow-auth`.
-- [x] Created `feat-github-oauth-redirect-auth` as a new harness feature in
-  `feature_list.json`.
-- [x] Scaffolded and filled
-  `docs/harness/specs/github-oauth-redirect-auth/spec.md`,
-  `acceptance.yaml`, `ui-map.delta.yaml`, and draft iOS/Android Maestro flows.
-- [x] Added an active task plan at
-  `docs/harness/tasks/active/2026-07-09-github-oauth-redirect-auth.md`.
-- [x] Approved, implemented, and accepted
-  `feat-github-oauth-redirect-auth`.
-- [x] Added OAuth redirect domain entities, use cases, fixture and GitHub API
-  repositories, OAuth token exchange API, and platform browser launcher.
-- [x] Added `githubOAuthRedirectUri` config and dev callback
-  `gitsync-dev://oauth/github/callback`; stg/prod keep the field explicit for
-  real deployment configuration.
-- [x] Registered iOS and Android custom URL schemes for GitSync OAuth callback
-  handling.
-- [x] Added a GoRouter callback path and TokenSettingsPage deep-link handling
-  so callback route launches and app-link stream callbacks both complete
-  authorization.
-- [x] Moved the pending OAuth redirect session into the repository singleton so
-  deep-link routing can rebuild the page without losing state/PKCE verifier.
-- [x] Kept Device Flow visible as a backup authorization method while making
-  browser redirect the primary token settings action.
-- [x] Added targeted OAuth redirect tests and dual-platform Maestro flows.
-- [x] Saved dual-platform acceptance reports for
-  `github-oauth-redirect-auth`.
 ### What's Next
 
-1. Configure a real GitHub OAuth App Client ID and callback URL for `stg` and
-   `prod` before live authorization.
-2. Run `./init.sh` when a fresh restartability proof is needed.
+1. Re-run `fvm dart run tool/harness.dart spec accept
+   github-device-flow-auth --maestro --platform all` to refresh dual-platform
+   evidence when simulators are available (skipped this session by request).
+2. Ensure the GitHub OAuth App behind `githubOAuthClientId` has Device Flow
+   enabled before live `stg`/`prod` authorization.
+3. Future work can add delete-mirroring, conflict handling, large file support,
+   background sync, account switching, or OAuth client setup guidance as
+   separate features.
 
 ## Blockers / Risks
 
-- [x] No blockers for `feat-github-oauth-redirect-auth`; it is `done`.
-- [x] No blockers for `feat-encrypted-token-default-directory`; it is `done`.
+- [ ] No blockers for `feat-encrypted-token-default-directory`; it is `done`.
 - [ ] Flutter warns that some iOS plugins do not support Swift Package Manager.
   This is not blocking current validation but may become an issue in a future
   Flutter release.
@@ -140,10 +127,9 @@ path; browser redirect is now the only authorization method.
   versions will need upgrades before future Flutter versions drop support.
 - [ ] GitHub Contents API file content responses may need additional handling
   for very large files or Git LFS pointers in a future feature.
-- [ ] Real `stg` and `prod` GitHub browser authorization requires a GitHub
-  OAuth app with a callback URL matching the app flavor plus
-  `githubOAuthClientId` and `githubOAuthRedirectUri` supplied through dart
-  defines. Missing config is handled as a readable in-app failure.
+- [ ] Real `stg` and `prod` GitHub authorization requires a GitHub OAuth app
+  with Device Flow enabled and `githubOAuthClientId` supplied through dart
+  defines. Missing client ID is handled as a readable in-app failure.
 
 ## Decisions Made
 
@@ -177,17 +163,6 @@ path; browser redirect is now the only authorization method.
 - **Keep Device Flow fixture-backed in dev:** Dev acceptance uses
   `FixtureGitHubDeviceFlowRepository` so UI flows never require a real browser
   session or GitHub account.
-- **Use OAuth redirect with PKCE for the next auth feature:** GitHub browser
-  redirect authorization will use PKCE and `state`, avoiding a client secret in
-  the native app. The first implementation will use a custom URL scheme because
-  it can be validated locally without hosting universal-link metadata.
-- **Keep OAuth redirect callback handling route-safe:** The OAuth redirect
-  repository owns the pending session, while UI/routes pass callback URIs into
-  the BLoC. This keeps Android route replacement and iOS app-link callbacks on
-  the same completion path.
-- **Handle iOS OAuth confirmation as an optional system branch:** Maestro taps
-  iOS "取消"/"打开" prompts only when they appear, because simulator trust state
-  can differ between runs.
 
 ## Files Modified This Session
 
@@ -269,42 +244,6 @@ path; browser redirect is now the only authorization method.
   wording expectations.
 - `docs/harness/evidence/github-device-flow-auth/` - Saved dual-platform
   acceptance reports.
-- `feature_list.json`, `progress.md`, and `session-handoff.md` - Added and
-  completed `feat-github-oauth-redirect-auth`.
-- `docs/harness/specs/github-oauth-redirect-auth/` - Added the browser redirect
-  auth spec, acceptance checklist, and UI target delta.
-- `.maestro/ios/github_oauth_redirect_auth_flow.yaml` and
-  `.maestro/android/github_oauth_redirect_auth_flow.yaml` - Added
-  deterministic dev acceptance flows.
-- `docs/harness/tasks/active/2026-07-09-github-oauth-redirect-auth.md` -
-  Recorded the task plan and implementation decisions.
-- `lib/features/token_settings/domain/entities/github_oauth_authorization_session.dart`,
-  `lib/features/token_settings/domain/entities/github_oauth_token.dart`,
-  `lib/features/token_settings/domain/repositories/github_oauth_redirect_repository.dart`,
-  and `lib/features/token_settings/domain/usecases/` - Added OAuth redirect
-  domain and use cases.
-- `lib/features/token_settings/data/datasources/github_oauth_api.dart`,
-  `lib/features/token_settings/data/datasources/oauth_browser_launcher.dart`,
-  `lib/features/token_settings/data/repositories/fixture_github_oauth_redirect_repository.dart`,
-  and `lib/features/token_settings/data/repositories/github_api_oauth_redirect_repository.dart`
-  - Added fixture and real OAuth redirect data behavior with PKCE.
-- `lib/features/token_settings/presentation/bloc/token_settings_bloc.dart` and
-  `lib/features/token_settings/presentation/pages/token_settings_page.dart` -
-  Added browser redirect authorization UI, callback handling, and saved-token
-  completion states.
-- `lib/core/router/app_router.dart`, `lib/core/router/router_constants.dart`,
-  and `lib/core/injection/` - Added callback routing and dependency
-  registration.
-- `ios/Runner/Info.plist` and `android/app/src/main/AndroidManifest.xml` -
-  Registered callback URL schemes.
-- `dart_defines/dev.json`, `dart_defines/stg.json`, and
-  `dart_defines/prod.json` - Added OAuth redirect URI config.
-- `test/features/token_settings/`, `test/core/config/app_config_test.dart`,
-  `test/core/router/app_router_test.dart`, and
-  `test/core/injection/injection_test.dart` - Added OAuth redirect regression
-  coverage.
-- `docs/harness/evidence/github-oauth-redirect-auth/` - Saved dual-platform
-  acceptance reports.
 
 ## Evidence of Completion
 
@@ -379,28 +318,3 @@ path; browser redirect is now the only authorization method.
 - [x] `fvm dart run tool/harness.dart spec accept github-device-flow-auth --maestro --platform all`
   passes with iOS and Android both PASS; reports copied to
   `docs/harness/evidence/github-device-flow-auth/`.
-- [x] `fvm dart run tool/harness.dart spec review github-oauth-redirect-auth`
-  passes and prints the Gate A checklist.
-- [x] `fvm dart run tool/harness.dart structure` passes after adding the draft
-  feature/spec artifacts.
-- [x] `fvm dart run tool/harness.dart spec review github-oauth-redirect-auth --approve`
-  passes and marks the feature `spec-approved`.
-- [x] `fvm flutter test test/features/token_settings/data/repositories/github_oauth_redirect_repository_test.dart test/features/token_settings/data/repositories/fixture_github_oauth_redirect_repository_test.dart test/features/token_settings/presentation/bloc/token_settings_bloc_test.dart test/features/token_settings/domain/token_settings_entities_test.dart test/core/router/app_router_test.dart`
-  passes.
-- [x] `fvm dart analyze lib/features/token_settings lib/core/router test/features/token_settings test/core/router`
-  passes with no issues.
-- [x] `fvm dart run tool/harness.dart check` passes: format clean, structure
-  green, analyzer clean, coverage-gated tests pass, coverage 912/1007 lines
-  (90.57%) against the 90% threshold.
-- [x] `fvm dart run tool/harness.dart spec accept github-oauth-redirect-auth --maestro --platform ios`
-  passes on iOS.
-- [x] `fvm dart run tool/harness.dart spec accept github-oauth-redirect-auth --maestro --platform android`
-  passes on Android.
-- [x] `fvm dart run tool/harness.dart spec accept github-oauth-redirect-auth --maestro --platform all`
-  passes with iOS and Android both PASS; reports copied to
-  `docs/harness/evidence/github-oauth-redirect-auth/`.
-- [x] Removed the GitHub Device Flow authorization path entirely. Deleted the
-  device flow data source, repositories, use cases, entities, BLoC handling,
-  settings UI section, tests, spec, evidence, and dedicated maestro flow.
-  Migrated all other feature maestro flows to the OAuth redirect button plus
-  fixture callback. Regenerated `injection.config.dart` and `ui-map.yaml`.

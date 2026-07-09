@@ -4,5 +4,4 @@ class RouterPaths {
 
   static const String home = '/';
   static const String tokenSettings = '/settings/token';
-  static const String githubOAuthCallback = '/github/callback';
 }

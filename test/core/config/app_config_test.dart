@@ -171,14 +171,12 @@ void main() {
 
         expect(config.githubOAuthClientId, isEmpty);
         expect(config.githubOAuthScope, 'repo');
-        expect(config.githubOAuthRedirectUri, isEmpty);
       });
 
       test('reports GitHub OAuth context without exposing client id', () {
         const config = AppConfig(
           currentFlavor: Flavor.prod,
           githubOAuthClientId: 'client-id',
-          githubOAuthRedirectUri: 'gitsync://oauth/github/callback',
           githubOAuthScope: 'public_repo',
         );
 
@@ -187,15 +185,7 @@ void main() {
           true,
         );
         expect(config.harnessContext['github_oauth_scope'], 'public_repo');
-        expect(
-          config.harnessContext['github_oauth_redirect_uri_configured'],
-          true,
-        );
         expect(config.harnessContext.values, isNot(contains('client-id')));
-        expect(
-          config.harnessContext.values,
-          isNot(contains('gitsync://oauth/github/callback')),
-        );
       });
     });
   });
