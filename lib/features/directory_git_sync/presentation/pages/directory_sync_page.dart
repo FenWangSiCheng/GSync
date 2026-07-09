@@ -27,7 +27,7 @@ class DirectorySyncPage extends StatelessWidget {
               trailing: Semantics(
                 identifier: 'token_settings_button',
                 button: true,
-                label: '令牌设置',
+                label: 'GitHub 授权设置',
                 child: CupertinoButton(
                   padding: EdgeInsets.zero,
                   onPressed: () async {
@@ -218,16 +218,16 @@ class _TokenSection extends StatelessWidget {
           previous.hasCredential != current.hasCredential,
       builder: (context, state) {
         return CupertinoListSection.insetGrouped(
-          header: const Text('访问令牌'),
+          header: const Text('GitHub 授权'),
           topMargin: 0,
           hasLeading: false,
           children: [
             CupertinoListTile.notched(
               title: Semantics(
                 identifier: 'directory_token_status_text',
-                label: '目录同步令牌状态',
+                label: '目录同步 GitHub 授权状态',
                 child: Text(
-                  state.hasCredential ? '已配置访问令牌' : '未配置访问令牌',
+                  state.hasCredential ? '已完成 GitHub 授权' : '未完成 GitHub 授权',
                   style: TextStyle(
                     color: state.hasCredential
                         ? CupertinoColors.activeGreen

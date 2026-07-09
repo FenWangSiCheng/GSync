@@ -2,11 +2,12 @@
 
 ## Current State
 
-**Last Updated:** 2026-07-08 CST
-**Active Feature:** `feat-github-repository-download-sync`
-**Current Activity:** Corrected selected-directory display so iOS Files picker
-paths show user-facing labels instead of simulator or app-group container paths.
-The stg build was relaunched on the iOS simulator and targeted checks pass.
+**Last Updated:** 2026-07-09 CST
+**Active Feature:** `feat-github-device-flow-auth`
+**Current Activity:** Implemented and accepted GitHub OAuth Device Flow
+authorization so users no longer paste personal access tokens. Dual-platform
+Maestro acceptance passes and evidence is committed under
+`docs/harness/evidence/github-device-flow-auth/`.
 
 ## Status
 
@@ -78,12 +79,31 @@ The stg build was relaunched on the iOS simulator and targeted checks pass.
   `docs/harness/evidence/github-repository-download-sync/`.
 
 - [x] Fixed iOS file visibility for `feat-github-repository-download-sync`: added `UIFileSharingEnabled` and `LSSupportsOpeningDocumentsInPlace` to `ios/Runner/Info.plist` so downloaded files appear under the app in the iOS Files app. Rebuilt and reinstalled the stg build on the iOS simulator; verified 84 downloaded files remain in the Documents/GitSync container and both keys are present in the built Runner.app Info.plist.
+- [x] Drafted, approved, implemented, and accepted
+  `feat-github-device-flow-auth`.
+- [x] Added GitHub OAuth Device Flow API support for requesting a device code
+  and polling `authorization_pending`, `slow_down`, `expired_token`,
+  `access_denied`, and success responses.
+- [x] Added a dev-only deterministic Device Flow fixture that displays
+  `ABCD-1234`, points to `https://github.com/login/device`, and saves
+  `test-token` without contacting GitHub.
+- [x] Replaced the token settings page's manual token input with a GitHub
+  Device Flow authorization action and visible device code / verification URL.
+- [x] Updated directory sync copy to describe GitHub authorization instead of
+  manual access-token setup.
+- [x] Added `githubOAuthClientId` and `githubOAuthScope` app config fields;
+  real `stg` and `prod` builds require `githubOAuthClientId` through dart
+  defines, while dev remains fixture-backed.
+- [x] Updated all Maestro token setup steps to use the Device Flow fixture and
+  refreshed the generated UI target map.
+- [x] Saved dual-platform acceptance reports for `github-device-flow-auth`.
 ### What's Next
 
 1. No outstanding implementation or acceptance work for
-   `feat-github-repository-download-sync`.
+   `feat-github-device-flow-auth`.
 2. Future work can add delete-mirroring, conflict handling, large file support,
-   or background sync as separate features.
+   background sync, account switching, or OAuth client setup guidance as
+   separate features.
 
 ## Blockers / Risks
 
@@ -95,6 +115,9 @@ The stg build was relaunched on the iOS simulator and targeted checks pass.
   versions will need upgrades before future Flutter versions drop support.
 - [ ] GitHub Contents API file content responses may need additional handling
   for very large files or Git LFS pointers in a future feature.
+- [ ] Real `stg` and `prod` GitHub authorization requires a GitHub OAuth app
+  with Device Flow enabled and `githubOAuthClientId` supplied through dart
+  defines. Missing client ID is handled as a readable in-app failure.
 
 ## Decisions Made
 
@@ -120,6 +143,14 @@ The stg build was relaunched on the iOS simulator and targeted checks pass.
 - **Keep dev deterministic:** The dev flavor remains on
   `FixtureGitSyncRepository` so Maestro acceptance does not require a live
   GitHub account or token.
+- **Use GitHub Device Flow for auth:** Token setup now uses GitHub OAuth
+  Device Flow: the app requests a device code with a configured client ID,
+  displays `github.com/login/device` plus the user code, polls GitHub, and
+  stores the returned token through the existing secure token repository. No
+  `client_secret`, callback scheme, or deep link is used.
+- **Keep Device Flow fixture-backed in dev:** Dev acceptance uses
+  `FixtureGitHubDeviceFlowRepository` so UI flows never require a real browser
+  session or GitHub account.
 
 ## Files Modified This Session
 
@@ -179,6 +210,28 @@ The stg build was relaunched on the iOS simulator and targeted checks pass.
   - Added remote download regression coverage.
 - `docs/harness/evidence/github-repository-download-sync/report-ios.json` -
   Saved the passing iOS acceptance report.
+- `docs/harness/specs/github-device-flow-auth/`, `.maestro/ios/github_device_flow_auth_flow.yaml`, and `.maestro/android/github_device_flow_auth_flow.yaml`
+  - Added Device Flow spec, acceptance checklist, UI target delta, and
+  dual-platform Maestro flows.
+- `docs/harness/specs/encrypted-token-default-directory/ui-map.delta.yaml` and
+  `docs/harness/specs/ui-map.yaml` - Removed obsolete manual token input
+  targets and regenerated the canonical UI target map.
+- `dart_defines/dev.json`, `dart_defines/stg.json`, and
+  `dart_defines/prod.json` - Added GitHub OAuth scope/client-id config fields.
+- `lib/core/config/app_config.dart` and `lib/core/injection/` - Added GitHub
+  OAuth config and Device Flow dependency registrations.
+- `lib/features/token_settings/` - Added Device Flow domain entities, API
+  datasource, fixture and real repositories, use cases, BLoC polling behavior,
+  and Device Flow settings UI.
+- `lib/features/directory_git_sync/` - Updated missing-auth validation and
+  visible copy from manual access token to GitHub authorization.
+- `test/features/token_settings/`, `test/core/config/app_config_test.dart`,
+  `test/core/injection/injection_test.dart`, and
+  `test/features/directory_git_sync/presentation/bloc/directory_sync_bloc_test.dart`
+  - Added Device Flow API/repository/BLoC/entity coverage and updated auth
+  wording expectations.
+- `docs/harness/evidence/github-device-flow-auth/` - Saved dual-platform
+  acceptance reports.
 
 ## Evidence of Completion
 
@@ -240,3 +293,16 @@ The stg build was relaunched on the iOS simulator and targeted checks pass.
 - [x] `fvm flutter analyze` passes after the selected-directory display fix.
 - [x] `fvm dart run tool/harness.dart structure` passes after adding the
   selected-directory presentation model.
+- [x] `fvm dart run tool/harness.dart spec review github-device-flow-auth --approve`
+  passes and marks the new spec approved.
+- [x] `fvm flutter test test/features/token_settings` passes with Device Flow
+  API, repository, entity, and BLoC coverage.
+- [x] `fvm dart run tool/harness.dart check` passes: format clean, structure
+  green, analyzer clean, coverage-gated tests pass, coverage 741/809 lines
+  (91.59%) against the 90% threshold.
+- [x] `fvm dart run tool/harness.dart spec accept github-device-flow-auth`
+  passes all logic acceptance items but exits non-zero because the Maestro item
+  is skipped without `--maestro`.
+- [x] `fvm dart run tool/harness.dart spec accept github-device-flow-auth --maestro --platform all`
+  passes with iOS and Android both PASS; reports copied to
+  `docs/harness/evidence/github-device-flow-auth/`.

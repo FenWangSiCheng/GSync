@@ -22,14 +22,6 @@ targets:
     role: text
     label: Saved token status
     semantics_identifier: saved_token_status_text
-  token_input_field:
-    role: textField
-    label: Git access token
-    semantics_identifier: token_input_field
-  save_token_button:
-    role: button
-    label: Save token
-    semantics_identifier: save_token_button
   delete_token_button:
     role: button
     label: Delete token

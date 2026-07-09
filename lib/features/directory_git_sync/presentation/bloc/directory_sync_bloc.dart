@@ -101,7 +101,7 @@ class DirectorySyncBloc extends Bloc<DirectorySyncEvent, DirectorySyncState> {
         state.copyWith(
           hasCredential: false,
           status: DirectorySyncStatus.failure,
-          statusMessage: '请先在令牌设置中保存访问令牌。',
+          statusMessage: '请先在设置中完成 GitHub 授权。',
         ),
       );
       return;

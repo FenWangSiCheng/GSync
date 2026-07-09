@@ -132,7 +132,7 @@ void main() {
     );
 
     blocTest<DirectorySyncBloc, DirectorySyncState>(
-      'reports missing token before syncing',
+      'reports missing GitHub authorization before syncing',
       build: buildBloc,
       seed: () => const DirectorySyncState(
         selectedDirectoryPath: '/custom/GitSync',
@@ -149,7 +149,7 @@ void main() {
             .having(
               (state) => state.statusMessage,
               'statusMessage',
-              '请先在令牌设置中保存访问令牌。',
+              '请先在设置中完成 GitHub 授权。',
             ),
       ],
     );

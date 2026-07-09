@@ -2,12 +2,13 @@
 
 ## Current Objective
 
-- Goal: Complete `feat-github-repository-download-sync`.
+- Goal: Complete `feat-github-device-flow-auth`.
 - Current status: Implemented, accepted on iOS and Android, and marked `done`.
 - Feature state: `feat-directory-git-sync`, `feat-ios-clean-ui`, and
   `feat-encrypted-token-default-directory` are `done`;
   `feat-github-directory-api-sync` is `done`;
-  `feat-github-repository-download-sync` is `done`.
+  `feat-github-repository-download-sync` is `done`;
+  `feat-github-device-flow-auth` is `done`.
 
 ## Completed
 
@@ -46,6 +47,17 @@
   redaction.
 - [x] Ran dual-platform Maestro dev acceptance and copied reports to
   `docs/harness/evidence/github-repository-download-sync/`.
+- [x] Drafted and approved `github-device-flow-auth`.
+- [x] Replaced manual token entry with GitHub OAuth Device Flow: the settings
+  page now requests a device code, displays `https://github.com/login/device`
+  and the user code, polls until GitHub authorization succeeds, and stores the
+  returned token through the existing secure storage repository.
+- [x] Added a deterministic dev Device Flow fixture for Maestro acceptance and
+  real `stg`/`prod` Device Flow wiring through `githubOAuthClientId`.
+- [x] Updated all token setup Maestro flows to use Device Flow instead of
+  typing `test-token`.
+- [x] Ran dual-platform Maestro dev acceptance and copied reports to
+  `docs/harness/evidence/github-device-flow-auth/`.
 
 ## Verification Evidence
 
@@ -68,10 +80,17 @@
 | Selected directory display regression | `fvm flutter test test/features/directory_git_sync/presentation/models/selected_directory_display_test.dart` | Pass | iOS Files provider paths now display as `我的 iPhone 中的文件夹` instead of raw container paths. |
 | Static analysis | `fvm flutter analyze` | Pass | No analyzer issues after the display fix. |
 | Structure guard | `fvm dart run tool/harness.dart structure` | Pass | Harness and architecture checks pass after adding the presentation model. |
+| GitHub Device Flow Gate A | `fvm dart run tool/harness.dart spec review github-device-flow-auth --approve` | Pass | Spec approved. |
+| GitHub Device Flow targeted tests | `fvm flutter test test/features/token_settings` | Pass | Device Flow API, repository, entity, and BLoC coverage pass. |
+| Full harness check | `fvm dart run tool/harness.dart check` | Pass | Format, structure, analyzer, and coverage passed; coverage 741/809 lines (91.59%). |
+| GitHub Device Flow acceptance | `fvm dart run tool/harness.dart spec accept github-device-flow-auth --maestro --platform all` | Pass | iOS and Android both PASS; evidence copied to `docs/harness/evidence/github-device-flow-auth/`. |
 
 ## Blockers / Risks
 
-- No current blockers for `feat-github-repository-download-sync`.
+- No current blockers for `feat-github-device-flow-auth`.
+- Real `stg` and `prod` GitHub authorization requires a GitHub OAuth app with
+  Device Flow enabled and `githubOAuthClientId` supplied through dart defines.
+  Missing client ID is surfaced as a readable in-app failure.
 - Flutter reports future-compatibility warnings for Swift Package Manager
   support in some iOS plugins.
 - Android builds report future-compatibility warnings for Gradle, Android
@@ -90,4 +109,6 @@
 ## Recommended Next Step
 
 - Pick the next feature in `feature_list.json` or draft a new feature using the
-  same spec-first lifecycle.
+  same spec-first lifecycle. The next likely product additions are
+  delete-mirroring, conflict handling, large-file support, background sync, or
+  account switching.

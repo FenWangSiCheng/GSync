@@ -33,7 +33,7 @@ class SyncDirectoryToGitRepository {
       );
     }
     if (credential.isEmpty && remoteUrl.startsWith('http')) {
-      throw const SyncDirectoryValidationException('请输入访问令牌。');
+      throw const SyncDirectoryValidationException('请先完成 GitHub 授权。');
     }
 
     return _repository.syncDirectory(

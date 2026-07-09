@@ -11,17 +11,8 @@ class TokenSettingsStarted extends TokenSettingsEvent {
   const TokenSettingsStarted();
 }
 
-class TokenSettingsTokenChanged extends TokenSettingsEvent {
-  const TokenSettingsTokenChanged(this.value);
-
-  final String value;
-
-  @override
-  List<Object?> get props => [value];
-}
-
-class TokenSettingsSaveRequested extends TokenSettingsEvent {
-  const TokenSettingsSaveRequested();
+class TokenSettingsDeviceFlowRequested extends TokenSettingsEvent {
+  const TokenSettingsDeviceFlowRequested();
 }
 
 class TokenSettingsDeleteRequested extends TokenSettingsEvent {

@@ -8,16 +8,20 @@ appId: com.example.basic_demo.dev
     id: selected_directory_text
 - tapOn:
     id: token_settings_button
-- assertVisible:
-    id: token_settings_screen
+- extendedWaitUntil:
+    visible:
+      id: token_settings_screen
+    timeout: 10000
 - tapOn:
-    id: token_input_field
-- inputText: "test-token"
-- hideKeyboard
-- tapOn:
-    id: save_token_button
+    id: start_device_flow_button
 - assertVisible:
-    id: saved_token_status_text
+    id: device_flow_code_text
+- assertVisible:
+    id: device_flow_verification_url_text
+- extendedWaitUntil:
+    visible:
+      id: saved_token_status_text
+    timeout: 10000
 - tapOn:
     id: token_settings_back_button
 - assertVisible:

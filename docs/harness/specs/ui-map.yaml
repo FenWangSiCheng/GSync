@@ -54,14 +54,6 @@ targets:
     role: text
     label: Saved token status
     semantics_identifier: saved_token_status_text
-  token_input_field:
-    role: textField
-    label: Git access token
-    semantics_identifier: token_input_field
-  save_token_button:
-    role: button
-    label: Save token
-    semantics_identifier: save_token_button
   delete_token_button:
     role: button
     label: Delete token
@@ -70,3 +62,15 @@ targets:
     role: text
     label: Token settings status
     semantics_identifier: token_settings_status_text
+  start_device_flow_button:
+    role: button
+    label: Start GitHub Device Flow
+    semantics_identifier: start_device_flow_button
+  device_flow_code_text:
+    role: text
+    label: GitHub Device Flow user code
+    semantics_identifier: device_flow_code_text
+  device_flow_verification_url_text:
+    role: text
+    label: GitHub Device Flow verification URL
+    semantics_identifier: device_flow_verification_url_text

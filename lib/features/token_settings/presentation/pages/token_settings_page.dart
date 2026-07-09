@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/widgets/cupertino_text_field_menu.dart';
 import '../bloc/token_settings_bloc.dart';
 
 class TokenSettingsPage extends StatelessWidget {
@@ -27,7 +26,7 @@ class TokenSettingsPage extends StatelessWidget {
               child: const Icon(CupertinoIcons.back),
             ),
           ),
-          middle: const Text('令牌设置'),
+          middle: const Text('GitHub 授权'),
           backgroundColor: CupertinoColors.systemGroupedBackground,
         ),
         child: SafeArea(
@@ -62,9 +61,9 @@ class _TokenSettingsContent extends StatelessWidget {
                   title: Semantics(
                     identifier: 'saved_token_status_text',
                     liveRegion: true,
-                    label: '令牌状态',
+                    label: 'GitHub 授权状态',
                     child: Text(
-                      state.hasToken ? '已保存访问令牌' : '未保存访问令牌',
+                      state.hasToken ? '已完成 GitHub 授权' : '未完成 GitHub 授权',
                       style: TextStyle(
                         color: state.hasToken
                             ? CupertinoColors.activeGreen
@@ -75,26 +74,38 @@ class _TokenSettingsContent extends StatelessWidget {
                 ),
               ],
             ),
-            CupertinoFormSection.insetGrouped(
-              header: const Text('访问令牌'),
+            CupertinoListSection.insetGrouped(
+              header: const Text('设备码授权'),
+              footer: const Text('前往 GitHub 设备授权页面输入代码。应用会自动等待授权完成并安全保存访问令牌。'),
+              hasLeading: false,
               children: [
-                CupertinoFormRow(
-                  prefix: const Text('令牌'),
-                  child: Semantics(
-                    identifier: 'token_input_field',
-                    textField: true,
-                    label: '新的访问令牌',
-                    child: CupertinoTextField(
-                      placeholder: '新的访问令牌',
-                      obscureText: true,
-                      textInputAction: TextInputAction.done,
-                      enableInteractiveSelection: true,
-                      contextMenuBuilder: cupertinoTextFieldContextMenu,
-                      onChanged: (value) {
-                        context.read<TokenSettingsBloc>().add(
-                          TokenSettingsTokenChanged(value),
-                        );
-                      },
+                CupertinoListTile.notched(
+                  title: const Text('授权地址'),
+                  subtitle: Semantics(
+                    identifier: 'device_flow_verification_url_text',
+                    liveRegion: true,
+                    label: 'GitHub 设备授权地址',
+                    child: Text(
+                      state.verificationUri.isEmpty
+                          ? 'https://github.com/login/device'
+                          : state.verificationUri,
+                    ),
+                  ),
+                ),
+                CupertinoListTile.notched(
+                  title: const Text('设备码'),
+                  subtitle: Semantics(
+                    identifier: 'device_flow_code_text',
+                    liveRegion: true,
+                    label: 'GitHub 设备码',
+                    child: Text(
+                      state.userCode.isEmpty ? '等待生成' : state.userCode,
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0,
+                        color: CupertinoColors.label,
+                      ),
                     ),
                   ),
                 ),
@@ -119,27 +130,29 @@ class _TokenSettingsContent extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Semantics(
-                identifier: 'save_token_button',
+                identifier: 'start_device_flow_button',
                 button: true,
-                label: '保存令牌',
+                label: '开始 GitHub 授权',
                 child: CupertinoButton.filled(
-                  onPressed: state.canSave
+                  onPressed: state.canStartDeviceFlow
                       ? () {
                           context.read<TokenSettingsBloc>().add(
-                            const TokenSettingsSaveRequested(),
+                            const TokenSettingsDeviceFlowRequested(),
                           );
                         }
                       : null,
-                  child: state.status == TokenSettingsStatus.saving
+                  child: state.isBusy
                       ? const CupertinoActivityIndicator(
                           color: CupertinoColors.white,
                         )
                       : const Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(CupertinoIcons.lock_shield),
+                            Icon(
+                              CupertinoIcons.person_crop_circle_badge_checkmark,
+                            ),
                             SizedBox(width: 6),
-                            Text('保存令牌'),
+                            Text('使用 GitHub 授权'),
                           ],
                         ),
                 ),

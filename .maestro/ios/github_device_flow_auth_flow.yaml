@@ -1,11 +1,9 @@
-appId: com.example.basic_demo.dev
+appId: cn.com.fenrir-inc.iosAppTest.dev
 ---
 - launchApp:
     clearState: true
 - assertVisible:
     id: directory_sync_screen
-- assertVisible:
-    id: selected_directory_text
 - tapOn:
     id: token_settings_button
 - extendedWaitUntil:
@@ -15,9 +13,9 @@ appId: com.example.basic_demo.dev
 - tapOn:
     id: start_device_flow_button
 - assertVisible:
-    id: device_flow_code_text
-- assertVisible:
     id: device_flow_verification_url_text
+- assertVisible:
+    id: device_flow_code_text
 - extendedWaitUntil:
     visible:
       id: saved_token_status_text
@@ -26,15 +24,3 @@ appId: com.example.basic_demo.dev
     id: token_settings_back_button
 - assertVisible:
     id: directory_token_status_text
-- tapOn:
-    id: remote_url_field
-- inputText: "https://example.invalid/gitsync-fixture.git"
-- hideKeyboard
-- tapOn:
-    id: sync_button
-- assertVisible:
-    id: sync_status_text
-- extendedWaitUntil:
-    visible:
-      id: sync_success_text
-    timeout: 30000

@@ -1,3 +1,5 @@
 {
-  "flavor": "dev"
+  "flavor": "dev",
+  "githubOAuthClientId": "dev-fixture-client-id",
+  "githubOAuthScope": "repo"
 }

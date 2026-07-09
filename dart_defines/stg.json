@@ -1,3 +1,4 @@
 {
-  "flavor": "stg"
+  "flavor": "stg",
+  "githubOAuthScope": "repo"
 }

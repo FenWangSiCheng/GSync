@@ -3,7 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../domain/usecases/delete_git_token.dart';
 import '../../domain/usecases/get_git_token.dart';
+import '../../domain/usecases/poll_github_device_token.dart';
+import '../../domain/usecases/request_github_device_authorization.dart';
 import '../../domain/usecases/save_git_token.dart';
+import '../../domain/entities/github_device_token_poll_result.dart';
+import '../../domain/repositories/github_device_flow_repository.dart';
 
 part 'token_settings_event.dart';
 part 'token_settings_state.dart';
@@ -13,19 +17,24 @@ class TokenSettingsBloc extends Bloc<TokenSettingsEvent, TokenSettingsState> {
     required GetGitToken getGitToken,
     required SaveGitToken saveGitToken,
     required DeleteGitToken deleteGitToken,
+    required RequestGitHubDeviceAuthorization requestDeviceAuthorization,
+    required PollGitHubDeviceToken pollDeviceToken,
   }) : _getGitToken = getGitToken,
        _saveGitToken = saveGitToken,
        _deleteGitToken = deleteGitToken,
+       _requestDeviceAuthorization = requestDeviceAuthorization,
+       _pollDeviceToken = pollDeviceToken,
        super(const TokenSettingsState()) {
     on<TokenSettingsStarted>(_onStarted);
-    on<TokenSettingsTokenChanged>(_onTokenChanged);
-    on<TokenSettingsSaveRequested>(_onSaveRequested);
+    on<TokenSettingsDeviceFlowRequested>(_onDeviceFlowRequested);
     on<TokenSettingsDeleteRequested>(_onDeleteRequested);
   }
 
   final GetGitToken _getGitToken;
   final SaveGitToken _saveGitToken;
   final DeleteGitToken _deleteGitToken;
+  final RequestGitHubDeviceAuthorization _requestDeviceAuthorization;
+  final PollGitHubDeviceToken _pollDeviceToken;
 
   Future<void> _onStarted(
     TokenSettingsStarted event,
@@ -36,31 +45,109 @@ class TokenSettingsBloc extends Bloc<TokenSettingsEvent, TokenSettingsState> {
       state.copyWith(
         hasToken: token != null,
         status: TokenSettingsStatus.idle,
-        statusMessage: token == null ? '未保存访问令牌。' : '访问令牌已安全保存。',
+        statusMessage: token == null ? '未完成 GitHub 授权。' : 'GitHub 授权已安全保存。',
       ),
     );
   }
 
-  void _onTokenChanged(
-    TokenSettingsTokenChanged event,
-    Emitter<TokenSettingsState> emit,
-  ) {
-    emit(state.copyWith(inputToken: event.value));
-  }
-
-  Future<void> _onSaveRequested(
-    TokenSettingsSaveRequested event,
+  Future<void> _onDeviceFlowRequested(
+    TokenSettingsDeviceFlowRequested event,
     Emitter<TokenSettingsState> emit,
   ) async {
-    emit(state.copyWith(status: TokenSettingsStatus.saving));
+    emit(
+      state.copyWith(
+        status: TokenSettingsStatus.requestingDeviceCode,
+        statusMessage: '正在向 GitHub 请求设备码。',
+        userCode: '',
+        verificationUri: '',
+      ),
+    );
+
     try {
-      await _saveGitToken(state.inputToken);
+      final authorization = await _requestDeviceAuthorization();
       emit(
         state.copyWith(
-          inputToken: '',
-          hasToken: true,
-          status: TokenSettingsStatus.saved,
-          statusMessage: '访问令牌已安全保存。',
+          status: TokenSettingsStatus.waitingForAuthorization,
+          statusMessage: '请在浏览器打开 GitHub 设备授权页面并输入屏幕上的代码。',
+          userCode: authorization.userCode,
+          verificationUri: authorization.verificationUri.toString(),
+        ),
+      );
+
+      var interval = authorization.interval;
+      final expiresAt = DateTime.now().add(authorization.expiresIn);
+
+      while (DateTime.now().isBefore(expiresAt)) {
+        await Future<void>.delayed(interval);
+        if (emit.isDone) return;
+
+        final pollResult = await _pollDeviceToken(
+          deviceCode: authorization.deviceCode,
+        );
+
+        switch (pollResult) {
+          case GitHubDeviceTokenAuthorized(:final accessToken):
+            emit(
+              state.copyWith(
+                status: TokenSettingsStatus.saving,
+                statusMessage: 'GitHub 授权完成,正在安全保存访问令牌。',
+              ),
+            );
+            await _saveGitToken(accessToken);
+            if (emit.isDone) return;
+            emit(
+              state.copyWith(
+                hasToken: true,
+                status: TokenSettingsStatus.saved,
+                statusMessage: 'GitHub 授权已安全保存。',
+              ),
+            );
+            return;
+          case GitHubDeviceTokenPending():
+            emit(
+              state.copyWith(
+                status: TokenSettingsStatus.waitingForAuthorization,
+                statusMessage: '正在等待 GitHub 授权完成。',
+              ),
+            );
+          case GitHubDeviceTokenSlowDown(interval: final slowedInterval):
+            interval = slowedInterval;
+            emit(
+              state.copyWith(
+                status: TokenSettingsStatus.waitingForAuthorization,
+                statusMessage: 'GitHub 要求降低轮询频率,正在继续等待授权。',
+              ),
+            );
+          case GitHubDeviceTokenExpired():
+            emit(
+              state.copyWith(
+                status: TokenSettingsStatus.failure,
+                statusMessage: '设备码已过期,请重新开始 GitHub 授权。',
+              ),
+            );
+            return;
+          case GitHubDeviceTokenDenied():
+            emit(
+              state.copyWith(
+                status: TokenSettingsStatus.failure,
+                statusMessage: 'GitHub 授权已取消。',
+              ),
+            );
+            return;
+        }
+      }
+
+      emit(
+        state.copyWith(
+          status: TokenSettingsStatus.failure,
+          statusMessage: '设备码已过期,请重新开始 GitHub 授权。',
+        ),
+      );
+    } on GitHubDeviceFlowException catch (error) {
+      emit(
+        state.copyWith(
+          status: TokenSettingsStatus.failure,
+          statusMessage: error.message,
         ),
       );
     } on SaveGitTokenException catch (error) {
@@ -74,7 +161,7 @@ class TokenSettingsBloc extends Bloc<TokenSettingsEvent, TokenSettingsState> {
       emit(
         state.copyWith(
           status: TokenSettingsStatus.failure,
-          statusMessage: '访问令牌保存失败。',
+          statusMessage: 'GitHub 授权失败。',
         ),
       );
     }
@@ -89,17 +176,18 @@ class TokenSettingsBloc extends Bloc<TokenSettingsEvent, TokenSettingsState> {
       await _deleteGitToken();
       emit(
         state.copyWith(
-          inputToken: '',
           hasToken: false,
           status: TokenSettingsStatus.deleted,
-          statusMessage: '访问令牌已删除。',
+          userCode: '',
+          verificationUri: '',
+          statusMessage: 'GitHub 授权已删除。',
         ),
       );
     } catch (_) {
       emit(
         state.copyWith(
           status: TokenSettingsStatus.failure,
-          statusMessage: '访问令牌删除失败。',
+          statusMessage: 'GitHub 授权删除失败。',
         ),
       );
     }
