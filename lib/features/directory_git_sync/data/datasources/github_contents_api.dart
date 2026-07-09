@@ -21,22 +21,23 @@ class GitHubContentsApi {
     );
 
     if (response.statusCode == HttpStatus.ok) {
-      final decoded = jsonDecode(response.body);
-      if (decoded is List<Object?>) {
-        return decoded
-            .whereType<Map<String, Object?>>()
-            .map(GitHubContentEntry.fromJson)
-            .where((entry) => entry.isFile || entry.isDirectory)
-            .toList(growable: false);
-      }
-      if (decoded is Map<String, Object?>) {
-        final entry = GitHubContentEntry.fromJson(decoded);
-        return entry.isFile || entry.isDirectory ? [entry] : const [];
-      }
-      return const [];
+      return _parseEntries(jsonDecode(response.body));
     }
 
     throw GitHubContentsApiException(_failureMessage(response));
+  }
+
+  List<GitHubContentEntry> _parseEntries(Object? decoded) {
+    final entries = switch (decoded) {
+      List<Object?> list => list.whereType<Map<String, Object?>>().map(
+        GitHubContentEntry.fromJson,
+      ),
+      Map<String, Object?> map => [GitHubContentEntry.fromJson(map)],
+      _ => const <GitHubContentEntry>[],
+    };
+    return entries
+        .where((entry) => entry.isFile || entry.isDirectory)
+        .toList(growable: false);
   }
 
   Future<List<int>> fetchFileBytes({
@@ -50,10 +51,10 @@ class GitHubContentsApi {
     );
 
     if (response.statusCode == HttpStatus.ok) {
-      final body = _decodeObject(response.body);
-      final content = body['content'];
-      final encoding = body['encoding'];
-      if (content is String && encoding == 'base64') {
+      if (jsonDecode(response.body) case {
+        'content': String content,
+        'encoding': 'base64',
+      }) {
         return base64Decode(content.replaceAll(RegExp(r'\s+'), ''));
       }
     }
@@ -89,25 +90,16 @@ class GitHubContentsApi {
     };
   }
 
-  Map<String, Object?> _decodeObject(String body) {
-    final decoded = jsonDecode(body);
-    if (decoded is Map<String, Object?>) return decoded;
-    return const {};
-  }
-
   String _failureMessage(http.Response response) {
     final bodyMessage = _tryReadMessage(response.body);
-    if (response.statusCode == HttpStatus.unauthorized ||
-        response.statusCode == HttpStatus.forbidden) {
-      return 'GitHub 认证失败,请检查访问令牌权限。';
-    }
-    if (response.statusCode == HttpStatus.notFound) {
-      return '找不到 GitHub 仓库或目标路径,请检查地址和令牌权限。';
-    }
-    if (bodyMessage != null) {
-      return 'GitHub API 请求失败(${response.statusCode}):$bodyMessage';
-    }
-    return 'GitHub API 请求失败(${response.statusCode})。';
+    return switch (response.statusCode) {
+      HttpStatus.unauthorized ||
+      HttpStatus.forbidden => 'GitHub 认证失败,请检查访问令牌权限。',
+      HttpStatus.notFound => '找不到 GitHub 仓库或目标路径,请检查地址和令牌权限。',
+      _ when bodyMessage != null =>
+        'GitHub API 请求失败(${response.statusCode}):$bodyMessage',
+      _ => 'GitHub API 请求失败(${response.statusCode})。',
+    };
   }
 
   String? _tryReadMessage(String body) {
@@ -137,8 +129,14 @@ class GitHubContentEntry {
 
   factory GitHubContentEntry.fromJson(Map<String, Object?> json) {
     return GitHubContentEntry(
-      path: json['path'] is String ? json['path']! as String : '',
-      type: json['type'] is String ? json['type']! as String : '',
+      path: switch (json['path']) {
+        String s => s,
+        _ => '',
+      },
+      type: switch (json['type']) {
+        String s => s,
+        _ => '',
+      },
     );
   }
 

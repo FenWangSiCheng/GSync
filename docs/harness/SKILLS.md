@@ -17,6 +17,7 @@ available skill names, then read only the matching
 | --- | --- | --- |
 | `flutter/skills` | Flutter workflows such as widget tests, integration tests, responsive layout, routing, localization, JSON serialization, and layout fixes. | `npx skills add flutter/skills --skill '*' --agent universal --yes` |
 | `dart-lang/skills` | Dart workflows such as unit tests, static analysis, mocks, coverage, dependency conflicts, FFI, and pattern matching. | `npx skills add dart-lang/skills --skill '*' --agent universal --yes` |
+| `anthropics/claude-plugins-official` | General code quality workflows such as code simplification and refinement. | `curl -fsSL https://raw.githubusercontent.com/anthropics/claude-plugins-official/main/plugins/code-simplifier/agents/code-simplifier.md -o .agents/skills/code-simplifier/SKILL.md` |
 
 After installing or updating Flutter skills, remove
 `.agents/skills/flutter-apply-architecture-best-practices` so the repository
@@ -68,6 +69,10 @@ Dart skills:
 - `dart-setup-ffi-assets`
 - `dart-use-ffigen`
 - `dart-use-pattern-matching`
+
+General skills:
+
+- `code-simplifier`
 
 ## Harness Rules
 

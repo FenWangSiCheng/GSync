@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/widgets/cupertino_text_field_menu.dart';
 import '../bloc/token_settings_bloc.dart';
 
 class TokenSettingsPage extends StatelessWidget {
@@ -88,7 +89,7 @@ class _TokenSettingsContent extends StatelessWidget {
                       obscureText: true,
                       textInputAction: TextInputAction.done,
                       enableInteractiveSelection: true,
-                      contextMenuBuilder: _cupertinoTextFieldContextMenu,
+                      contextMenuBuilder: cupertinoTextFieldContextMenu,
                       onChanged: (value) {
                         context.read<TokenSettingsBloc>().add(
                           TokenSettingsTokenChanged(value),
@@ -169,13 +170,4 @@ class _TokenSettingsContent extends StatelessWidget {
       },
     );
   }
-}
-
-Widget _cupertinoTextFieldContextMenu(
-  BuildContext context,
-  EditableTextState editableTextState,
-) {
-  return CupertinoAdaptiveTextSelectionToolbar.editableText(
-    editableTextState: editableTextState,
-  );
 }

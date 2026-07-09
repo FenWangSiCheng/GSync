@@ -77,6 +77,7 @@ The stg build was relaunched on the iOS simulator and targeted checks pass.
   `github-repository-download-sync` and saved the reports under
   `docs/harness/evidence/github-repository-download-sync/`.
 
+- [x] Fixed iOS file visibility for `feat-github-repository-download-sync`: added `UIFileSharingEnabled` and `LSSupportsOpeningDocumentsInPlace` to `ios/Runner/Info.plist` so downloaded files appear under the app in the iOS Files app. Rebuilt and reinstalled the stg build on the iOS simulator; verified 84 downloaded files remain in the Documents/GitSync container and both keys are present in the built Runner.app Info.plist.
 ### What's Next
 
 1. No outstanding implementation or acceptance work for

@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/router/router_constants.dart';
+import '../../../../core/widgets/cupertino_text_field_menu.dart';
 import '../bloc/directory_sync_bloc.dart';
 import '../models/selected_directory_display.dart';
 
@@ -273,7 +274,7 @@ class _RemoteSection extends StatelessWidget {
               keyboardType: TextInputType.url,
               textInputAction: TextInputAction.done,
               enableInteractiveSelection: true,
-              contextMenuBuilder: _cupertinoTextFieldContextMenu,
+              contextMenuBuilder: cupertinoTextFieldContextMenu,
               onChanged: (value) {
                 context.read<DirectorySyncBloc>().add(
                   DirectorySyncRemoteUrlChanged(value),
@@ -285,15 +286,6 @@ class _RemoteSection extends StatelessWidget {
       ],
     );
   }
-}
-
-Widget _cupertinoTextFieldContextMenu(
-  BuildContext context,
-  EditableTextState editableTextState,
-) {
-  return CupertinoAdaptiveTextSelectionToolbar.editableText(
-    editableTextState: editableTextState,
-  );
 }
 
 class _SyncActionSection extends StatelessWidget {
