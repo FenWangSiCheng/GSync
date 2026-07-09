@@ -32,24 +32,26 @@ import 'package:flutter_foundations/features/directory_git_sync/domain/usecases/
     as _i320;
 import 'package:flutter_foundations/features/directory_git_sync/presentation/bloc/directory_sync_bloc.dart'
     as _i745;
-import 'package:flutter_foundations/features/token_settings/data/datasources/github_device_flow_api.dart'
-    as _i798;
+import 'package:flutter_foundations/features/token_settings/data/datasources/github_oauth_api.dart'
+    as _i594;
+import 'package:flutter_foundations/features/token_settings/data/datasources/oauth_browser_launcher.dart'
+    as _i648;
 import 'package:flutter_foundations/features/token_settings/data/datasources/secure_token_storage.dart'
     as _i772;
 import 'package:flutter_foundations/features/token_settings/domain/repositories/git_token_repository.dart'
     as _i282;
-import 'package:flutter_foundations/features/token_settings/domain/repositories/github_device_flow_repository.dart'
-    as _i544;
+import 'package:flutter_foundations/features/token_settings/domain/repositories/github_oauth_redirect_repository.dart'
+    as _i398;
+import 'package:flutter_foundations/features/token_settings/domain/usecases/complete_github_oauth_redirect_authorization.dart'
+    as _i1014;
 import 'package:flutter_foundations/features/token_settings/domain/usecases/delete_git_token.dart'
     as _i929;
 import 'package:flutter_foundations/features/token_settings/domain/usecases/get_git_token.dart'
     as _i763;
-import 'package:flutter_foundations/features/token_settings/domain/usecases/poll_github_device_token.dart'
-    as _i383;
-import 'package:flutter_foundations/features/token_settings/domain/usecases/request_github_device_authorization.dart'
-    as _i166;
 import 'package:flutter_foundations/features/token_settings/domain/usecases/save_git_token.dart'
     as _i388;
+import 'package:flutter_foundations/features/token_settings/domain/usecases/start_github_oauth_redirect_authorization.dart'
+    as _i832;
 import 'package:flutter_foundations/features/token_settings/presentation/bloc/token_settings_bloc.dart'
     as _i312;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart' as _i558;
@@ -67,6 +69,9 @@ extension GetItInjectableX on _i174.GetIt {
     final registerModule = _$RegisterModule();
     gh.singleton<_i531.AppConfig>(() => registerModule.appConfig);
     gh.lazySingleton<_i519.Client>(() => registerModule.httpClient());
+    gh.lazySingleton<_i648.OAuthBrowserLauncher>(
+      () => registerModule.oAuthBrowserLauncher(),
+    );
     gh.lazySingleton<_i873.GitCommandRunner>(
       () => registerModule.gitCommandRunner(),
     );
@@ -103,11 +108,18 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i134.GitHubContentsApi>(
       () => registerModule.gitHubContentsApi(gh<_i519.Client>()),
     );
-    gh.lazySingleton<_i798.GitHubDeviceFlowApi>(
-      () => registerModule.gitHubDeviceFlowApi(gh<_i519.Client>()),
+    gh.lazySingleton<_i594.GitHubOAuthApi>(
+      () => registerModule.gitHubOAuthApi(gh<_i519.Client>()),
     );
     gh.lazySingleton<_i361.Dio>(
       () => registerModule.dio(gh<_i542.DioClient>()),
+    );
+    gh.lazySingleton<_i398.GitHubOAuthRedirectRepository>(
+      () => registerModule.gitHubOAuthRedirectRepository(
+        gh<_i531.AppConfig>(),
+        gh<_i594.GitHubOAuthApi>(),
+        gh<_i648.OAuthBrowserLauncher>(),
+      ),
     );
     gh.lazySingleton<_i763.GetGitToken>(
       () => registerModule.getGitToken(gh<_i282.GitTokenRepository>()),
@@ -118,10 +130,14 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i929.DeleteGitToken>(
       () => registerModule.deleteGitToken(gh<_i282.GitTokenRepository>()),
     );
-    gh.lazySingleton<_i544.GitHubDeviceFlowRepository>(
-      () => registerModule.gitHubDeviceFlowRepository(
-        gh<_i531.AppConfig>(),
-        gh<_i798.GitHubDeviceFlowApi>(),
+    gh.lazySingleton<_i832.StartGitHubOAuthRedirectAuthorization>(
+      () => registerModule.startGitHubOAuthRedirectAuthorization(
+        gh<_i398.GitHubOAuthRedirectRepository>(),
+      ),
+    );
+    gh.lazySingleton<_i1014.CompleteGitHubOAuthRedirectAuthorization>(
+      () => registerModule.completeGitHubOAuthRedirectAuthorization(
+        gh<_i398.GitHubOAuthRedirectRepository>(),
       ),
     );
     gh.lazySingleton<_i451.GitSyncRepository>(
@@ -143,23 +159,13 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i320.SyncDirectoryToGitRepository>(),
       ),
     );
-    gh.lazySingleton<_i166.RequestGitHubDeviceAuthorization>(
-      () => registerModule.requestGitHubDeviceAuthorization(
-        gh<_i544.GitHubDeviceFlowRepository>(),
-      ),
-    );
-    gh.lazySingleton<_i383.PollGitHubDeviceToken>(
-      () => registerModule.pollGitHubDeviceToken(
-        gh<_i544.GitHubDeviceFlowRepository>(),
-      ),
-    );
     gh.factory<_i312.TokenSettingsBloc>(
       () => registerModule.tokenSettingsBloc(
         gh<_i763.GetGitToken>(),
         gh<_i388.SaveGitToken>(),
         gh<_i929.DeleteGitToken>(),
-        gh<_i166.RequestGitHubDeviceAuthorization>(),
-        gh<_i383.PollGitHubDeviceToken>(),
+        gh<_i832.StartGitHubOAuthRedirectAuthorization>(),
+        gh<_i1014.CompleteGitHubOAuthRedirectAuthorization>(),
       ),
     );
     return this;

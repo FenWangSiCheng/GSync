@@ -1,0 +1,46 @@
+{
+  "spec": "github-oauth-redirect-auth",
+  "feature": "feat-github-oauth-redirect-auth",
+  "platform": "ios",
+  "result": "PASS",
+  "maestro_run": true,
+  "maestro_blocked_reason": null,
+  "maestro_all_pass": true,
+  "acceptance": [
+    {
+      "id": "ui-oauth-redirect-auth",
+      "claim": "The user opens settings, starts GitHub browser authorization, returns through the OAuth callback, and sees GitHub authorization configured on the sync screen.",
+      "kind": "maestro",
+      "verdict": "pass",
+      "evidence": ".maestro/ios/github_oauth_redirect_auth_flow.yaml"
+    },
+    {
+      "id": "logic-oauth-url-pkce",
+      "claim": "The OAuth redirect repository builds a GitHub authorize URL with client_id, redirect_uri, scope, state, code_challenge, and code_challenge_method=S256.",
+      "kind": "test",
+      "verdict": "pass",
+      "evidence": "test/features/token_settings/data/repositories/github_oauth_redirect_repository_test.dart"
+    },
+    {
+      "id": "logic-oauth-callback-exchange",
+      "claim": "The OAuth redirect repository validates callback state, maps callback errors, and exchanges code with client_id, redirect_uri, and code_verifier without requiring a client secret.",
+      "kind": "test",
+      "verdict": "pass",
+      "evidence": "test/features/token_settings/data/repositories/github_oauth_redirect_repository_test.dart"
+    },
+    {
+      "id": "logic-oauth-redirect-bloc",
+      "claim": "The token settings BLoC starts browser authorization, handles callback success/failure, stores the returned token securely, and reports missing configuration failures.",
+      "kind": "test",
+      "verdict": "pass",
+      "evidence": "test/features/token_settings/presentation/bloc/token_settings_bloc_test.dart"
+    },
+    {
+      "id": "logic-oauth-redirect-config",
+      "claim": "AppConfig exposes OAuth redirect configuration and dependency injection uses the deterministic fixture in dev and the GitHub API-backed redirect repository outside dev.",
+      "kind": "test",
+      "verdict": "pass",
+      "evidence": "test/core/injection/injection_test.dart"
+    }
+  ]
+}

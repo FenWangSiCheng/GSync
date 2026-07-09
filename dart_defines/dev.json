@@ -1,5 +1,6 @@
 {
   "flavor": "dev",
   "githubOAuthClientId": "dev-fixture-client-id",
+  "githubOAuthRedirectUri": "gitsync-dev://oauth/github/callback",
   "githubOAuthScope": "repo"
 }

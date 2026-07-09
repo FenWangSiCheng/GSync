@@ -2,8 +2,8 @@ part of 'token_settings_bloc.dart';
 
 enum TokenSettingsStatus {
   idle,
-  requestingDeviceCode,
-  waitingForAuthorization,
+  openingBrowser,
+  waitingForCallback,
   saving,
   saved,
   deleted,
@@ -15,23 +15,23 @@ class TokenSettingsState extends Equatable {
     this.hasToken = false,
     this.status = TokenSettingsStatus.idle,
     this.statusMessage = '正在检查访问令牌。',
-    this.userCode = '',
-    this.verificationUri = '',
+    this.oauthRedirectUrl = '',
+    this.oauthCallbackStatus = '',
   });
 
   final bool hasToken;
   final TokenSettingsStatus status;
   final String statusMessage;
-  final String userCode;
-  final String verificationUri;
+  final String oauthRedirectUrl;
+  final String oauthCallbackStatus;
 
   bool get isBusy {
-    return status == TokenSettingsStatus.requestingDeviceCode ||
-        status == TokenSettingsStatus.waitingForAuthorization ||
+    return status == TokenSettingsStatus.openingBrowser ||
+        status == TokenSettingsStatus.waitingForCallback ||
         status == TokenSettingsStatus.saving;
   }
 
-  bool get canStartDeviceFlow => !isBusy;
+  bool get canStartOAuthRedirect => !isBusy;
 
   bool get canDelete => hasToken && !isBusy;
 
@@ -39,15 +39,15 @@ class TokenSettingsState extends Equatable {
     bool? hasToken,
     TokenSettingsStatus? status,
     String? statusMessage,
-    String? userCode,
-    String? verificationUri,
+    String? oauthRedirectUrl,
+    String? oauthCallbackStatus,
   }) {
     return TokenSettingsState(
       hasToken: hasToken ?? this.hasToken,
       status: status ?? this.status,
       statusMessage: statusMessage ?? this.statusMessage,
-      userCode: userCode ?? this.userCode,
-      verificationUri: verificationUri ?? this.verificationUri,
+      oauthRedirectUrl: oauthRedirectUrl ?? this.oauthRedirectUrl,
+      oauthCallbackStatus: oauthCallbackStatus ?? this.oauthCallbackStatus,
     );
   }
 
@@ -56,7 +56,7 @@ class TokenSettingsState extends Equatable {
     hasToken,
     status,
     statusMessage,
-    userCode,
-    verificationUri,
+    oauthRedirectUrl,
+    oauthCallbackStatus,
   ];
 }

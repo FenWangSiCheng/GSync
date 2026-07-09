@@ -2,13 +2,16 @@
 
 ## Current Objective
 
-- Goal: Complete `feat-github-device-flow-auth`.
-- Current status: Implemented, accepted on iOS and Android, and marked `done`.
+- Goal: Complete `feat-github-oauth-redirect-auth`.
+- Current status: Feature implemented, accepted on iOS and Android, and
+  evidence saved under `docs/harness/evidence/github-oauth-redirect-auth/`.
+  Removed the GitHub Device Flow authorization path; browser redirect is now
+  the only authorization method.
 - Feature state: `feat-directory-git-sync`, `feat-ios-clean-ui`, and
   `feat-encrypted-token-default-directory` are `done`;
   `feat-github-directory-api-sync` is `done`;
   `feat-github-repository-download-sync` is `done`;
-  `feat-github-device-flow-auth` is `done`.
+  `feat-github-oauth-redirect-auth` is `done`.
 
 ## Completed
 
@@ -58,6 +61,21 @@
   typing `test-token`.
 - [x] Ran dual-platform Maestro dev acceptance and copied reports to
   `docs/harness/evidence/github-device-flow-auth/`.
+- [x] Registered `feat-github-oauth-redirect-auth` as a new harness feature.
+- [x] Drafted the GitHub OAuth redirect auth spec, acceptance checklist, UI
+  target delta, and deterministic dev Maestro flow drafts.
+- [x] Added an active task plan under
+  `docs/harness/tasks/active/2026-07-09-github-oauth-redirect-auth.md`.
+- [x] Approved and implemented GitHub browser redirect authorization with PKCE,
+  custom URL scheme callbacks, state validation, code exchange, and secure
+  token save.
+- [x] Added deterministic dev fixture behavior for OAuth redirect callback
+  acceptance.
+- [x] Added iOS/Android callback URL scheme registration and a GoRouter callback
+  route for deep-link launches.
+- [x] Kept Device Flow as a backup authorization path in the token settings UI.
+- [x] Ran final dual-platform Maestro acceptance and copied reports to
+  `docs/harness/evidence/github-oauth-redirect-auth/`.
 
 ## Verification Evidence
 
@@ -84,13 +102,22 @@
 | GitHub Device Flow targeted tests | `fvm flutter test test/features/token_settings` | Pass | Device Flow API, repository, entity, and BLoC coverage pass. |
 | Full harness check | `fvm dart run tool/harness.dart check` | Pass | Format, structure, analyzer, and coverage passed; coverage 741/809 lines (91.59%). |
 | GitHub Device Flow acceptance | `fvm dart run tool/harness.dart spec accept github-device-flow-auth --maestro --platform all` | Pass | iOS and Android both PASS; evidence copied to `docs/harness/evidence/github-device-flow-auth/`. |
+| GitHub OAuth redirect spec draft | `fvm dart run tool/harness.dart spec new github-oauth-redirect-auth` | Pass | Spec scaffold created and then filled for Gate A review. |
+| GitHub OAuth redirect Gate A review | `fvm dart run tool/harness.dart spec review github-oauth-redirect-auth` | Pass | Printed the review checklist before approval. |
+| Structure guard | `fvm dart run tool/harness.dart structure` | Pass | Harness and architecture checks pass with the draft feature/spec artifacts. |
+| GitHub OAuth redirect Gate A approval | `fvm dart run tool/harness.dart spec review github-oauth-redirect-auth --approve` | Pass | Feature moved to `spec-approved` before implementation. |
+| GitHub OAuth redirect targeted tests | `fvm flutter test test/features/token_settings/data/repositories/github_oauth_redirect_repository_test.dart test/features/token_settings/data/repositories/fixture_github_oauth_redirect_repository_test.dart test/features/token_settings/presentation/bloc/token_settings_bloc_test.dart test/features/token_settings/domain/token_settings_entities_test.dart test/core/router/app_router_test.dart` | Pass | OAuth repository, fixture, BLoC, entities, and callback route coverage pass. |
+| GitHub OAuth redirect analyzer | `fvm dart analyze lib/features/token_settings lib/core/router test/features/token_settings test/core/router` | Pass | No issues found. |
+| Full harness check | `fvm dart run tool/harness.dart check` | Pass | Format, structure, analyzer, and coverage passed; coverage 912/1007 lines (90.57%). |
+| GitHub OAuth redirect acceptance | `fvm dart run tool/harness.dart spec accept github-oauth-redirect-auth --maestro --platform all` | Pass | iOS and Android both PASS; evidence copied to `docs/harness/evidence/github-oauth-redirect-auth/`. |
 
 ## Blockers / Risks
 
-- No current blockers for `feat-github-device-flow-auth`.
+- No current blockers for `feat-github-oauth-redirect-auth`; it is `done`.
 - Real `stg` and `prod` GitHub authorization requires a GitHub OAuth app with
-  Device Flow enabled and `githubOAuthClientId` supplied through dart defines.
-  Missing client ID is surfaced as a readable in-app failure.
+  a callback URL matching the app flavor and `githubOAuthClientId` supplied
+  through dart defines. Missing Client ID or redirect URI is surfaced as a
+  readable in-app failure.
 - Flutter reports future-compatibility warnings for Swift Package Manager
   support in some iOS plugins.
 - Android builds report future-compatibility warnings for Gradle, Android
@@ -108,7 +135,6 @@
 
 ## Recommended Next Step
 
-- Pick the next feature in `feature_list.json` or draft a new feature using the
-  same spec-first lifecycle. The next likely product additions are
-  delete-mirroring, conflict handling, large-file support, background sync, or
-  account switching.
+- Configure real `stg`/`prod` GitHub OAuth App values before live browser
+  redirect authorization; run `./init.sh` when a fresh restartability proof is
+  needed.

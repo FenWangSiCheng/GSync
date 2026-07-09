@@ -1,24 +1,24 @@
 import 'package:bloc_test/bloc_test.dart';
-import 'package:flutter_foundations/features/token_settings/domain/entities/github_device_authorization.dart';
-import 'package:flutter_foundations/features/token_settings/domain/entities/github_device_token_poll_result.dart';
+import 'package:flutter_foundations/features/token_settings/domain/entities/github_oauth_authorization_session.dart';
+import 'package:flutter_foundations/features/token_settings/domain/entities/github_oauth_token.dart';
 import 'package:flutter_foundations/features/token_settings/domain/repositories/git_token_repository.dart';
-import 'package:flutter_foundations/features/token_settings/domain/repositories/github_device_flow_repository.dart';
+import 'package:flutter_foundations/features/token_settings/domain/repositories/github_oauth_redirect_repository.dart';
+import 'package:flutter_foundations/features/token_settings/domain/usecases/complete_github_oauth_redirect_authorization.dart';
 import 'package:flutter_foundations/features/token_settings/domain/usecases/delete_git_token.dart';
 import 'package:flutter_foundations/features/token_settings/domain/usecases/get_git_token.dart';
-import 'package:flutter_foundations/features/token_settings/domain/usecases/poll_github_device_token.dart';
-import 'package:flutter_foundations/features/token_settings/domain/usecases/request_github_device_authorization.dart';
 import 'package:flutter_foundations/features/token_settings/domain/usecases/save_git_token.dart';
+import 'package:flutter_foundations/features/token_settings/domain/usecases/start_github_oauth_redirect_authorization.dart';
 import 'package:flutter_foundations/features/token_settings/presentation/bloc/token_settings_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('TokenSettingsBloc', () {
     late _FakeGitTokenRepository tokenRepository;
-    late _FakeGitHubDeviceFlowRepository deviceFlowRepository;
+    late _FakeGitHubOAuthRedirectRepository oauthRedirectRepository;
 
     setUp(() {
       tokenRepository = _FakeGitTokenRepository();
-      deviceFlowRepository = _FakeGitHubDeviceFlowRepository();
+      oauthRedirectRepository = _FakeGitHubOAuthRedirectRepository();
     });
 
     TokenSettingsBloc buildBloc() {
@@ -26,10 +26,11 @@ void main() {
         getGitToken: GetGitToken(tokenRepository),
         saveGitToken: SaveGitToken(tokenRepository),
         deleteGitToken: DeleteGitToken(tokenRepository),
-        requestDeviceAuthorization: RequestGitHubDeviceAuthorization(
-          deviceFlowRepository,
+        startOAuthRedirectAuthorization: StartGitHubOAuthRedirectAuthorization(
+          oauthRedirectRepository,
         ),
-        pollDeviceToken: PollGitHubDeviceToken(deviceFlowRepository),
+        completeOAuthRedirectAuthorization:
+            CompleteGitHubOAuthRedirectAuthorization(oauthRedirectRepository),
       );
     }
 
@@ -52,42 +53,57 @@ void main() {
     );
 
     blocTest<TokenSettingsBloc, TokenSettingsState>(
-      'requests a device code, polls, and stores the authorized token',
-      build: () {
-        deviceFlowRepository.pollResults = const [
-          GitHubDeviceTokenPending(),
-          GitHubDeviceTokenAuthorized(
-            accessToken: '  gho-token  ',
-            tokenType: 'bearer',
-            scope: 'repo',
-          ),
-        ];
-        return buildBloc();
-      },
-      act: (bloc) => bloc.add(const TokenSettingsDeviceFlowRequested()),
-      wait: const Duration(milliseconds: 10),
+      'starts OAuth redirect authorization and waits for callback',
+      build: buildBloc,
+      act: (bloc) => bloc.add(const TokenSettingsOAuthRedirectRequested()),
       expect: () => [
         isA<TokenSettingsState>().having(
           (state) => state.status,
           'status',
-          TokenSettingsStatus.requestingDeviceCode,
+          TokenSettingsStatus.openingBrowser,
         ),
         isA<TokenSettingsState>()
             .having(
               (state) => state.status,
               'status',
-              TokenSettingsStatus.waitingForAuthorization,
+              TokenSettingsStatus.waitingForCallback,
             )
-            .having((state) => state.userCode, 'userCode', 'ABCD-1234')
             .having(
-              (state) => state.verificationUri,
-              'verificationUri',
-              'https://github.com/login/device',
+              (state) => state.oauthRedirectUrl,
+              'oauthRedirectUrl',
+              contains('https://github.com/login/oauth/authorize'),
+            )
+            .having(
+              (state) => state.oauthCallbackStatus,
+              'oauthCallbackStatus',
+              '正在等待 GitHub 授权回调。',
             ),
+      ],
+    );
+
+    blocTest<TokenSettingsBloc, TokenSettingsState>(
+      'handles OAuth callback and stores the authorized token',
+      build: buildBloc,
+      act: (bloc) {
+        bloc.add(const TokenSettingsOAuthRedirectRequested());
+        bloc.add(
+          TokenSettingsOAuthCallbackReceived(
+            Uri.parse(
+              'gitsync-dev://oauth/github/callback?code=oauth-code&state=fixture-state',
+            ),
+          ),
+        );
+      },
+      expect: () => [
         isA<TokenSettingsState>().having(
-          (state) => state.statusMessage,
-          'statusMessage',
-          '正在等待 GitHub 授权完成。',
+          (state) => state.status,
+          'status',
+          TokenSettingsStatus.openingBrowser,
+        ),
+        isA<TokenSettingsState>().having(
+          (state) => state.status,
+          'status',
+          TokenSettingsStatus.waitingForCallback,
         ),
         isA<TokenSettingsState>().having(
           (state) => state.status,
@@ -100,27 +116,32 @@ void main() {
               (state) => state.status,
               'status',
               TokenSettingsStatus.saved,
+            )
+            .having(
+              (state) => state.oauthCallbackStatus,
+              'oauthCallbackStatus',
+              'GitHub 授权回调处理完成。',
             ),
       ],
       verify: (_) {
-        expect(tokenRepository.token, 'gho-token');
+        expect(tokenRepository.token, 'gho-oauth-token');
       },
     );
 
     blocTest<TokenSettingsBloc, TokenSettingsState>(
-      'reports missing client id failures',
+      'reports OAuth redirect configuration failures',
       build: () {
-        deviceFlowRepository.requestError = const GitHubDeviceFlowException(
-          'GitHub OAuth Client ID 未配置。',
+        oauthRedirectRepository.startError = const GitHubOAuthRedirectException(
+          'GitHub OAuth 回调地址未配置。',
         );
         return buildBloc();
       },
-      act: (bloc) => bloc.add(const TokenSettingsDeviceFlowRequested()),
+      act: (bloc) => bloc.add(const TokenSettingsOAuthRedirectRequested()),
       expect: () => [
         isA<TokenSettingsState>().having(
           (state) => state.status,
           'status',
-          TokenSettingsStatus.requestingDeviceCode,
+          TokenSettingsStatus.openingBrowser,
         ),
         isA<TokenSettingsState>()
             .having(
@@ -131,29 +152,39 @@ void main() {
             .having(
               (state) => state.statusMessage,
               'statusMessage',
-              'GitHub OAuth Client ID 未配置。',
+              'GitHub OAuth 回调地址未配置。',
             ),
       ],
     );
 
     blocTest<TokenSettingsBloc, TokenSettingsState>(
-      'reports expired device codes',
-      build: () {
-        deviceFlowRepository.pollResults = const [GitHubDeviceTokenExpired()];
-        return buildBloc();
+      'reports OAuth callback failures without storing a token',
+      build: buildBloc,
+      act: (bloc) {
+        bloc.add(const TokenSettingsOAuthRedirectRequested());
+        bloc.add(
+          TokenSettingsOAuthCallbackReceived(
+            Uri.parse(
+              'gitsync-dev://oauth/github/callback?code=oauth-code&state=bad-state',
+            ),
+          ),
+        );
       },
-      act: (bloc) => bloc.add(const TokenSettingsDeviceFlowRequested()),
-      wait: const Duration(milliseconds: 10),
       expect: () => [
         isA<TokenSettingsState>().having(
           (state) => state.status,
           'status',
-          TokenSettingsStatus.requestingDeviceCode,
+          TokenSettingsStatus.openingBrowser,
         ),
         isA<TokenSettingsState>().having(
           (state) => state.status,
           'status',
-          TokenSettingsStatus.waitingForAuthorization,
+          TokenSettingsStatus.waitingForCallback,
+        ),
+        isA<TokenSettingsState>().having(
+          (state) => state.status,
+          'status',
+          TokenSettingsStatus.saving,
         ),
         isA<TokenSettingsState>()
             .having(
@@ -164,42 +195,12 @@ void main() {
             .having(
               (state) => state.statusMessage,
               'statusMessage',
-              '设备码已过期,请重新开始 GitHub 授权。',
+              'GitHub OAuth state 校验失败。',
             ),
       ],
-    );
-
-    blocTest<TokenSettingsBloc, TokenSettingsState>(
-      'reports denied authorization',
-      build: () {
-        deviceFlowRepository.pollResults = const [GitHubDeviceTokenDenied()];
-        return buildBloc();
+      verify: (_) {
+        expect(tokenRepository.token, isNull);
       },
-      act: (bloc) => bloc.add(const TokenSettingsDeviceFlowRequested()),
-      wait: const Duration(milliseconds: 10),
-      expect: () => [
-        isA<TokenSettingsState>().having(
-          (state) => state.status,
-          'status',
-          TokenSettingsStatus.requestingDeviceCode,
-        ),
-        isA<TokenSettingsState>().having(
-          (state) => state.status,
-          'status',
-          TokenSettingsStatus.waitingForAuthorization,
-        ),
-        isA<TokenSettingsState>()
-            .having(
-              (state) => state.status,
-              'status',
-              TokenSettingsStatus.failure,
-            )
-            .having(
-              (state) => state.statusMessage,
-              'statusMessage',
-              'GitHub 授权已取消。',
-            ),
-      ],
     );
 
     blocTest<TokenSettingsBloc, TokenSettingsState>(
@@ -248,39 +249,49 @@ class _FakeGitTokenRepository implements GitTokenRepository {
   }
 }
 
-class _FakeGitHubDeviceFlowRepository implements GitHubDeviceFlowRepository {
-  GitHubDeviceFlowException? requestError;
-  List<GitHubDeviceTokenPollResult> pollResults = const [
-    GitHubDeviceTokenAuthorized(
-      accessToken: 'test-token',
-      tokenType: 'bearer',
-      scope: 'repo',
-    ),
-  ];
-
-  var _pollIndex = 0;
+class _FakeGitHubOAuthRedirectRepository
+    implements GitHubOAuthRedirectRepository {
+  GitHubOAuthRedirectException? startError;
+  GitHubOAuthAuthorizationSession? _pendingSession;
 
   @override
-  Future<GitHubDeviceAuthorization> requestAuthorization() async {
-    final error = requestError;
+  Future<GitHubOAuthAuthorizationSession> startAuthorization() async {
+    final error = startError;
     if (error != null) throw error;
-    return GitHubDeviceAuthorization(
-      deviceCode: 'device-code',
-      userCode: 'ABCD-1234',
-      verificationUri: Uri.parse('https://github.com/login/device'),
-      expiresIn: const Duration(minutes: 15),
-      interval: Duration.zero,
+    final redirectUri = Uri.parse('gitsync-dev://oauth/github/callback');
+    final session = GitHubOAuthAuthorizationSession(
+      authorizationUrl: Uri.https('github.com', '/login/oauth/authorize', {
+        'client_id': 'dev-fixture-client-id',
+        'redirect_uri': redirectUri.toString(),
+        'scope': 'repo',
+        'state': 'fixture-state',
+        'code_challenge': 'fixture-challenge',
+        'code_challenge_method': 'S256',
+      }),
+      redirectUri: redirectUri,
+      state: 'fixture-state',
+      codeVerifier: 'fixture-verifier',
     );
+    _pendingSession = session;
+    return session;
   }
 
   @override
-  Future<GitHubDeviceTokenPollResult> pollToken({
-    required String deviceCode,
+  Future<GitHubOAuthToken> completeAuthorization({
+    required Uri callbackUri,
   }) async {
-    final result = pollResults[_pollIndex];
-    if (_pollIndex < pollResults.length - 1) {
-      _pollIndex += 1;
+    final session = _pendingSession;
+    if (session == null) {
+      throw const GitHubOAuthRedirectException('GitHub OAuth 授权会话已失效,请重新开始授权。');
     }
-    return result;
+    if (callbackUri.queryParameters['state'] != session.state) {
+      throw const GitHubOAuthRedirectException('GitHub OAuth state 校验失败。');
+    }
+    _pendingSession = null;
+    return const GitHubOAuthToken(
+      accessToken: 'gho-oauth-token',
+      tokenType: 'bearer',
+      scope: 'repo',
+    );
   }
 }

@@ -208,51 +208,59 @@
       "next_step": "Feature complete. Dual-platform Maestro acceptance passes on both iOS and Android. No further action required."
     },
     {
-      "id": "feat-github-device-flow-auth",
-      "title": "GitHub Device Flow 授权",
+      "id": "feat-github-oauth-redirect-auth",
+      "title": "GitHub 浏览器跳转授权",
       "status": "done",
-      "spec": "github-device-flow-auth",
-      "summary": "用户不再手动粘贴 GitHub 访问令牌,而是在应用中获取设备码,前往 github.com/login/device 授权,应用轮询换取并安全保存访问令牌。",
+      "spec": "github-oauth-redirect-auth",
+      "summary": "用户点击 GitHub 授权按钮后,应用打开 GitHub OAuth 授权页面;用户授权后通过回调链接跳回 GitSync,应用使用授权 code 和 PKCE 换取并安全保存访问令牌。",
       "scope": [
-        "在令牌设置页发起 GitHub OAuth Device Flow",
-        "显示 GitHub 设备授权 user code 和 verification URL",
-        "使用配置的 OAuth client_id 请求 device code,不使用 client_secret 或回调 scheme",
-        "应用按 GitHub 返回的 interval 轮询 access token",
-        "处理 pending、slow_down、expired、denied 和成功状态",
-        "授权成功后复用现有安全存储保存访问令牌",
-        "目录同步页显示 GitHub 授权配置状态",
-        "dev flavor 使用确定性 fixture,不依赖真实 GitHub 账号"
+        "在令牌设置页发起 GitHub OAuth browser redirect 授权",
+        "使用系统浏览器或平台授权页面打开 GitHub OAuth authorize URL",
+        "注册 iOS 和 Android 的 GitSync OAuth callback URL scheme",
+        "使用 PKCE code_verifier/code_challenge 和 state 保护授权流程",
+        "处理 GitHub callback 成功、取消、错误和 state 不匹配状态",
+        "使用授权 code 换取访问令牌并通过现有安全存储保存",
+        "目录同步页继续复用已保存 GitHub 授权状态",
+        "dev flavor 使用确定性 fixture,不依赖真实 GitHub 账号或浏览器登录"
       ],
       "out_of_scope": [
-        "创建或注册 GitHub OAuth App",
+        "托管 HTTPS universal links 或 Android App Links 的 AASA/assetlinks 文件",
         "GitHub App installation token 流程",
-        "自定义 deep link 或 callback scheme",
         "多账号管理",
         "token refresh",
-        "在应用内嵌浏览器完成 GitHub 登录"
+        "在应用内嵌 WebView 完成 GitHub 登录",
+        "后台自动同步"
       ],
       "dependencies": [
-        "feat-encrypted-token-default-directory",
         "feat-github-repository-download-sync"
       ],
       "evidence": [
-        "docs/harness/specs/github-device-flow-auth/spec.md",
-        "docs/harness/specs/github-device-flow-auth/acceptance.yaml",
-        ".maestro/ios/github_device_flow_auth_flow.yaml",
-        ".maestro/android/github_device_flow_auth_flow.yaml",
-        "test/features/token_settings/data/datasources/github_device_flow_api_test.dart",
+        "docs/harness/specs/github-oauth-redirect-auth/spec.md",
+        "docs/harness/specs/github-oauth-redirect-auth/acceptance.yaml",
+        "docs/harness/specs/github-oauth-redirect-auth/ui-map.delta.yaml",
+        ".maestro/ios/github_oauth_redirect_auth_flow.yaml",
+        ".maestro/android/github_oauth_redirect_auth_flow.yaml",
+        "lib/features/token_settings/data/repositories/github_api_oauth_redirect_repository.dart",
+        "lib/features/token_settings/presentation/bloc/token_settings_bloc.dart",
+        "lib/features/token_settings/presentation/pages/token_settings_page.dart",
+        "lib/core/router/app_router.dart",
+        "ios/Runner/Info.plist",
+        "android/app/src/main/AndroidManifest.xml",
+        "test/features/token_settings/data/repositories/github_oauth_redirect_repository_test.dart",
         "test/features/token_settings/presentation/bloc/token_settings_bloc_test.dart",
         "test/core/injection/injection_test.dart",
-        "docs/harness/evidence/github-device-flow-auth/report.json",
-        "docs/harness/evidence/github-device-flow-auth/report-ios.json",
-        "docs/harness/evidence/github-device-flow-auth/report-android.json"
+        "docs/harness/tasks/active/2026-07-09-github-oauth-redirect-auth.md",
+        "docs/harness/evidence/github-oauth-redirect-auth/report.json",
+        "docs/harness/evidence/github-oauth-redirect-auth/report-ios.json",
+        "docs/harness/evidence/github-oauth-redirect-auth/report-android.json"
       ],
       "acceptance": {
-        "logic": "PASS: fvm dart run tool/harness.dart check; PASS: fvm dart run tool/harness.dart spec accept github-device-flow-auth",
-        "ios": "PASS: fvm dart run tool/harness.dart spec accept github-device-flow-auth --maestro --platform ios",
-        "android": "PASS: fvm dart run tool/harness.dart spec accept github-device-flow-auth --maestro --platform android"
+        "logic": "PASS: fvm dart run tool/harness.dart check; PASS: targeted OAuth redirect repository, BLoC, router, config, and DI tests",
+        "ios": "PASS: fvm dart run tool/harness.dart spec accept github-oauth-redirect-auth --maestro --platform ios",
+        "android": "PASS: fvm dart run tool/harness.dart spec accept github-oauth-redirect-auth --maestro --platform android",
+        "all": "PASS: fvm dart run tool/harness.dart spec accept github-oauth-redirect-auth --maestro --platform all"
       },
-      "next_step": "Feature complete. Dual-platform Maestro acceptance passes on both iOS and Android. No further action required."
+      "next_step": "Feature complete. Dual-platform Maestro acceptance passes on both iOS and Android. Configure a real GitHub OAuth App client ID and callback URL for stg/prod before using live authorization."
     }
   ]
 }

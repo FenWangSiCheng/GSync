@@ -62,15 +62,15 @@ targets:
     role: text
     label: Token settings status
     semantics_identifier: token_settings_status_text
-  start_device_flow_button:
+  start_oauth_redirect_button:
     role: button
-    label: Start GitHub Device Flow
-    semantics_identifier: start_device_flow_button
-  device_flow_code_text:
+    label: Start GitHub OAuth redirect authorization
+    semantics_identifier: start_oauth_redirect_button
+  oauth_redirect_url_text:
     role: text
-    label: GitHub Device Flow user code
-    semantics_identifier: device_flow_code_text
-  device_flow_verification_url_text:
+    label: GitHub OAuth authorization URL
+    semantics_identifier: oauth_redirect_url_text
+  oauth_callback_status_text:
     role: text
-    label: GitHub Device Flow verification URL
-    semantics_identifier: device_flow_verification_url_text
+    label: GitHub OAuth callback status
+    semantics_identifier: oauth_callback_status_text

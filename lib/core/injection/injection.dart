@@ -17,17 +17,18 @@ import 'package:flutter_foundations/features/directory_git_sync/domain/usecases/
 import 'package:flutter_foundations/features/directory_git_sync/domain/usecases/sync_directory_to_git_repository.dart';
 import 'package:flutter_foundations/features/directory_git_sync/presentation/bloc/directory_sync_bloc.dart';
 import 'package:flutter_foundations/features/token_settings/data/datasources/secure_token_storage.dart';
-import 'package:flutter_foundations/features/token_settings/data/datasources/github_device_flow_api.dart';
-import 'package:flutter_foundations/features/token_settings/data/repositories/fixture_github_device_flow_repository.dart';
-import 'package:flutter_foundations/features/token_settings/data/repositories/github_api_device_flow_repository.dart';
+import 'package:flutter_foundations/features/token_settings/data/datasources/github_oauth_api.dart';
+import 'package:flutter_foundations/features/token_settings/data/datasources/oauth_browser_launcher.dart';
+import 'package:flutter_foundations/features/token_settings/data/repositories/fixture_github_oauth_redirect_repository.dart';
+import 'package:flutter_foundations/features/token_settings/data/repositories/github_api_oauth_redirect_repository.dart';
 import 'package:flutter_foundations/features/token_settings/data/repositories/secure_git_token_repository.dart';
-import 'package:flutter_foundations/features/token_settings/domain/repositories/github_device_flow_repository.dart';
+import 'package:flutter_foundations/features/token_settings/domain/repositories/github_oauth_redirect_repository.dart';
 import 'package:flutter_foundations/features/token_settings/domain/repositories/git_token_repository.dart';
+import 'package:flutter_foundations/features/token_settings/domain/usecases/complete_github_oauth_redirect_authorization.dart';
 import 'package:flutter_foundations/features/token_settings/domain/usecases/delete_git_token.dart';
 import 'package:flutter_foundations/features/token_settings/domain/usecases/get_git_token.dart';
-import 'package:flutter_foundations/features/token_settings/domain/usecases/poll_github_device_token.dart';
-import 'package:flutter_foundations/features/token_settings/domain/usecases/request_github_device_authorization.dart';
 import 'package:flutter_foundations/features/token_settings/domain/usecases/save_git_token.dart';
+import 'package:flutter_foundations/features/token_settings/domain/usecases/start_github_oauth_redirect_authorization.dart';
 import 'package:flutter_foundations/features/token_settings/presentation/bloc/token_settings_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
@@ -68,8 +69,13 @@ abstract class RegisterModule {
   }
 
   @lazySingleton
-  GitHubDeviceFlowApi gitHubDeviceFlowApi(http.Client client) {
-    return GitHubDeviceFlowApi(client);
+  GitHubOAuthApi gitHubOAuthApi(http.Client client) {
+    return GitHubOAuthApi(client);
+  }
+
+  @lazySingleton
+  OAuthBrowserLauncher oAuthBrowserLauncher() {
+    return const ChromeSafariOAuthBrowserLauncher();
   }
 
   @lazySingleton
@@ -91,14 +97,19 @@ abstract class RegisterModule {
   }
 
   @lazySingleton
-  GitHubDeviceFlowRepository gitHubDeviceFlowRepository(
+  GitHubOAuthRedirectRepository gitHubOAuthRedirectRepository(
     AppConfig appConfig,
-    GitHubDeviceFlowApi api,
+    GitHubOAuthApi api,
+    OAuthBrowserLauncher browserLauncher,
   ) {
     if (appConfig.mockApiDataSource) {
-      return const FixtureGitHubDeviceFlowRepository();
+      return FixtureGitHubOAuthRedirectRepository();
     }
-    return GitHubApiDeviceFlowRepository(appConfig: appConfig, api: api);
+    return GitHubApiOAuthRedirectRepository(
+      appConfig: appConfig,
+      api: api,
+      browserLauncher: browserLauncher,
+    );
   }
 
   @lazySingleton
@@ -152,17 +163,18 @@ abstract class RegisterModule {
   }
 
   @lazySingleton
-  RequestGitHubDeviceAuthorization requestGitHubDeviceAuthorization(
-    GitHubDeviceFlowRepository repository,
+  StartGitHubOAuthRedirectAuthorization startGitHubOAuthRedirectAuthorization(
+    GitHubOAuthRedirectRepository repository,
   ) {
-    return RequestGitHubDeviceAuthorization(repository);
+    return StartGitHubOAuthRedirectAuthorization(repository);
   }
 
   @lazySingleton
-  PollGitHubDeviceToken pollGitHubDeviceToken(
-    GitHubDeviceFlowRepository repository,
+  CompleteGitHubOAuthRedirectAuthorization
+  completeGitHubOAuthRedirectAuthorization(
+    GitHubOAuthRedirectRepository repository,
   ) {
-    return PollGitHubDeviceToken(repository);
+    return CompleteGitHubOAuthRedirectAuthorization(repository);
   }
 
   @lazySingleton
@@ -192,15 +204,15 @@ abstract class RegisterModule {
     GetGitToken getGitToken,
     SaveGitToken saveGitToken,
     DeleteGitToken deleteGitToken,
-    RequestGitHubDeviceAuthorization requestDeviceAuthorization,
-    PollGitHubDeviceToken pollDeviceToken,
+    StartGitHubOAuthRedirectAuthorization startOAuthRedirectAuthorization,
+    CompleteGitHubOAuthRedirectAuthorization completeOAuthRedirectAuthorization,
   ) {
     return TokenSettingsBloc(
       getGitToken: getGitToken,
       saveGitToken: saveGitToken,
       deleteGitToken: deleteGitToken,
-      requestDeviceAuthorization: requestDeviceAuthorization,
-      pollDeviceToken: pollDeviceToken,
+      startOAuthRedirectAuthorization: startOAuthRedirectAuthorization,
+      completeOAuthRedirectAuthorization: completeOAuthRedirectAuthorization,
     );
   }
 }
