@@ -18,6 +18,7 @@ available skill names, then read only the matching
 | `flutter/skills` | Flutter workflows such as widget tests, integration tests, responsive layout, routing, localization, JSON serialization, and layout fixes. | `npx skills add flutter/skills --skill '*' --agent universal --yes` |
 | `dart-lang/skills` | Dart workflows such as unit tests, static analysis, mocks, coverage, dependency conflicts, FFI, and pattern matching. | `npx skills add dart-lang/skills --skill '*' --agent universal --yes` |
 | `anthropics/claude-plugins-official` | General code quality workflows such as code simplification and refinement. | `curl -fsSL https://raw.githubusercontent.com/anthropics/claude-plugins-official/main/plugins/code-simplifier/agents/code-simplifier.md -o .agents/skills/code-simplifier/SKILL.md` |
+| `wondelai/skills` | Native iOS interface design guidance based on Apple Human Interface Guidelines; use for the Flutter app's iOS-style UI design, not SwiftUI implementation. | `python3 /Users/wangsicheng/.codex/skills/.system/skill-installer/scripts/install-skill-from-github.py --repo wondelai/skills --path ios-hig-design --dest .agents/skills --ref main` |
 
 After installing or updating Flutter skills, remove
 `.agents/skills/flutter-apply-architecture-best-practices` so the repository
@@ -74,6 +75,10 @@ General skills:
 
 - `code-simplifier`
 
+iOS design skills:
+
+- `ios-hig-design`
+
 ## Harness Rules
 
 - Keep official skills in `.agents/skills/`, not under `lib/`.
@@ -84,5 +89,7 @@ General skills:
   generic Flutter skill conflicts with this repository's feature-first layout.
 - Do not automatically update skills from `init.sh`; network updates should be
   deliberate and recorded in `progress.md` and `feature_list.json`.
+- Use `ios-hig-design` for iOS-style UI design decisions in this Flutter app;
+  apply its platform guidance without introducing SwiftUI implementation code.
 - Run `fvm dart run tool/harness.dart structure` after adding, removing, or
   updating project-local skills.

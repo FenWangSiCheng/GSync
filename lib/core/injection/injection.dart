@@ -5,14 +5,21 @@ import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_foundations/features/directory_git_sync/data/datasources/git_command_runner.dart';
 import 'package:flutter_foundations/features/directory_git_sync/data/datasources/github_contents_api.dart';
+import 'package:flutter_foundations/features/directory_git_sync/data/datasources/directory_access_scope.dart';
+import 'package:flutter_foundations/features/directory_git_sync/data/datasources/github_repository_catalog_api.dart';
 import 'package:flutter_foundations/features/directory_git_sync/data/repositories/app_documents_default_sync_directory_repository.dart';
 import 'package:flutter_foundations/features/directory_git_sync/data/repositories/file_picker_directory_picker_repository.dart';
+import 'package:flutter_foundations/features/directory_git_sync/data/repositories/fixture_github_repository_catalog_repository.dart';
 import 'package:flutter_foundations/features/directory_git_sync/data/repositories/fixture_git_sync_repository.dart';
 import 'package:flutter_foundations/features/directory_git_sync/data/repositories/github_api_git_sync_repository.dart';
+import 'package:flutter_foundations/features/directory_git_sync/data/repositories/github_api_repository_catalog_repository.dart';
 import 'package:flutter_foundations/features/directory_git_sync/domain/repositories/default_sync_directory_repository.dart';
 import 'package:flutter_foundations/features/directory_git_sync/domain/repositories/directory_picker_repository.dart';
 import 'package:flutter_foundations/features/directory_git_sync/domain/repositories/git_sync_repository.dart';
+import 'package:flutter_foundations/features/directory_git_sync/domain/repositories/github_repository_catalog_repository.dart';
 import 'package:flutter_foundations/features/directory_git_sync/domain/usecases/get_default_sync_directory.dart';
+import 'package:flutter_foundations/features/directory_git_sync/domain/usecases/load_github_repositories.dart';
+import 'package:flutter_foundations/features/directory_git_sync/domain/usecases/load_github_repository_branches.dart';
 import 'package:flutter_foundations/features/directory_git_sync/domain/usecases/pick_sync_directory.dart';
 import 'package:flutter_foundations/features/directory_git_sync/domain/usecases/sync_directory_to_git_repository.dart';
 import 'package:flutter_foundations/features/directory_git_sync/presentation/bloc/directory_sync_bloc.dart';
@@ -68,6 +75,16 @@ abstract class RegisterModule {
   }
 
   @lazySingleton
+  GitHubRepositoryCatalogApi gitHubRepositoryCatalogApi(http.Client client) {
+    return GitHubRepositoryCatalogApi(client);
+  }
+
+  @lazySingleton
+  DirectoryAccessScope directoryAccessScope() {
+    return const PlatformDirectoryAccessScope();
+  }
+
+  @lazySingleton
   GitHubDeviceFlowApi gitHubDeviceFlowApi(http.Client client) {
     return GitHubDeviceFlowApi(client);
   }
@@ -115,11 +132,26 @@ abstract class RegisterModule {
   GitSyncRepository gitSyncRepository(
     AppConfig appConfig,
     GitHubContentsApi gitHubContentsApi,
+    DirectoryAccessScope directoryAccessScope,
   ) {
     if (appConfig.mockApiDataSource) {
       return const FixtureGitSyncRepository();
     }
-    return GithubApiGitSyncRepository(gitHubContentsApi);
+    return GithubApiGitSyncRepository(
+      gitHubContentsApi,
+      directoryAccessScope: directoryAccessScope,
+    );
+  }
+
+  @lazySingleton
+  GitHubRepositoryCatalogRepository gitHubRepositoryCatalogRepository(
+    AppConfig appConfig,
+    GitHubRepositoryCatalogApi gitHubRepositoryCatalogApi,
+  ) {
+    if (appConfig.mockApiDataSource) {
+      return const FixtureGitHubRepositoryCatalogRepository();
+    }
+    return GitHubApiRepositoryCatalogRepository(gitHubRepositoryCatalogApi);
   }
 
   @lazySingleton
@@ -172,18 +204,36 @@ abstract class RegisterModule {
     return SyncDirectoryToGitRepository(gitSyncRepository);
   }
 
+  @lazySingleton
+  LoadGitHubRepositories loadGitHubRepositories(
+    GitHubRepositoryCatalogRepository repository,
+  ) {
+    return LoadGitHubRepositories(repository);
+  }
+
+  @lazySingleton
+  LoadGitHubRepositoryBranches loadGitHubRepositoryBranches(
+    GitHubRepositoryCatalogRepository repository,
+  ) {
+    return LoadGitHubRepositoryBranches(repository);
+  }
+
   @injectable
   DirectorySyncBloc directorySyncBloc(
     GetDefaultSyncDirectory getDefaultDirectory,
     PickSyncDirectory pickDirectory,
     GetGitToken getGitToken,
     SyncDirectoryToGitRepository syncDirectory,
+    LoadGitHubRepositories loadRepositories,
+    LoadGitHubRepositoryBranches loadBranches,
   ) {
     return DirectorySyncBloc(
       getDefaultDirectory: getDefaultDirectory,
       pickDirectory: pickDirectory,
       getGitToken: getGitToken,
       syncDirectory: syncDirectory,
+      loadRepositories: loadRepositories,
+      loadBranches: loadBranches,
     );
   }
 

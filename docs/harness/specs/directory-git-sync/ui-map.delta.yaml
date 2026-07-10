@@ -14,10 +14,6 @@ targets:
     role: text
     label: Selected directory
     semantics_identifier: selected_directory_text
-  remote_url_field:
-    role: textField
-    label: Remote Git repository URL
-    semantics_identifier: remote_url_field
   sync_button:
     role: button
     label: Sync

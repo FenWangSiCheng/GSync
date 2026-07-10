@@ -16,6 +16,20 @@ class GitHubRepositoryTarget extends Equatable {
   final String branch;
   final String targetPath;
 
+  GitHubRepositoryTarget copyWith({
+    String? owner,
+    String? repo,
+    String? branch,
+    String? targetPath,
+  }) {
+    return GitHubRepositoryTarget(
+      owner: owner ?? this.owner,
+      repo: repo ?? this.repo,
+      branch: branch ?? this.branch,
+      targetPath: targetPath ?? this.targetPath,
+    );
+  }
+
   factory GitHubRepositoryTarget.parse(String value) {
     final trimmed = value.trim();
     if (trimmed.isEmpty) {

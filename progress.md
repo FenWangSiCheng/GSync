@@ -2,26 +2,73 @@
 
 ## Current State
 
-**Last Updated:** 2026-07-09 CST
-**Active Feature:** `feat-github-device-flow-auth`
-**Current Activity:** Switched GitHub authorization back to OAuth Device Flow
-this session by reverting the browser-redirect replacement commit (`009df0d`).
-Removed the OAuth redirect path (datasource, fixture and real repositories, use
-cases, entities, BLoC handling, settings UI, callback routing, platform URL
-schemes, `githubOAuthRedirectUri` config, spec, evidence, and Maestro flow) and
-restored the previously accepted Device Flow implementation as the only
-authorization method. Kept the real `githubOAuthClientId`
-(`Ov23liCpVbeNSbSRKr3M`) for `stg`/`prod`; Device Flow needs no redirect URI or
-client secret. `fvm dart run tool/harness.dart check` passes (format, structure,
-analyzer, 160 tests, coverage 91.59%). Dual-platform Maestro acceptance was not
-re-run this session at the user's request; restored evidence under
-`docs/harness/evidence/github-device-flow-auth/` remains valid for the unchanged
-dev-fixture Device Flow.
+**Last Updated:** 2026-07-10 CST
+**Active Feature:** None — all tracked features are complete.
+**Current Activity:** Implemented and accepted `feat-github-local-mirror-sync`.
+Successful GitHub sync now treats the selected local directory as a mirror of
+the selected repository path: it reads all remote file bytes before making local
+changes, overwrites remote-owned paths, and removes local-only files, links,
+and directories. A remote listing or download failure happens before cleanup,
+so local residual entries remain untouched. Local type conflicts resolve toward
+the remote tree. The result text reports downloaded and removed entry counts.
+
+`fvm dart run tool/harness.dart check` passes (format, structure, analyzer, and
+coverage; 1011/1103 lines = 91.66%). Dual-platform Maestro acceptance for
+`github-local-mirror-sync` passes on iOS and Android; evidence is stored under
+`docs/harness/evidence/github-local-mirror-sync/`.
+
+**Previous Activity:** Implemented and accepted iOS HIG repository discovery.
+The directory sync screen now exposes a 44pt native Cupertino repository search
+field that filters only the already-loaded catalog, with semantic result-count
+and empty-state feedback. The Cupertino theme no longer forces light mode and
+therefore follows the system appearance.
+
+The iOS HIG audit score is **8/10**: safe areas, semantic colors, native
+controls, 44pt search target, system appearance, and VoiceOver states are
+covered. Reaching 10/10 still needs a largest-Dynamic-Type visual pass and a
+physical-iPhone VoiceOver/haptic smoke test.
+
+Prior repository/branch picker sync remains accepted. `fvm dart run
+tool/harness.dart check` passes (format, structure, analyzer, coverage-gated
+tests; coverage 935/1027 lines = 91.04%). Dual-platform Maestro acceptance for
+`ios-hig-repository-discovery` passes on iPhone 16 Pro (iOS 18.6) and Pixel_9a
+(Android); evidence is saved under
+`docs/harness/evidence/ios-hig-repository-discovery/`.
+
+**Previous Activity:** Implemented and accepted repository/branch picker sync.
+After GitHub authorization, the directory sync screen now loads accessible
+repositories from GitHub, lists them on the screen, loads branches for the
+selected repository, and syncs using the selected repository and branch without
+requiring a typed GitHub URL. Dev flavor uses deterministic repository and branch
+fixtures for Maestro. `fvm dart run tool/harness.dart check` passes (format,
+structure, analyzer, coverage-gated tests, coverage 935/1027 lines = 91.04%).
+Dual-platform Maestro acceptance for `github-repository-picker-sync` passes on
+iPhone 16 Pro (iOS 18.6) and Pixel_9a (Android emulator); evidence is saved
+under `docs/harness/evidence/github-repository-picker-sync/`.
 
 ## Status
 
 ### What's Done
 
+- [x] Drafted, approved, implemented, and accepted
+  `feat-github-local-mirror-sync`.
+- [x] Changed real GitHub downloads into an exact remote-to-local mirror:
+  remote files overwrite local counterparts, while local-only files, links, and
+  directories are removed after remote data is fully read.
+- [x] Added regression tests for local residual cleanup, both file/directory
+  type conflicts, and preserving local residuals when a remote file fails to
+  download.
+- [x] Ran and saved dual-platform Maestro evidence for
+  `github-local-mirror-sync`.
+- [x] Drafted, approved, implemented, and accepted
+  `feat-ios-hig-repository-discovery`.
+- [x] Added presentation-only local repository search with result-count and
+  empty-state VoiceOver/Maestro identifiers, while preserving repository and
+  branch selection semantics.
+- [x] Removed the forced light Cupertino theme so semantic Cupertino colors
+  resolve to the system light or dark appearance.
+- [x] Added and passed dual-platform Maestro acceptance for repository search;
+  reports are committed under `docs/harness/evidence/ios-hig-repository-discovery/`.
 - [x] Completed `feat-directory-git-sync` and refreshed dual-platform
   acceptance evidence after the token/default-directory workflow change.
 - [x] Completed `feat-ios-clean-ui` and refreshed dual-platform acceptance
@@ -88,6 +135,11 @@ dev-fixture Device Flow.
   `docs/harness/evidence/github-repository-download-sync/`.
 
 - [x] Fixed iOS file visibility for `feat-github-repository-download-sync`: added `UIFileSharingEnabled` and `LSSupportsOpeningDocumentsInPlace` to `ios/Runner/Info.plist` so downloaded files appear under the app in the iOS Files app. Rebuilt and reinstalled the stg build on the iOS simulator; verified 84 downloaded files remain in the Documents/GitSync container and both keys are present in the built Runner.app Info.plist.
+- [x] Fixed real-device iOS Files directory write access for
+  `feat-github-repository-download-sync`: custom iOS directory picking now keeps
+  the selected security-scoped URL, and real GitHub downloads run file writes
+  inside a `DirectoryAccessScope` so directories such as
+  `File Provider Storage/Investments` can be written after user selection.
 - [x] Drafted, approved, implemented, and accepted
   `feat-github-device-flow-auth`.
 - [x] Added GitHub OAuth Device Flow API support for requesting a device code
@@ -106,16 +158,27 @@ dev-fixture Device Flow.
 - [x] Updated all Maestro token setup steps to use the Device Flow fixture and
   refreshed the generated UI target map.
 - [x] Saved dual-platform acceptance reports for `github-device-flow-auth`.
+- [x] Drafted, implemented, and accepted
+  `feat-github-repository-picker-sync`.
+- [x] Added GitHub repository catalog support for reading authenticated
+  repositories from `/user/repos` and repository branches from
+  `/repos/{owner}/{repo}/branches`.
+- [x] Added dev fixture repository/branch catalog data so Maestro can select
+  `octocat/gitsync-fixture` and `main` without a real GitHub account.
+- [x] Replaced the sync page GitHub URL text field with visible repository and
+  branch lists.
+- [x] Updated sync BLoC state so `canSync` depends on selected directory,
+  saved authorization, selected repository, selected branch, and ready catalog
+  state.
+- [x] Updated all affected Maestro flows to choose the fixture repository and
+  branch instead of typing a remote URL.
 ### What's Next
 
-1. Re-run `fvm dart run tool/harness.dart spec accept
-   github-device-flow-auth --maestro --platform all` to refresh dual-platform
-   evidence when simulators are available (skipped this session by request).
-2. Ensure the GitHub OAuth App behind `githubOAuthClientId` has Device Flow
+1. Ensure the GitHub OAuth App behind `githubOAuthClientId` has Device Flow
    enabled before live `stg`/`prod` authorization.
-3. Future work can add delete-mirroring, conflict handling, large file support,
-   background sync, account switching, or OAuth client setup guidance as
-   separate features.
+2. Future work can add repository pagination, subdirectory selection,
+   conflict previews or recovery, large file support, background sync,
+   account switching, or OAuth client setup guidance as separate features.
 
 ## Blockers / Risks
 
@@ -127,6 +190,8 @@ dev-fixture Device Flow.
   versions will need upgrades before future Flutter versions drop support.
 - [ ] GitHub Contents API file content responses may need additional handling
   for very large files or Git LFS pointers in a future feature.
+- [ ] Mirror deletion is intentionally immediate after the remote tree has been
+  read: this feature does not add a preview, confirmation, or recovery bin.
 - [ ] Real `stg` and `prod` GitHub authorization requires a GitHub OAuth app
   with Device Flow enabled and `githubOAuthClientId` supplied through dart
   defines. Missing client ID is handled as a readable in-app failure.
@@ -163,6 +228,13 @@ dev-fixture Device Flow.
 - **Keep Device Flow fixture-backed in dev:** Dev acceptance uses
   `FixtureGitHubDeviceFlowRepository` so UI flows never require a real browser
   session or GitHub account.
+- **Select repositories instead of typing URLs:** The sync page now treats the
+  GitHub repository catalog as the primary target source. Real builds read
+  repositories and branches with the saved token; dev builds use deterministic
+  fixtures.
+- **Read before cleanup:** Mirror sync fetches every remote file before local
+  writes and deletes begin. This keeps a remote API failure from deleting
+  local-only files.
 
 ## Files Modified This Session
 
@@ -244,6 +316,30 @@ dev-fixture Device Flow.
   wording expectations.
 - `docs/harness/evidence/github-device-flow-auth/` - Saved dual-platform
   acceptance reports.
+- `ios/Runner/AppDelegate.swift`,
+  `lib/features/directory_git_sync/data/datasources/directory_access_scope.dart`,
+  `lib/features/directory_git_sync/data/repositories/file_picker_directory_picker_repository.dart`,
+  `lib/features/directory_git_sync/data/repositories/github_api_git_sync_repository.dart`,
+  `lib/core/injection/`, and related tests - Added iOS security-scoped
+  directory access for real-device Files app sync writes.
+- `docs/harness/specs/github-repository-picker-sync/`,
+  `docs/harness/tasks/completed/2026-07-09-github-repository-picker-sync.md`,
+  `feature_list.json`, `progress.md`, and `session-handoff.md` - Added and
+  completed the repository picker sync feature state.
+- `.maestro/ios/*_flow.yaml`, `.maestro/android/*_flow.yaml`, and
+  `docs/harness/specs/ui-map.yaml` - Replaced typed URL flow steps with
+  repository and branch selection targets.
+- `lib/features/directory_git_sync/domain/`, `lib/features/directory_git_sync/data/`,
+  `lib/features/directory_git_sync/presentation/bloc/`, and
+  `lib/features/directory_git_sync/presentation/pages/directory_sync_page.dart`
+  - Added GitHub repository/branch catalog loading and picker UI.
+- `test/features/directory_git_sync/data/`,
+  `test/features/directory_git_sync/domain/entities/directory_sync_entities_test.dart`,
+  `test/features/directory_git_sync/presentation/bloc/directory_sync_bloc_test.dart`,
+  and `test/core/injection/injection_test.dart` - Added catalog, branch, BLoC,
+  and DI coverage.
+- `docs/harness/evidence/github-repository-picker-sync/` - Saved dual-platform
+  acceptance reports for the repository picker feature.
 
 ## Evidence of Completion
 
@@ -318,3 +414,33 @@ dev-fixture Device Flow.
 - [x] `fvm dart run tool/harness.dart spec accept github-device-flow-auth --maestro --platform all`
   passes with iOS and Android both PASS; reports copied to
   `docs/harness/evidence/github-device-flow-auth/`.
+- [x] `fvm flutter test test/features/directory_git_sync/data/datasources/directory_access_scope_test.dart test/features/directory_git_sync/data/repositories/github_api_git_sync_repository_test.dart test/core/injection/injection_test.dart`
+  passes after adding iOS security-scoped directory access.
+- [x] `fvm dart run tool/harness.dart check` passes after the iOS Files
+  directory access hotfix: format clean, structure green, analyzer clean,
+  coverage-gated tests pass, coverage 756/824 lines (91.75%).
+- [x] `xcodebuild -workspace ios/Runner.xcworkspace -scheme stg -configuration Debug-stg -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build`
+  succeeds and compiles `ios/Runner/AppDelegate.swift` with the directory
+  access channel.
+- [x] `fvm dart run tool/harness.dart check` passes after repository picker
+  sync: format clean, structure green, analyzer clean, coverage-gated tests
+  pass, coverage 935/1027 lines (91.04%).
+- [x] `fvm dart run tool/harness.dart spec accept github-repository-picker-sync --maestro --platform all`
+  passes with iOS and Android both PASS; reports copied to
+  `docs/harness/evidence/github-repository-picker-sync/`.
+
+## Configuration Change: iOS Bundle ID Renamed (2026-07-09)
+
+Renamed the iOS app bundle identifier from the placeholder
+`cn.com.fenrir-inc.iosAppTest` to the product name
+`cn.com.fenrir-inc.gsync`, keeping the team prefix so signing impact
+stays minimal. Per-flavor values are now:
+- dev: `cn.com.fenrir-inc.gsync.dev`
+- stg: `cn.com.fenrir-inc.gsync.stg`
+- prod: `cn.com.fenrir-inc.gsync`
+- RunnerTests: `cn.com.fenrir-inc.gsync.RunnerTests`
+
+Files touched: `ios/Runner.xcodeproj/project.pbxproj` (Runner + RunnerTests
+PRODUCT_BUNDLE_IDENTIFIER), `tool/harness.dart` (maestro flow scaffold default
+appId), and the six `.maestro/ios/*.yaml` flows. iOS display name (BUNDLE_NAME/BUNDLE_DISPLAY_NAME) was also changed from Foundation to GSync in the dev/stg/prod xcconfig files. Android bundle id was left
+unchanged; only iOS was in scope.

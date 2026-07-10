@@ -1,0 +1,13 @@
+spec: ios-hig-repository-discovery
+feature: feat-ios-hig-repository-discovery
+goal: 'Authorized users can locally search their loaded GitHub repository list using iOS-native controls.'
+preconditions:
+  - Run the dev flavor.
+  - Complete the deterministic GitHub Device Flow fixture.
+acceptance:
+  - id: ui-filter-repositories-locally
+    claim: 'After authorization, the sync screen filters the loaded repository list with a native search field and shows both result-count and empty-result states.'
+    kind: maestro
+    flow: ios_hig_repository_discovery_flow
+# Add kind: test criteria only for non-UI logic, data, BLoC, repository, or
+# harness unit tests. UI behavior belongs in the Maestro flow above.

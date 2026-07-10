@@ -1,4 +1,4 @@
-appId: cn.com.fenrir-inc.iosAppTest.dev
+appId: cn.com.fenrir-inc.gsync.dev
 ---
 - launchApp:
     clearState: true

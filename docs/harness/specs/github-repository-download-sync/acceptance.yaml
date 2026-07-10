@@ -3,11 +3,11 @@ feature: feat-github-repository-download-sync
 goal: 'User can sync a GitHub repository or repository subdirectory down to the selected local device directory.'
 preconditions:
   - Run the dev flavor.
-  - Dev fixture remote https://example.invalid/gitsync-fixture.git is available.
+  - Dev fixture repository and branch are available after authorization.
   - Dev fixture credential test-token is accepted without a real account.
 acceptance:
   - id: ui-download-sync-path
-    claim: 'The sync screen shows a readable selected directory, lets the user save a token, enter a GitHub target, tap Sync, and see a success state in the dev fixture flow.'
+    claim: 'The sync screen shows a readable selected directory, lets the user authorize GitHub, choose a fixture repository and branch, tap Sync, and see a success state in the dev fixture flow.'
     kind: maestro
     flow: github_repository_download_sync_flow
   - id: logic-download-remote-files

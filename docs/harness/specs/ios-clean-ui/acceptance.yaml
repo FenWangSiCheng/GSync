@@ -4,7 +4,7 @@ goal: 'The directory sync screen is restyled to a clean iOS aesthetic with Simpl
 preconditions:
   - Run the dev flavor.
   - Dev default sync directory is available.
-  - Dev fixture remote https://example.invalid/gitsync-fixture.git is available.
+  - Dev fixture repository and branch are available after authorization.
   - Dev fixture credential test-token is accepted without a real account.
 acceptance:
   - id: ui-ios-clean-happy-path

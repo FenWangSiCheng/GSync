@@ -2,19 +2,24 @@
 
 ## Current Objective
 
-- Goal: Use GitHub OAuth Device Flow as the only authorization method.
-- Current status: This session reverted the OAuth browser-redirect
-  authorization (`009df0d`) back to the previously accepted Device Flow.
-  `feat-github-device-flow-auth` is `done`; the redirect feature
-  `feat-github-oauth-redirect-auth` has been removed.
-- Verification: `fvm dart run tool/harness.dart check` passes. Dual-platform
-  Maestro acceptance was not re-run this session; prior evidence under
-  `docs/harness/evidence/github-device-flow-auth/` is retained.
+- Goal: Keep the selected local directory identical to the selected GitHub
+  repository path after a successful sync.
+- Current status: `feat-github-local-mirror-sync` is `done`. The repository now
+  reads all remote files, writes the remote tree locally, then removes local
+  files, links, and directories that are absent from the remote tree. A failed
+  remote request does not start cleanup.
+- Verification: `fvm dart run tool/harness.dart check` passes with coverage
+  1011/1103 lines (91.66%). Dual-platform Maestro acceptance for
+  `github-local-mirror-sync` passes on iOS and Android; evidence is saved under
+  `docs/harness/evidence/github-local-mirror-sync/`.
 - Feature state: `feat-directory-git-sync`, `feat-ios-clean-ui`, and
   `feat-encrypted-token-default-directory` are `done`;
   `feat-github-directory-api-sync` is `done`;
   `feat-github-repository-download-sync` is `done`;
-  `feat-github-device-flow-auth` is `done`.
+  `feat-github-device-flow-auth` is `done`;
+  `feat-github-repository-picker-sync` and
+  `feat-ios-hig-repository-discovery` are `done`;
+  `feat-github-local-mirror-sync` is `done`.
 
 ## Completed
 
@@ -64,6 +69,30 @@
   typing `test-token`.
 - [x] Ran dual-platform Maestro dev acceptance and copied reports to
   `docs/harness/evidence/github-device-flow-auth/`.
+- [x] Fixed real-device iOS Files directory write access for GitHub download
+  sync by replacing iOS directory picking with a local document-picker channel,
+  retaining the selected security-scoped URL, and wrapping real download writes
+  in `DirectoryAccessScope`.
+- [x] Added GitHub repository and branch catalog loading after authorization.
+- [x] Replaced the typed GitHub URL sync UI with repository and branch
+  selection.
+- [x] Updated dev fixtures, Maestro flows, specs, UI target map, feature state,
+  progress, and evidence for repository picker sync.
+- [x] Added iOS-native local repository filtering with a 44pt
+  `CupertinoSearchTextField`, plus accessible result-count and empty-result
+  feedback, without changing catalog or sync logic.
+- [x] Removed the forced light Cupertino theme so the app follows the system
+  appearance.
+- [x] Ran and saved dual-platform Maestro evidence for
+  `ios-hig-repository-discovery`.
+- [x] Drafted, approved, implemented, and accepted
+  `feat-github-local-mirror-sync`.
+- [x] Made successful remote-to-local syncs delete residual local files, links,
+  and directories after the complete remote tree is read.
+- [x] Added regression tests for residual deletion, file/directory type
+  collisions, and remote-download failure safety.
+- [x] Ran and saved dual-platform Maestro evidence for
+  `github-local-mirror-sync`.
 
 ## Verification Evidence
 
@@ -90,6 +119,13 @@
 | GitHub Device Flow targeted tests | `fvm flutter test test/features/token_settings` | Pass | Device Flow API, repository, entity, and BLoC coverage pass. |
 | Full harness check | `fvm dart run tool/harness.dart check` | Pass | Format, structure, analyzer, and coverage passed; coverage 741/809 lines (91.59%). |
 | GitHub Device Flow acceptance | `fvm dart run tool/harness.dart spec accept github-device-flow-auth --maestro --platform all` | Pass | iOS and Android both PASS; evidence copied to `docs/harness/evidence/github-device-flow-auth/`. |
+| iOS Files directory access hotfix | `fvm flutter test test/features/directory_git_sync/data/datasources/directory_access_scope_test.dart test/features/directory_git_sync/data/repositories/github_api_git_sync_repository_test.dart test/core/injection/injection_test.dart` | Pass | Verifies security-scoped start/action/stop behavior, download repository behavior, and DI wiring. |
+| Full harness check | `fvm dart run tool/harness.dart check` | Pass | Format, structure, analyzer, and coverage passed; coverage 756/824 lines (91.75%). |
+| iOS stg simulator compile | `xcodebuild -workspace ios/Runner.xcworkspace -scheme stg -configuration Debug-stg -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build` | Pass | Confirms `ios/Runner/AppDelegate.swift` directory access channel compiles. |
+| GitHub repository picker sync check | `fvm dart run tool/harness.dart check` | Pass | Format, structure, analyzer, and coverage passed; coverage 935/1027 lines (91.04%). |
+| GitHub repository picker sync acceptance | `fvm dart run tool/harness.dart spec accept github-repository-picker-sync --maestro --platform all` | Pass | iOS and Android both PASS; evidence copied to `docs/harness/evidence/github-repository-picker-sync/`. |
+| iOS HIG repository discovery check | `fvm dart run tool/harness.dart check` | Pass | Format, structure, analyzer, and coverage passed; coverage 935/1027 lines (91.04%). |
+| iOS HIG repository discovery acceptance | `fvm dart run tool/harness.dart spec accept ios-hig-repository-discovery --maestro --platform all` | Pass | iOS and Android both PASS; evidence copied to `docs/harness/evidence/ios-hig-repository-discovery/`. |
 
 ## Blockers / Risks
 
@@ -103,6 +139,11 @@
   Gradle Plugin, and Kotlin versions.
 - GitHub Contents API file content responses may need additional handling for
   very large files or Git LFS pointers in a future feature.
+- Large GitHub accounts may still need catalog pagination or server-side search;
+  the current search filters only the catalog already loaded by the app.
+- The real-device iOS Files fix still needs a manual smoke test on an iPhone:
+  select a folder under "On My iPhone" or another Files provider, authorize
+  GitHub, and sync a repository containing nested files.
 
 ## Next Session Startup
 
@@ -115,6 +156,6 @@
 ## Recommended Next Step
 
 - Pick the next feature in `feature_list.json` or draft a new feature using the
-  same spec-first lifecycle. The next likely product additions are
-  delete-mirroring, conflict handling, large-file support, background sync, or
-  account switching.
+  same spec-first lifecycle. The next likely product additions are repository
+  pagination, subdirectory selection, mirror previews or recovery, large-file
+  support, background sync, or account switching.

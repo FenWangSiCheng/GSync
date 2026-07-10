@@ -3,11 +3,11 @@ feature: feat-github-directory-api-sync
 goal: 'User can sync the selected local directory to a GitHub repository path through GitHub Repository Contents API instead of a system git process.'
 preconditions:
   - Run the dev flavor.
-  - Dev fixture remote https://example.invalid/gitsync-fixture.git is available.
+  - Dev fixture repository and branch are available after authorization.
   - Dev fixture credential test-token is accepted without a real account.
 acceptance:
   - id: ui-existing-directory-sync-path
-    claim: 'The existing directory sync screen still lets a user save a token, enter a target, tap Sync, and see a success state in the dev fixture flow.'
+    claim: 'The existing directory sync screen still lets a user authorize GitHub, choose a fixture repository and branch, tap Sync, and see a success state in the dev fixture flow.'
     kind: maestro
     flow: github_directory_api_sync_flow
   - id: logic-parse-github-target

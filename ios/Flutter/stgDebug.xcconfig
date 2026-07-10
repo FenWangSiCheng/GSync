@@ -2,5 +2,5 @@
 #include "Generated.xcconfig"
 
 ASSET_PREFIX=stg
-BUNDLE_NAME=Foundation Stg
-BUNDLE_DISPLAY_NAME=Foundation Stg
+BUNDLE_NAME=GSync Stg
+BUNDLE_DISPLAY_NAME=GSync Stg

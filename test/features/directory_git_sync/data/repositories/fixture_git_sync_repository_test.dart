@@ -18,7 +18,7 @@ void main() {
 
       expect(result.type, DirectorySyncResultType.success);
       expect(result.commitHash, 'fixture-sync');
-      expect(result.message, contains('从 GitHub 下载'));
+      expect(result.message, contains('已下载 2 个远端文件'));
     });
 
     test('returns failure for non-fixture credentials', () async {

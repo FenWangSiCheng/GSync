@@ -10,8 +10,8 @@ Simplified Chinese, without breaking the existing sync happy path.
 ## Preconditions
 
 - Run the `dev` flavor.
-- The dev default sync directory, fixture remote, and credential from the
-  `directory-git-sync` spec remain available.
+- The dev default sync directory, fixture repository, branch, and credential
+  from the `directory-git-sync` spec remain available.
 - The app shell renders a `CupertinoApp` with a Simplified Chinese locale.
 
 ## Steps
@@ -21,7 +21,7 @@ Simplified Chinese, without breaking the existing sync happy path.
 3. The default sync directory path is visible.
 4. Open token settings and save the authentication token.
 5. Return to the directory sync screen.
-6. Enter the remote Git repository URL.
+6. Select the fixture GitHub repository and branch.
 7. The configured token status is visible.
 8. Tap Sync.
 9. Wait for the sync success state to appear.

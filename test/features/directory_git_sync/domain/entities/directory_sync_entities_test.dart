@@ -1,5 +1,6 @@
 import 'package:flutter_foundations/features/directory_git_sync/domain/entities/directory_sync_request.dart';
 import 'package:flutter_foundations/features/directory_git_sync/domain/entities/directory_sync_result.dart';
+import 'package:flutter_foundations/features/directory_git_sync/domain/entities/github_repository_selection.dart';
 import 'package:flutter_foundations/features/directory_git_sync/presentation/bloc/directory_sync_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -56,8 +57,17 @@ void main() {
       const empty = DirectorySyncState();
       final ready = empty.copyWith(
         selectedDirectoryPath: '/notes',
-        remoteUrl: 'https://example.com/repo.git',
         hasCredential: true,
+        selectedRepository: const GitHubRepositorySummary(
+          owner: 'octocat',
+          name: 'notes',
+          fullName: 'octocat/notes',
+          defaultBranch: 'main',
+          htmlUrl: 'https://github.com/octocat/notes',
+          isPrivate: false,
+        ),
+        selectedBranch: const GitHubBranchSummary(name: 'main'),
+        repositoryStatus: GitHubRepositorySelectionStatus.ready,
       );
       final syncing = ready.copyWith(status: DirectorySyncStatus.syncing);
 
@@ -77,6 +87,10 @@ void main() {
         ).props,
         ['https://example.com/repo.git'],
       );
+      expect(const DirectorySyncRepositorySelected('octocat/notes').props, [
+        'octocat/notes',
+      ]);
+      expect(const DirectorySyncBranchSelected('main').props, ['main']);
       expect(const DirectorySyncRequested().props, isEmpty);
     });
   });

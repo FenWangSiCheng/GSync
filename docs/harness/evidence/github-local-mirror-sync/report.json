@@ -1,0 +1,88 @@
+{
+  "spec": "github-local-mirror-sync",
+  "feature": "feat-github-local-mirror-sync",
+  "platform": "all",
+  "result": "PASS",
+  "maestro_run": true,
+  "maestro_all_pass": true,
+  "platforms": [
+    {
+      "spec": "github-local-mirror-sync",
+      "feature": "feat-github-local-mirror-sync",
+      "platform": "ios",
+      "result": "PASS",
+      "maestro_run": true,
+      "maestro_blocked_reason": null,
+      "maestro_all_pass": true,
+      "acceptance": [
+        {
+          "id": "ui-complete-local-mirror",
+          "claim": "The authorized user can select the fixture repository and branch, tap Sync, and see the completed mirror success state.",
+          "kind": "maestro",
+          "verdict": "pass",
+          "evidence": ".maestro/ios/github_local_mirror_sync_flow.yaml"
+        },
+        {
+          "id": "logic-remove-local-residual-entries",
+          "claim": "After every remote file is read, the GitHub API sync repository removes local files, links, and directories absent from the remote tree.",
+          "kind": "test",
+          "verdict": "pass",
+          "evidence": "test/features/directory_git_sync/data/repositories/github_api_git_sync_repository_test.dart"
+        },
+        {
+          "id": "logic-resolve-local-type-collisions",
+          "claim": "The remote file tree wins when a local file conflicts with a remote directory or a local directory conflicts with a remote file.",
+          "kind": "test",
+          "verdict": "pass",
+          "evidence": "test/features/directory_git_sync/data/repositories/github_api_git_sync_repository_test.dart"
+        },
+        {
+          "id": "logic-preserve-local-residuals-on-remote-failure",
+          "claim": "A failed remote listing or file download does not start local cleanup, preserving local-only entries.",
+          "kind": "test",
+          "verdict": "pass",
+          "evidence": "test/features/directory_git_sync/data/repositories/github_api_git_sync_repository_test.dart"
+        }
+      ]
+    },
+    {
+      "spec": "github-local-mirror-sync",
+      "feature": "feat-github-local-mirror-sync",
+      "platform": "android",
+      "result": "PASS",
+      "maestro_run": true,
+      "maestro_blocked_reason": null,
+      "maestro_all_pass": true,
+      "acceptance": [
+        {
+          "id": "ui-complete-local-mirror",
+          "claim": "The authorized user can select the fixture repository and branch, tap Sync, and see the completed mirror success state.",
+          "kind": "maestro",
+          "verdict": "pass",
+          "evidence": ".maestro/android/github_local_mirror_sync_flow.yaml"
+        },
+        {
+          "id": "logic-remove-local-residual-entries",
+          "claim": "After every remote file is read, the GitHub API sync repository removes local files, links, and directories absent from the remote tree.",
+          "kind": "test",
+          "verdict": "pass",
+          "evidence": "test/features/directory_git_sync/data/repositories/github_api_git_sync_repository_test.dart"
+        },
+        {
+          "id": "logic-resolve-local-type-collisions",
+          "claim": "The remote file tree wins when a local file conflicts with a remote directory or a local directory conflicts with a remote file.",
+          "kind": "test",
+          "verdict": "pass",
+          "evidence": "test/features/directory_git_sync/data/repositories/github_api_git_sync_repository_test.dart"
+        },
+        {
+          "id": "logic-preserve-local-residuals-on-remote-failure",
+          "claim": "A failed remote listing or file download does not start local cleanup, preserving local-only entries.",
+          "kind": "test",
+          "verdict": "pass",
+          "evidence": "test/features/directory_git_sync/data/repositories/github_api_git_sync_repository_test.dart"
+        }
+      ]
+    }
+  ]
+}

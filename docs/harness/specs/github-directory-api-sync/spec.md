@@ -9,12 +9,11 @@ system `git` process on mobile platforms.
 ## Preconditions
 
 - Run the `dev` flavor.
-- The dev build keeps using the deterministic fixture remote
-  `https://example.invalid/gitsync-fixture.git` and fixture token `test-token`
-  for Maestro acceptance.
-- Real `stg` and `prod` builds accept a GitHub repository URL such as
-  `https://github.com/owner/repo`, or a GitHub directory URL such as
-  `https://github.com/owner/repo/tree/main/notes`.
+- The dev build keeps using deterministic repository, branch, and token
+  fixtures for Maestro acceptance.
+- Real `stg` and `prod` builds can still parse GitHub repository URLs
+  internally, while the primary UI selects repositories and branches from the
+  authorized account.
 
 ## Steps
 
@@ -22,13 +21,14 @@ system `git` process on mobile platforms.
 2. Confirm the default local sync directory is selected.
 3. Open token settings and save the GitHub access token.
 4. Return to the directory sync screen.
-5. Enter the GitHub repository or target directory URL.
+5. Select the fixture GitHub repository and branch.
 6. Tap Sync.
 7. Wait for the sync to finish.
 
 ## Acceptance Criteria
 
-- The existing dev happy path remains visible and finishes with a success state.
+- The existing dev happy path remains visible and finishes with a success state
+  without typing a repository URL.
 - Real sync parses GitHub repository root URLs and GitHub branch directory URLs.
 - Real sync uploads each regular local file through GitHub Repository Contents
   API create/update calls.

@@ -24,7 +24,6 @@ class App extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
       ],
       theme: const CupertinoThemeData(
-        brightness: Brightness.light,
         primaryColor: CupertinoColors.activeBlue,
         scaffoldBackgroundColor: CupertinoColors.systemGroupedBackground,
       ),

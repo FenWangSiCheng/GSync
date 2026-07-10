@@ -28,6 +28,24 @@ class DirectorySyncRemoteUrlChanged extends DirectorySyncEvent {
   List<Object?> get props => [value];
 }
 
+class DirectorySyncRepositorySelected extends DirectorySyncEvent {
+  const DirectorySyncRepositorySelected(this.fullName);
+
+  final String fullName;
+
+  @override
+  List<Object?> get props => [fullName];
+}
+
+class DirectorySyncBranchSelected extends DirectorySyncEvent {
+  const DirectorySyncBranchSelected(this.name);
+
+  final String name;
+
+  @override
+  List<Object?> get props => [name];
+}
+
 class DirectorySyncRequested extends DirectorySyncEvent {
   const DirectorySyncRequested();
 }

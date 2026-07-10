@@ -26,10 +26,19 @@ appId: com.example.basic_demo.dev
     id: token_settings_back_button
 - assertVisible:
     id: directory_token_status_text
+- extendedWaitUntil:
+    visible:
+      id: repository_option_gitsync_fixture
+    timeout: 10000
 - tapOn:
-    id: remote_url_field
-- inputText: "https://example.invalid/gitsync-fixture.git"
-- hideKeyboard
+    id: repository_option_gitsync_fixture
+- scrollUntilVisible:
+    element:
+      id: branch_option_main
+    direction: DOWN
+    timeout: 10000
+- tapOn:
+    id: branch_option_main
 - tapOn:
     id: sync_button
 - assertVisible:

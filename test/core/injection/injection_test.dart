@@ -2,14 +2,21 @@ import 'package:dio/dio.dart';
 import 'package:flutter_foundations/core/config/app_config.dart';
 import 'package:flutter_foundations/core/injection/injection.dart';
 import 'package:flutter_foundations/core/network/dio_client.dart';
+import 'package:flutter_foundations/features/directory_git_sync/data/datasources/directory_access_scope.dart';
 import 'package:flutter_foundations/features/directory_git_sync/data/datasources/git_command_runner.dart';
 import 'package:flutter_foundations/features/directory_git_sync/data/datasources/github_contents_api.dart';
+import 'package:flutter_foundations/features/directory_git_sync/data/datasources/github_repository_catalog_api.dart';
 import 'package:flutter_foundations/features/directory_git_sync/domain/repositories/default_sync_directory_repository.dart';
+import 'package:flutter_foundations/features/directory_git_sync/data/repositories/fixture_github_repository_catalog_repository.dart';
 import 'package:flutter_foundations/features/directory_git_sync/data/repositories/fixture_git_sync_repository.dart';
 import 'package:flutter_foundations/features/directory_git_sync/data/repositories/github_api_git_sync_repository.dart';
+import 'package:flutter_foundations/features/directory_git_sync/data/repositories/github_api_repository_catalog_repository.dart';
 import 'package:flutter_foundations/features/directory_git_sync/domain/repositories/directory_picker_repository.dart';
 import 'package:flutter_foundations/features/directory_git_sync/domain/repositories/git_sync_repository.dart';
+import 'package:flutter_foundations/features/directory_git_sync/domain/repositories/github_repository_catalog_repository.dart';
 import 'package:flutter_foundations/features/directory_git_sync/domain/usecases/get_default_sync_directory.dart';
+import 'package:flutter_foundations/features/directory_git_sync/domain/usecases/load_github_repositories.dart';
+import 'package:flutter_foundations/features/directory_git_sync/domain/usecases/load_github_repository_branches.dart';
 import 'package:flutter_foundations/features/directory_git_sync/domain/usecases/pick_sync_directory.dart';
 import 'package:flutter_foundations/features/directory_git_sync/domain/usecases/sync_directory_to_git_repository.dart';
 import 'package:flutter_foundations/features/directory_git_sync/presentation/bloc/directory_sync_bloc.dart';
@@ -133,8 +140,16 @@ void main() {
       await configureDependencies(testConfig);
 
       expect(getIt<GitCommandRunner>(), isA<ProcessGitCommandRunner>());
+      expect(
+        getIt<DirectoryAccessScope>(),
+        isA<PlatformDirectoryAccessScope>(),
+      );
       expect(getIt<http.Client>(), isA<http.Client>());
       expect(getIt<GitHubContentsApi>(), isA<GitHubContentsApi>());
+      expect(
+        getIt<GitHubRepositoryCatalogApi>(),
+        isA<GitHubRepositoryCatalogApi>(),
+      );
       expect(getIt<GitHubDeviceFlowApi>(), isA<GitHubDeviceFlowApi>());
       expect(
         getIt<DefaultSyncDirectoryRepository>(),
@@ -159,6 +174,15 @@ void main() {
       );
       expect(getIt<PollGitHubDeviceToken>(), isA<PollGitHubDeviceToken>());
       expect(getIt<GitSyncRepository>(), isA<FixtureGitSyncRepository>());
+      expect(
+        getIt<GitHubRepositoryCatalogRepository>(),
+        isA<FixtureGitHubRepositoryCatalogRepository>(),
+      );
+      expect(getIt<LoadGitHubRepositories>(), isA<LoadGitHubRepositories>());
+      expect(
+        getIt<LoadGitHubRepositoryBranches>(),
+        isA<LoadGitHubRepositoryBranches>(),
+      );
       expect(getIt<PickSyncDirectory>(), isA<PickSyncDirectory>());
       expect(
         getIt<SyncDirectoryToGitRepository>(),
@@ -177,7 +201,15 @@ void main() {
 
       await configureDependencies(testConfig);
 
+      expect(
+        getIt<DirectoryAccessScope>(),
+        isA<PlatformDirectoryAccessScope>(),
+      );
       expect(getIt<GitSyncRepository>(), isA<GithubApiGitSyncRepository>());
+      expect(
+        getIt<GitHubRepositoryCatalogRepository>(),
+        isA<GitHubApiRepositoryCatalogRepository>(),
+      );
       expect(
         getIt<GitHubDeviceFlowRepository>(),
         isA<GitHubApiDeviceFlowRepository>(),

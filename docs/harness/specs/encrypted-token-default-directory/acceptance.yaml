@@ -3,7 +3,7 @@ feature: feat-encrypted-token-default-directory
 goal: 'User can save an encrypted Git token on a dedicated page, use a default sync directory, and sync without the old example notes directory path.'
 preconditions:
   - Run the dev flavor.
-  - Dev fixture remote https://example.invalid/gitsync-fixture.git is available.
+  - Dev fixture repository and branch are available after authorization.
   - Dev fixture credential test-token is accepted without a real account.
 acceptance:
   - id: ui-token-default-directory-flow
