@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:http/http.dart' as http;
 
+import '../../../../core/network/error/github_api_error.dart';
 import '../models/github_repository_target.dart';
 
 class GitHubContentsApi {
@@ -50,13 +51,15 @@ class GitHubContentsApi {
       headers: _headers(token),
     );
 
-    if (response.statusCode == HttpStatus.ok) {
-      if (jsonDecode(response.body) case {
-        'content': String content,
-        'encoding': 'base64',
-      }) {
-        return base64Decode(content.replaceAll(RegExp(r'\s+'), ''));
-      }
+    if (response.statusCode != HttpStatus.ok) {
+      throw GitHubContentsApiException(_failureMessage(response));
+    }
+
+    if (jsonDecode(response.body) case {
+      'content': String content,
+      'encoding': 'base64',
+    }) {
+      return base64Decode(content.replaceAll(RegExp(r'\s+'), ''));
     }
 
     throw GitHubContentsApiException(_failureMessage(response));
@@ -91,7 +94,7 @@ class GitHubContentsApi {
   }
 
   String _failureMessage(http.Response response) {
-    final bodyMessage = _tryReadMessage(response.body);
+    final bodyMessage = readGitHubApiMessage(response.body);
     return switch (response.statusCode) {
       HttpStatus.unauthorized ||
       HttpStatus.forbidden => 'GitHub 认证失败,请检查访问令牌权限。',
@@ -100,21 +103,6 @@ class GitHubContentsApi {
         'GitHub API 请求失败(${response.statusCode}):$bodyMessage',
       _ => 'GitHub API 请求失败(${response.statusCode})。',
     };
-  }
-
-  String? _tryReadMessage(String body) {
-    try {
-      final decoded = jsonDecode(body);
-      if (decoded is Map<String, Object?>) {
-        final message = decoded['message'];
-        if (message is String && message.trim().isNotEmpty) {
-          return message.trim();
-        }
-      }
-    } catch (_) {
-      return null;
-    }
-    return null;
   }
 }
 

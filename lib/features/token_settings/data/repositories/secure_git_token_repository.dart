@@ -16,12 +16,9 @@ class SecureGitTokenRepository implements GitTokenRepository {
   }
 
   @override
-  Future<void> saveToken(String token) {
-    return _storage.write(key: tokenKey, value: token.trim());
-  }
+  Future<void> saveToken(String token) =>
+      _storage.write(key: tokenKey, value: token.trim());
 
   @override
-  Future<void> deleteToken() {
-    return _storage.delete(key: tokenKey);
-  }
+  Future<void> deleteToken() => _storage.delete(key: tokenKey);
 }

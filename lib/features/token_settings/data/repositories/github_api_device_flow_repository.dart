@@ -24,9 +24,8 @@ class GitHubApiDeviceFlowRepository implements GitHubDeviceFlowRepository {
   }
 
   @override
-  Future<GitHubDeviceTokenPollResult> pollToken({required String deviceCode}) {
-    return _api.pollToken(clientId: _clientId, deviceCode: deviceCode);
-  }
+  Future<GitHubDeviceTokenPollResult> pollToken({required String deviceCode}) =>
+      _api.pollToken(clientId: _clientId, deviceCode: deviceCode);
 
   String get _clientId {
     final clientId = _appConfig.githubOAuthClientId.trim();

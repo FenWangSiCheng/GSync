@@ -59,9 +59,7 @@ class DirectorySyncBloc extends Bloc<DirectorySyncEvent, DirectorySyncState> {
         statusMessage: '已使用默认同步目录。',
       );
       emit(nextState);
-      if (token != null) {
-        await _loadRepositoryCatalog(token, emit);
-      }
+      await _loadCatalogIfAuthorized(token, emit);
     } catch (_) {
       final token = await _readTokenSafely();
       emit(
@@ -71,9 +69,7 @@ class DirectorySyncBloc extends Bloc<DirectorySyncEvent, DirectorySyncState> {
           statusMessage: '默认目录不可用,请手动选择目录。',
         ),
       );
-      if (token != null) {
-        await _loadRepositoryCatalog(token, emit);
-      }
+      await _loadCatalogIfAuthorized(token, emit);
     }
   }
 
@@ -98,9 +94,7 @@ class DirectorySyncBloc extends Bloc<DirectorySyncEvent, DirectorySyncState> {
   ) async {
     final token = await _readTokenSafely();
     emit(state.copyWith(hasCredential: token != null));
-    if (token != null) {
-      await _loadRepositoryCatalog(token, emit);
-    }
+    await _loadCatalogIfAuthorized(token, emit);
   }
 
   void _onRemoteUrlChanged(
@@ -114,9 +108,9 @@ class DirectorySyncBloc extends Bloc<DirectorySyncEvent, DirectorySyncState> {
     DirectorySyncRepositorySelected event,
     Emitter<DirectorySyncState> emit,
   ) async {
-    final repository = state.repositories.where((repo) {
-      return repo.fullName == event.fullName;
-    }).firstOrNull;
+    final repository = state.repositories
+        .where((repo) => repo.fullName == event.fullName)
+        .firstOrNull;
     if (repository == null) return;
 
     emit(
@@ -151,9 +145,9 @@ class DirectorySyncBloc extends Bloc<DirectorySyncEvent, DirectorySyncState> {
     DirectorySyncBranchSelected event,
     Emitter<DirectorySyncState> emit,
   ) {
-    final branch = state.branches.where((item) {
-      return item.name == event.name;
-    }).firstOrNull;
+    final branch = state.branches
+        .where((item) => item.name == event.name)
+        .firstOrNull;
     if (branch == null) return;
     emit(
       state.copyWith(
@@ -233,6 +227,15 @@ class DirectorySyncBloc extends Bloc<DirectorySyncEvent, DirectorySyncState> {
       return _getGitToken();
     } catch (_) {
       return null;
+    }
+  }
+
+  Future<void> _loadCatalogIfAuthorized(
+    String? token,
+    Emitter<DirectorySyncState> emit,
+  ) async {
+    if (token != null) {
+      await _loadRepositoryCatalog(token, emit);
     }
   }
 

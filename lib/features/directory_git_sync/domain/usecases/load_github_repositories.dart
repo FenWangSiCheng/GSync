@@ -6,7 +6,6 @@ class LoadGitHubRepositories {
 
   final GitHubRepositoryCatalogRepository _repository;
 
-  Future<List<GitHubRepositorySummary>> call(String token) {
-    return _repository.fetchRepositories(token);
-  }
+  Future<List<GitHubRepositorySummary>> call(String token) =>
+      _repository.fetchRepositories(token);
 }

@@ -6,7 +6,6 @@ class PollGitHubDeviceToken {
 
   final GitHubDeviceFlowRepository _repository;
 
-  Future<GitHubDeviceTokenPollResult> call({required String deviceCode}) {
-    return _repository.pollToken(deviceCode: deviceCode);
-  }
+  Future<GitHubDeviceTokenPollResult> call({required String deviceCode}) =>
+      _repository.pollToken(deviceCode: deviceCode);
 }

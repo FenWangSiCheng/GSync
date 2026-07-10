@@ -6,7 +6,6 @@ class RequestGitHubDeviceAuthorization {
 
   final GitHubDeviceFlowRepository _repository;
 
-  Future<GitHubDeviceAuthorization> call() {
-    return _repository.requestAuthorization();
-  }
+  Future<GitHubDeviceAuthorization> call() =>
+      _repository.requestAuthorization();
 }

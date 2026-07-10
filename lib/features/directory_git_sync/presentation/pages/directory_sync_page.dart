@@ -30,14 +30,7 @@ class DirectorySyncPage extends StatelessWidget {
                 label: 'GitHub 授权设置',
                 child: CupertinoButton(
                   padding: EdgeInsets.zero,
-                  onPressed: () async {
-                    await context.push(RouterPaths.tokenSettings);
-                    if (context.mounted) {
-                      context.read<DirectorySyncBloc>().add(
-                        const DirectorySyncTokenStatusRequested(),
-                      );
-                    }
-                  },
+                  onPressed: () => _openTokenSettings(context),
                   child: const Icon(CupertinoIcons.lock_shield),
                 ),
               ),
@@ -237,14 +230,7 @@ class _TokenSection extends StatelessWidget {
               ),
               trailing: CupertinoButton(
                 padding: EdgeInsets.zero,
-                onPressed: () async {
-                  await context.push(RouterPaths.tokenSettings);
-                  if (context.mounted) {
-                    context.read<DirectorySyncBloc>().add(
-                      const DirectorySyncTokenStatusRequested(),
-                    );
-                  }
-                },
+                onPressed: () => _openTokenSettings(context),
                 child: const Text('设置'),
               ),
             ),
@@ -277,6 +263,7 @@ class _RepositorySectionState extends State<_RepositorySection> {
           previous.repositoryStatusMessage != current.repositoryStatusMessage ||
           previous.status != current.status,
       builder: (context, state) {
+        final isSyncing = state.status == DirectorySyncStatus.syncing;
         final normalizedQuery = _query.trim().toLowerCase();
         final filteredRepositories = normalizedQuery.isEmpty
             ? state.repositories
@@ -358,13 +345,8 @@ class _RepositorySectionState extends State<_RepositorySection> {
                             ? '私有仓库 · 默认 ${repository.defaultBranch}'
                             : '公开仓库 · 默认 ${repository.defaultBranch}',
                       ),
-                      trailing: isSelected
-                          ? const Icon(
-                              CupertinoIcons.check_mark_circled_solid,
-                              color: CupertinoColors.activeBlue,
-                            )
-                          : const Icon(CupertinoIcons.circle),
-                      onTap: state.status == DirectorySyncStatus.syncing
+                      trailing: _selectionIcon(isSelected),
+                      onTap: isSyncing
                           ? null
                           : () => context.read<DirectorySyncBloc>().add(
                               DirectorySyncRepositorySelected(
@@ -392,13 +374,8 @@ class _RepositorySectionState extends State<_RepositorySection> {
                     label: '选择 GitHub 分支 ${branch.name}',
                     child: CupertinoListTile.notched(
                       title: Text(branch.name),
-                      trailing: isSelected
-                          ? const Icon(
-                              CupertinoIcons.check_mark_circled_solid,
-                              color: CupertinoColors.activeBlue,
-                            )
-                          : const Icon(CupertinoIcons.circle),
-                      onTap: state.status == DirectorySyncStatus.syncing
+                      trailing: _selectionIcon(isSelected),
+                      onTap: isSyncing
                           ? null
                           : () => context.read<DirectorySyncBloc>().add(
                               DirectorySyncBranchSelected(branch.name),
@@ -416,12 +393,18 @@ class _RepositorySectionState extends State<_RepositorySection> {
 
   static String _repositoryOptionIdentifier(
     GitHubRepositorySummary repository,
-  ) {
-    return 'repository_option_${_safeIdentifier(repository.name)}';
-  }
+  ) => 'repository_option_${_safeIdentifier(repository.name)}';
 
-  static String _branchOptionIdentifier(GitHubBranchSummary branch) {
-    return 'branch_option_${_safeIdentifier(branch.name)}';
+  static String _branchOptionIdentifier(GitHubBranchSummary branch) =>
+      'branch_option_${_safeIdentifier(branch.name)}';
+
+  static Icon _selectionIcon(bool selected) {
+    return selected
+        ? const Icon(
+            CupertinoIcons.check_mark_circled_solid,
+            color: CupertinoColors.activeBlue,
+          )
+        : const Icon(CupertinoIcons.circle);
   }
 
   static String _safeIdentifier(String value) {
@@ -430,6 +413,15 @@ class _RepositorySectionState extends State<_RepositorySection> {
         .replaceAll(RegExp(r'[^a-z0-9]+'), '_')
         .replaceAll(RegExp(r'^_+|_+$'), '');
     return sanitized.isEmpty ? 'unknown' : sanitized;
+  }
+}
+
+Future<void> _openTokenSettings(BuildContext context) async {
+  await context.push(RouterPaths.tokenSettings);
+  if (context.mounted) {
+    context.read<DirectorySyncBloc>().add(
+      const DirectorySyncTokenStatusRequested(),
+    );
   }
 }
 

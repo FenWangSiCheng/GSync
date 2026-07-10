@@ -444,3 +444,19 @@ Files touched: `ios/Runner.xcodeproj/project.pbxproj` (Runner + RunnerTests
 PRODUCT_BUNDLE_IDENTIFIER), `tool/harness.dart` (maestro flow scaffold default
 appId), and the six `.maestro/ios/*.yaml` flows. iOS display name (BUNDLE_NAME/BUNDLE_DISPLAY_NAME) was also changed from Foundation to GSync in the dev/stg/prod xcconfig files. Android bundle id was left
 unchanged; only iOS was in scope.
+
+## Code Simplification Pass (2026-07-10)
+
+Applied the project-local `code-simplifier` skill to the `lib/` tree while
+preserving the existing feature-first architecture and runtime behavior.
+
+Changes included removing a one-use Dio HTTP-client abstraction, consolidating
+repeated GitHub API error-message parsing, reducing duplicate dependency
+registration boilerplate, sharing token-settings navigation and selection-icon
+UI code, and consolidating repeated directory-sync/token-settings BLoC state
+transitions. Comments that only restated implementation details were removed;
+generated injection code was left unchanged.
+
+Verification: `fvm dart run tool/harness.dart check` passes with format clean,
+structure green, analyzer clean, all tests passing, and coverage at 1003/1090
+lines (92.02%).

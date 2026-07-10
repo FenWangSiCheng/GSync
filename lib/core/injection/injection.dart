@@ -70,63 +70,52 @@ abstract class RegisterModule {
   http.Client httpClient() => http.Client();
 
   @lazySingleton
-  GitHubContentsApi gitHubContentsApi(http.Client client) {
-    return GitHubContentsApi(client);
-  }
+  GitHubContentsApi gitHubContentsApi(http.Client client) =>
+      GitHubContentsApi(client);
 
   @lazySingleton
-  GitHubRepositoryCatalogApi gitHubRepositoryCatalogApi(http.Client client) {
-    return GitHubRepositoryCatalogApi(client);
-  }
+  GitHubRepositoryCatalogApi gitHubRepositoryCatalogApi(http.Client client) =>
+      GitHubRepositoryCatalogApi(client);
 
   @lazySingleton
-  DirectoryAccessScope directoryAccessScope() {
-    return const PlatformDirectoryAccessScope();
-  }
+  DirectoryAccessScope directoryAccessScope() =>
+      const PlatformDirectoryAccessScope();
 
   @lazySingleton
-  GitHubDeviceFlowApi gitHubDeviceFlowApi(http.Client client) {
-    return GitHubDeviceFlowApi(client);
-  }
+  GitHubDeviceFlowApi gitHubDeviceFlowApi(http.Client client) =>
+      GitHubDeviceFlowApi(client);
 
   @lazySingleton
   GitCommandRunner gitCommandRunner() => const ProcessGitCommandRunner();
 
   @lazySingleton
-  FlutterSecureStorage flutterSecureStorage() {
-    return const FlutterSecureStorage();
-  }
+  FlutterSecureStorage flutterSecureStorage() => const FlutterSecureStorage();
 
   @lazySingleton
-  SecureTokenStorage secureTokenStorage(FlutterSecureStorage storage) {
-    return FlutterSecureTokenStorage(storage);
-  }
+  SecureTokenStorage secureTokenStorage(FlutterSecureStorage storage) =>
+      FlutterSecureTokenStorage(storage);
 
   @lazySingleton
-  GitTokenRepository gitTokenRepository(SecureTokenStorage storage) {
-    return SecureGitTokenRepository(storage);
-  }
+  GitTokenRepository gitTokenRepository(SecureTokenStorage storage) =>
+      SecureGitTokenRepository(storage);
 
   @lazySingleton
   GitHubDeviceFlowRepository gitHubDeviceFlowRepository(
     AppConfig appConfig,
     GitHubDeviceFlowApi api,
   ) {
-    if (appConfig.mockApiDataSource) {
-      return const FixtureGitHubDeviceFlowRepository();
-    }
-    return GitHubApiDeviceFlowRepository(appConfig: appConfig, api: api);
+    return appConfig.mockApiDataSource
+        ? const FixtureGitHubDeviceFlowRepository()
+        : GitHubApiDeviceFlowRepository(appConfig: appConfig, api: api);
   }
 
   @lazySingleton
-  DefaultSyncDirectoryRepository defaultSyncDirectoryRepository() {
-    return const AppDocumentsDefaultSyncDirectoryRepository();
-  }
+  DefaultSyncDirectoryRepository defaultSyncDirectoryRepository() =>
+      const AppDocumentsDefaultSyncDirectoryRepository();
 
   @lazySingleton
-  DirectoryPickerRepository directoryPickerRepository() {
-    return const FilePickerDirectoryPickerRepository();
-  }
+  DirectoryPickerRepository directoryPickerRepository() =>
+      const FilePickerDirectoryPickerRepository();
 
   @lazySingleton
   GitSyncRepository gitSyncRepository(
@@ -134,13 +123,12 @@ abstract class RegisterModule {
     GitHubContentsApi gitHubContentsApi,
     DirectoryAccessScope directoryAccessScope,
   ) {
-    if (appConfig.mockApiDataSource) {
-      return const FixtureGitSyncRepository();
-    }
-    return GithubApiGitSyncRepository(
-      gitHubContentsApi,
-      directoryAccessScope: directoryAccessScope,
-    );
+    return appConfig.mockApiDataSource
+        ? const FixtureGitSyncRepository()
+        : GithubApiGitSyncRepository(
+            gitHubContentsApi,
+            directoryAccessScope: directoryAccessScope,
+          );
   }
 
   @lazySingleton
@@ -148,75 +136,56 @@ abstract class RegisterModule {
     AppConfig appConfig,
     GitHubRepositoryCatalogApi gitHubRepositoryCatalogApi,
   ) {
-    if (appConfig.mockApiDataSource) {
-      return const FixtureGitHubRepositoryCatalogRepository();
-    }
-    return GitHubApiRepositoryCatalogRepository(gitHubRepositoryCatalogApi);
+    return appConfig.mockApiDataSource
+        ? const FixtureGitHubRepositoryCatalogRepository()
+        : GitHubApiRepositoryCatalogRepository(gitHubRepositoryCatalogApi);
   }
 
   @lazySingleton
   PickSyncDirectory pickSyncDirectory(
     DirectoryPickerRepository directoryPickerRepository,
-  ) {
-    return PickSyncDirectory(directoryPickerRepository);
-  }
+  ) => PickSyncDirectory(directoryPickerRepository);
 
   @lazySingleton
   GetDefaultSyncDirectory getDefaultSyncDirectory(
     DefaultSyncDirectoryRepository defaultSyncDirectoryRepository,
-  ) {
-    return GetDefaultSyncDirectory(defaultSyncDirectoryRepository);
-  }
+  ) => GetDefaultSyncDirectory(defaultSyncDirectoryRepository);
 
   @lazySingleton
-  GetGitToken getGitToken(GitTokenRepository gitTokenRepository) {
-    return GetGitToken(gitTokenRepository);
-  }
+  GetGitToken getGitToken(GitTokenRepository gitTokenRepository) =>
+      GetGitToken(gitTokenRepository);
 
   @lazySingleton
-  SaveGitToken saveGitToken(GitTokenRepository gitTokenRepository) {
-    return SaveGitToken(gitTokenRepository);
-  }
-
+  SaveGitToken saveGitToken(GitTokenRepository gitTokenRepository) =>
+      SaveGitToken(gitTokenRepository);
   @lazySingleton
-  DeleteGitToken deleteGitToken(GitTokenRepository gitTokenRepository) {
-    return DeleteGitToken(gitTokenRepository);
-  }
+  DeleteGitToken deleteGitToken(GitTokenRepository gitTokenRepository) =>
+      DeleteGitToken(gitTokenRepository);
 
   @lazySingleton
   RequestGitHubDeviceAuthorization requestGitHubDeviceAuthorization(
     GitHubDeviceFlowRepository repository,
-  ) {
-    return RequestGitHubDeviceAuthorization(repository);
-  }
+  ) => RequestGitHubDeviceAuthorization(repository);
 
   @lazySingleton
   PollGitHubDeviceToken pollGitHubDeviceToken(
     GitHubDeviceFlowRepository repository,
-  ) {
-    return PollGitHubDeviceToken(repository);
-  }
+  ) => PollGitHubDeviceToken(repository);
 
   @lazySingleton
   SyncDirectoryToGitRepository syncDirectoryToGitRepository(
     GitSyncRepository gitSyncRepository,
-  ) {
-    return SyncDirectoryToGitRepository(gitSyncRepository);
-  }
+  ) => SyncDirectoryToGitRepository(gitSyncRepository);
 
   @lazySingleton
   LoadGitHubRepositories loadGitHubRepositories(
     GitHubRepositoryCatalogRepository repository,
-  ) {
-    return LoadGitHubRepositories(repository);
-  }
+  ) => LoadGitHubRepositories(repository);
 
   @lazySingleton
   LoadGitHubRepositoryBranches loadGitHubRepositoryBranches(
     GitHubRepositoryCatalogRepository repository,
-  ) {
-    return LoadGitHubRepositoryBranches(repository);
-  }
+  ) => LoadGitHubRepositoryBranches(repository);
 
   @injectable
   DirectorySyncBloc directorySyncBloc(

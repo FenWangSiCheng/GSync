@@ -3,10 +3,13 @@ import 'dart:io';
 
 import 'package:http/http.dart' as http;
 
+import '../../../../core/network/error/github_api_error.dart';
 import '../../domain/entities/github_repository_selection.dart';
 
 class GitHubRepositoryCatalogApi {
   const GitHubRepositoryCatalogApi(this._client);
+
+  static const _pageSize = 100;
 
   final http.Client _client;
 
@@ -21,7 +24,7 @@ class GitHubRepositoryCatalogApi {
         Uri.https('api.github.com', '/user/repos', {
           'affiliation': 'owner,collaborator,organization_member',
           'sort': 'updated',
-          'per_page': '100',
+          'per_page': '$_pageSize',
           'page': '$page',
         }),
         headers: _headers(token),
@@ -33,7 +36,7 @@ class GitHubRepositoryCatalogApi {
 
       final pageItems = _parseRepositories(jsonDecode(response.body));
       repositories.addAll(pageItems);
-      if (pageItems.length < 100) break;
+      if (pageItems.length < _pageSize) break;
       page += 1;
     }
 
@@ -50,7 +53,7 @@ class GitHubRepositoryCatalogApi {
     while (true) {
       final response = await _client.get(
         Uri.https('api.github.com', '/repos/${repository.fullName}/branches', {
-          'per_page': '100',
+          'per_page': '$_pageSize',
           'page': '$page',
         }),
         headers: _headers(token),
@@ -62,7 +65,7 @@ class GitHubRepositoryCatalogApi {
 
       final pageItems = _parseBranches(jsonDecode(response.body));
       branches.addAll(pageItems);
-      if (pageItems.length < 100) break;
+      if (pageItems.length < _pageSize) break;
       page += 1;
     }
 
@@ -137,7 +140,7 @@ class GitHubRepositoryCatalogApi {
   }
 
   String _failureMessage(http.Response response) {
-    final bodyMessage = _tryReadMessage(response.body);
+    final bodyMessage = readGitHubApiMessage(response.body);
     return switch (response.statusCode) {
       HttpStatus.unauthorized ||
       HttpStatus.forbidden => 'GitHub 认证失败,请重新授权后再试。',
@@ -146,21 +149,6 @@ class GitHubRepositoryCatalogApi {
         'GitHub 仓库读取失败(${response.statusCode}):$bodyMessage',
       _ => 'GitHub 仓库读取失败(${response.statusCode})。',
     };
-  }
-
-  String? _tryReadMessage(String body) {
-    try {
-      final decoded = jsonDecode(body);
-      if (decoded is Map<String, Object?>) {
-        final message = decoded['message'];
-        if (message is String && message.trim().isNotEmpty) {
-          return message.trim();
-        }
-      }
-    } catch (_) {
-      return null;
-    }
-    return null;
   }
 }
 

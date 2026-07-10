@@ -9,15 +9,12 @@ class GitHubApiRepositoryCatalogRepository
   final GitHubRepositoryCatalogApi _api;
 
   @override
-  Future<List<GitHubRepositorySummary>> fetchRepositories(String token) {
-    return _api.fetchRepositories(token: token);
-  }
+  Future<List<GitHubRepositorySummary>> fetchRepositories(String token) =>
+      _api.fetchRepositories(token: token);
 
   @override
   Future<List<GitHubBranchSummary>> fetchBranches({
     required GitHubRepositorySummary repository,
     required String token,
-  }) {
-    return _api.fetchBranches(repository: repository, token: token);
-  }
+  }) => _api.fetchBranches(repository: repository, token: token);
 }

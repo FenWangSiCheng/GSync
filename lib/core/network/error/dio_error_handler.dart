@@ -1,7 +1,6 @@
 import 'package:dio/dio.dart';
 import 'exception.dart';
 
-/// Handle Dio exceptions and convert to custom exceptions
 Exception handleError(DioException error) => switch (error.type) {
   DioExceptionType.connectionTimeout => ApiException('Connection timeout'),
   DioExceptionType.receiveTimeout => ApiException('Receive timeout'),

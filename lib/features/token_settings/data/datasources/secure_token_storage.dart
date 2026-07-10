@@ -16,17 +16,12 @@ class FlutterSecureTokenStorage implements SecureTokenStorage {
   final FlutterSecureStorage _storage;
 
   @override
-  Future<String?> read({required String key}) {
-    return _storage.read(key: key);
-  }
+  Future<String?> read({required String key}) => _storage.read(key: key);
 
   @override
-  Future<void> write({required String key, required String value}) {
-    return _storage.write(key: key, value: value);
-  }
+  Future<void> write({required String key, required String value}) =>
+      _storage.write(key: key, value: value);
 
   @override
-  Future<void> delete({required String key}) {
-    return _storage.delete(key: key);
-  }
+  Future<void> delete({required String key}) => _storage.delete(key: key);
 }

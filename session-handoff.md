@@ -127,6 +127,16 @@
 | iOS HIG repository discovery check | `fvm dart run tool/harness.dart check` | Pass | Format, structure, analyzer, and coverage passed; coverage 935/1027 lines (91.04%). |
 | iOS HIG repository discovery acceptance | `fvm dart run tool/harness.dart spec accept ios-hig-repository-discovery --maestro --platform all` | Pass | iOS and Android both PASS; evidence copied to `docs/harness/evidence/ios-hig-repository-discovery/`. |
 
+## Code Simplification Pass (2026-07-10)
+
+The project-local `code-simplifier` skill was applied across `lib/`. The pass
+kept generated files and feature boundaries intact, removed a one-use Dio
+initialization abstraction, shared GitHub API error parsing, reduced DI and
+presentation/BLoC duplication, and left UI behavior unchanged.
+
+Latest verification: `fvm dart run tool/harness.dart check` passes; coverage is
+1003/1090 lines (92.02%).
+
 ## Blockers / Risks
 
 - No current blockers for `feat-github-device-flow-auth`.

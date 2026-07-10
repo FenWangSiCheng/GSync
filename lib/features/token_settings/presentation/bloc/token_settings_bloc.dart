@@ -104,66 +104,26 @@ class TokenSettingsBloc extends Bloc<TokenSettingsEvent, TokenSettingsState> {
             );
             return;
           case GitHubDeviceTokenPending():
-            emit(
-              state.copyWith(
-                status: TokenSettingsStatus.waitingForAuthorization,
-                statusMessage: '正在等待 GitHub 授权完成。',
-              ),
-            );
+            _emitWaiting(emit, '正在等待 GitHub 授权完成。');
           case GitHubDeviceTokenSlowDown(interval: final slowedInterval):
             interval = slowedInterval;
-            emit(
-              state.copyWith(
-                status: TokenSettingsStatus.waitingForAuthorization,
-                statusMessage: 'GitHub 要求降低轮询频率,正在继续等待授权。',
-              ),
-            );
+            _emitWaiting(emit, 'GitHub 要求降低轮询频率,正在继续等待授权。');
           case GitHubDeviceTokenExpired():
-            emit(
-              state.copyWith(
-                status: TokenSettingsStatus.failure,
-                statusMessage: '设备码已过期,请重新开始 GitHub 授权。',
-              ),
-            );
+            _emitFailure(emit, '设备码已过期,请重新开始 GitHub 授权。');
             return;
           case GitHubDeviceTokenDenied():
-            emit(
-              state.copyWith(
-                status: TokenSettingsStatus.failure,
-                statusMessage: 'GitHub 授权已取消。',
-              ),
-            );
+            _emitFailure(emit, 'GitHub 授权已取消。');
             return;
         }
       }
 
-      emit(
-        state.copyWith(
-          status: TokenSettingsStatus.failure,
-          statusMessage: '设备码已过期,请重新开始 GitHub 授权。',
-        ),
-      );
+      _emitFailure(emit, '设备码已过期,请重新开始 GitHub 授权。');
     } on GitHubDeviceFlowException catch (error) {
-      emit(
-        state.copyWith(
-          status: TokenSettingsStatus.failure,
-          statusMessage: error.message,
-        ),
-      );
+      _emitFailure(emit, error.message);
     } on SaveGitTokenException catch (error) {
-      emit(
-        state.copyWith(
-          status: TokenSettingsStatus.failure,
-          statusMessage: error.message,
-        ),
-      );
+      _emitFailure(emit, error.message);
     } catch (_) {
-      emit(
-        state.copyWith(
-          status: TokenSettingsStatus.failure,
-          statusMessage: 'GitHub 授权失败。',
-        ),
-      );
+      _emitFailure(emit, 'GitHub 授权失败。');
     }
   }
 
@@ -184,12 +144,25 @@ class TokenSettingsBloc extends Bloc<TokenSettingsEvent, TokenSettingsState> {
         ),
       );
     } catch (_) {
-      emit(
-        state.copyWith(
-          status: TokenSettingsStatus.failure,
-          statusMessage: 'GitHub 授权删除失败。',
-        ),
-      );
+      _emitFailure(emit, 'GitHub 授权删除失败。');
     }
+  }
+
+  void _emitWaiting(Emitter<TokenSettingsState> emit, String message) {
+    emit(
+      state.copyWith(
+        status: TokenSettingsStatus.waitingForAuthorization,
+        statusMessage: message,
+      ),
+    );
+  }
+
+  void _emitFailure(Emitter<TokenSettingsState> emit, String message) {
+    emit(
+      state.copyWith(
+        status: TokenSettingsStatus.failure,
+        statusMessage: message,
+      ),
+    );
   }
 }

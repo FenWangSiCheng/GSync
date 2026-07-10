@@ -9,7 +9,5 @@ class LoadGitHubRepositoryBranches {
   Future<List<GitHubBranchSummary>> call({
     required GitHubRepositorySummary repository,
     required String token,
-  }) {
-    return _repository.fetchBranches(repository: repository, token: token);
-  }
+  }) => _repository.fetchBranches(repository: repository, token: token);
 }
