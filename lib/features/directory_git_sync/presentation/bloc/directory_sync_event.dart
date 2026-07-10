@@ -7,12 +7,16 @@ sealed class DirectorySyncEvent extends Equatable {
   List<Object?> get props => [];
 }
 
+class DirectorySyncStarted extends DirectorySyncEvent {
+  const DirectorySyncStarted();
+}
+
 class DirectorySyncSystemDirectoryRequested extends DirectorySyncEvent {
   const DirectorySyncSystemDirectoryRequested();
 }
 
-class DirectorySyncFixtureDirectorySelected extends DirectorySyncEvent {
-  const DirectorySyncFixtureDirectorySelected();
+class DirectorySyncTokenStatusRequested extends DirectorySyncEvent {
+  const DirectorySyncTokenStatusRequested();
 }
 
 class DirectorySyncRemoteUrlChanged extends DirectorySyncEvent {
@@ -24,13 +28,22 @@ class DirectorySyncRemoteUrlChanged extends DirectorySyncEvent {
   List<Object?> get props => [value];
 }
 
-class DirectorySyncCredentialChanged extends DirectorySyncEvent {
-  const DirectorySyncCredentialChanged(this.value);
+class DirectorySyncRepositorySelected extends DirectorySyncEvent {
+  const DirectorySyncRepositorySelected(this.fullName);
 
-  final String value;
+  final String fullName;
 
   @override
-  List<Object?> get props => [value];
+  List<Object?> get props => [fullName];
+}
+
+class DirectorySyncBranchSelected extends DirectorySyncEvent {
+  const DirectorySyncBranchSelected(this.name);
+
+  final String name;
+
+  @override
+  List<Object?> get props => [name];
 }
 
 class DirectorySyncRequested extends DirectorySyncEvent {

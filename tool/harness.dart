@@ -396,7 +396,7 @@ class HarnessRunner {
     ).writeAsString(_acceptanceTemplate(id, flow));
     await File(
       '.maestro/ios/$flow.yaml',
-    ).writeAsString(_maestroFlowTemplate('cn.com.fenrir-inc.iosAppTest.dev'));
+    ).writeAsString(_maestroFlowTemplate('cn.com.fenrir-inc.gsync.dev'));
     await File(
       '.maestro/android/$flow.yaml',
     ).writeAsString(_maestroFlowTemplate('com.example.basic_demo.dev'));

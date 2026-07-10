@@ -1,0 +1,28 @@
+spec: encrypted-token-default-directory
+feature: feat-encrypted-token-default-directory
+goal: 'User can save an encrypted Git token on a dedicated page, use a default sync directory, and sync without the old example notes directory path.'
+preconditions:
+  - Run the dev flavor.
+  - Dev fixture repository and branch are available after authorization.
+  - Dev fixture credential test-token is accepted without a real account.
+acceptance:
+  - id: ui-token-default-directory-flow
+    claim: 'The sync screen starts with a default directory, the user saves a token on the settings page, returns, and syncs successfully with that saved token.'
+    kind: maestro
+    flow: encrypted_token_default_directory_flow
+  - id: logic-secure-token-storage
+    claim: 'The token repository stores only trimmed token values, reads missing or blank values as absent, and deletes saved tokens.'
+    kind: test
+    file: test/features/token_settings/data/repositories/secure_git_token_repository_test.dart
+  - id: logic-default-directory
+    claim: 'The default directory repository creates and returns an application GitSync directory.'
+    kind: test
+    file: test/features/directory_git_sync/data/repositories/app_documents_default_sync_directory_repository_test.dart
+  - id: logic-sync-uses-saved-token
+    claim: 'The directory sync BLoC loads the default directory and uses the saved token instead of a page-entered credential.'
+    kind: test
+    file: test/features/directory_git_sync/presentation/bloc/directory_sync_bloc_test.dart
+  - id: logic-no-token-in-remote
+    claim: 'The real Git sync repository stores the clean remote URL and passes HTTP credentials through an askpass environment during push.'
+    kind: test
+    file: test/features/directory_git_sync/data/repositories/process_git_sync_repository_test.dart

@@ -1,0 +1,26 @@
+appId: com.example.basic_demo.dev
+---
+- launchApp:
+    clearState: true
+- assertVisible:
+    id: directory_sync_screen
+- tapOn:
+    id: token_settings_button
+- extendedWaitUntil:
+    visible:
+      id: token_settings_screen
+    timeout: 10000
+- tapOn:
+    id: start_device_flow_button
+- assertVisible:
+    id: device_flow_verification_url_text
+- assertVisible:
+    id: device_flow_code_text
+- extendedWaitUntil:
+    visible:
+      id: saved_token_status_text
+    timeout: 10000
+- tapOn:
+    id: token_settings_back_button
+- assertVisible:
+    id: directory_token_status_text

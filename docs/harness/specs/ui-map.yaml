@@ -10,22 +10,10 @@ targets:
     role: button
     label: Choose directory
     semantics_identifier: directory_picker_button
-  directory_fixture_option:
-    role: button
-    label: GitSync Fixture Notes
-    semantics_identifier: directory_fixture_option
   selected_directory_text:
     role: text
     label: Selected directory
     semantics_identifier: selected_directory_text
-  remote_url_field:
-    role: textField
-    label: Remote Git repository URL
-    semantics_identifier: remote_url_field
-  auth_token_field:
-    role: textField
-    label: Authentication token
-    semantics_identifier: auth_token_field
   sync_button:
     role: button
     label: Sync
@@ -42,3 +30,67 @@ targets:
     role: text
     label: Sync failed
     semantics_identifier: sync_error_text
+  token_settings_button:
+    role: button
+    label: Token settings
+    semantics_identifier: token_settings_button
+  directory_token_status_text:
+    role: text
+    label: Directory sync token status
+    semantics_identifier: directory_token_status_text
+  token_settings_screen:
+    role: screen
+    label: Token settings
+    semantics_identifier: token_settings_screen
+  token_settings_back_button:
+    role: button
+    label: Back from token settings
+    semantics_identifier: token_settings_back_button
+  saved_token_status_text:
+    role: text
+    label: Saved token status
+    semantics_identifier: saved_token_status_text
+  delete_token_button:
+    role: button
+    label: Delete token
+    semantics_identifier: delete_token_button
+  token_settings_status_text:
+    role: text
+    label: Token settings status
+    semantics_identifier: token_settings_status_text
+  start_device_flow_button:
+    role: button
+    label: Start GitHub Device Flow
+    semantics_identifier: start_device_flow_button
+  device_flow_code_text:
+    role: text
+    label: GitHub Device Flow user code
+    semantics_identifier: device_flow_code_text
+  device_flow_verification_url_text:
+    role: text
+    label: GitHub Device Flow verification URL
+    semantics_identifier: device_flow_verification_url_text
+  repository_list_status_text:
+    role: text
+    label: GitHub repository list status
+    semantics_identifier: repository_list_status_text
+  repository_option_gitsync_fixture:
+    role: button
+    label: GitSync fixture repository option
+    semantics_identifier: repository_option_gitsync_fixture
+  branch_option_main:
+    role: button
+    label: Main branch option
+    semantics_identifier: branch_option_main
+  repository_search_field:
+    role: text_field
+    label: Search GitHub repositories
+    semantics_identifier: repository_search_field
+  repository_search_result_summary_text:
+    role: text
+    label: Repository search result count
+    semantics_identifier: repository_search_result_summary_text
+  repository_search_empty_text:
+    role: text
+    label: No repository search results
+    semantics_identifier: repository_search_empty_text

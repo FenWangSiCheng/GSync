@@ -1,0 +1,46 @@
+{
+  "spec": "github-repository-picker-sync",
+  "feature": "feat-github-repository-picker-sync",
+  "platform": "ios",
+  "result": "PASS",
+  "maestro_run": true,
+  "maestro_blocked_reason": null,
+  "maestro_all_pass": true,
+  "acceptance": [
+    {
+      "id": "ui-select-repository-and-branch",
+      "claim": "The sync screen shows repositories after authorization, lets the user choose a repository and branch, tap Sync, and see a success state.",
+      "kind": "maestro",
+      "verdict": "pass",
+      "evidence": ".maestro/ios/github_repository_picker_sync_flow.yaml"
+    },
+    {
+      "id": "logic-fetch-repositories",
+      "claim": "The GitHub catalog API fetches authenticated repositories and maps owner, name, visibility, default branch, and URL fields.",
+      "kind": "test",
+      "verdict": "pass",
+      "evidence": "test/features/directory_git_sync/data/datasources/github_repository_catalog_api_test.dart"
+    },
+    {
+      "id": "logic-fetch-branches",
+      "claim": "The GitHub catalog API fetches repository branches and maps branch names.",
+      "kind": "test",
+      "verdict": "pass",
+      "evidence": "test/features/directory_git_sync/data/datasources/github_repository_catalog_api_test.dart"
+    },
+    {
+      "id": "logic-picker-sync-request",
+      "claim": "The directory sync BLoC builds sync requests from the selected repository and branch instead of a typed remote URL.",
+      "kind": "test",
+      "verdict": "pass",
+      "evidence": "test/features/directory_git_sync/presentation/bloc/directory_sync_bloc_test.dart"
+    },
+    {
+      "id": "logic-real-catalog-di",
+      "claim": "Dependency injection uses the fixture catalog in dev and the GitHub API catalog outside dev fixtures.",
+      "kind": "test",
+      "verdict": "pass",
+      "evidence": "test/core/injection/injection_test.dart"
+    }
+  ]
+}

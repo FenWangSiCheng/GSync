@@ -1,0 +1,49 @@
+appId: cn.com.fenrir-inc.gsync.dev
+---
+- launchApp:
+    clearState: true
+- assertVisible:
+    id: directory_sync_screen
+- assertVisible:
+    id: selected_directory_text
+- tapOn:
+    text: "设置"
+- extendedWaitUntil:
+    visible:
+      id: token_settings_screen
+    timeout: 10000
+- tapOn:
+    id: start_device_flow_button
+- assertVisible:
+    id: device_flow_code_text
+- assertVisible:
+    id: device_flow_verification_url_text
+- extendedWaitUntil:
+    visible:
+      id: saved_token_status_text
+    timeout: 10000
+- tapOn:
+    id: token_settings_back_button
+- assertVisible:
+    id: directory_token_status_text
+- extendedWaitUntil:
+    visible:
+      id: repository_option_gitsync_fixture
+    timeout: 10000
+- tapOn:
+    id: repository_option_gitsync_fixture
+- scrollUntilVisible:
+    element:
+      id: branch_option_main
+    direction: DOWN
+    timeout: 10000
+- tapOn:
+    id: branch_option_main
+- tapOn:
+    id: sync_button
+- assertVisible:
+    id: sync_status_text
+- extendedWaitUntil:
+    visible:
+      id: sync_success_text
+    timeout: 30000

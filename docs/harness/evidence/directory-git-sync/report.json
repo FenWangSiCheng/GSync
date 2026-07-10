@@ -17,7 +17,7 @@
       "acceptance": [
         {
           "id": "ui-happy-path",
-          "claim": "A user can choose a local directory, enter remote Git credentials, tap Sync, and see a success state.",
+          "claim": "A user can use the default local directory, save Git credentials, tap Sync, and see a success state.",
           "kind": "maestro",
           "verdict": "pass",
           "evidence": ".maestro/ios/directory_git_sync_flow.yaml"
@@ -56,7 +56,7 @@
       "acceptance": [
         {
           "id": "ui-happy-path",
-          "claim": "A user can choose a local directory, enter remote Git credentials, tap Sync, and see a success state.",
+          "claim": "A user can use the default local directory, save Git credentials, tap Sync, and see a success state.",
           "kind": "maestro",
           "verdict": "pass",
           "evidence": ".maestro/android/directory_git_sync_flow.yaml"

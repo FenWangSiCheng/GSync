@@ -28,10 +28,11 @@ void main() {
       expect(homeRoute, isNotNull);
     });
 
-    test('router should only expose template routes', () {
+    test('router should expose app routes', () {
       final routes = appRouter.router.configuration.routes;
       expect(routes.map((route) => (route as GoRoute).path), [
         RouterPaths.home,
+        RouterPaths.tokenSettings,
       ]);
     });
 

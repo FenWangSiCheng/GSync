@@ -1,0 +1,4 @@
+# New UI targets introduced by the "github-repository-download-sync" spec.
+# Approved deltas are generated into docs/harness/specs/ui-map.yaml by:
+#   fvm dart run tool/harness.dart spec ui-map
+targets: {}

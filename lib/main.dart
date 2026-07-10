@@ -13,7 +13,6 @@ FutureOr<void> main() async {
   final appConfig = AppConfig.fromEnvironment();
   HarnessLogger.event('app.config.loaded', fields: appConfig.harnessContext);
 
-  // Initialize dependency injection with AppConfig
   await configureDependencies(appConfig);
   HarnessLogger.event(
     'app.dependencies.ready',

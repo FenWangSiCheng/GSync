@@ -5,7 +5,7 @@ import '../../domain/repositories/git_sync_repository.dart';
 class FixtureGitSyncRepository implements GitSyncRepository {
   const FixtureGitSyncRepository();
 
-  static const fixtureDirectoryPath = '/fixtures/GitSync Fixture Notes';
+  static const fixtureDirectoryPath = '/fixtures/GitSync';
   static const fixtureRemoteUrl = 'https://example.invalid/gitsync-fixture.git';
   static const fixtureCredential = 'test-token';
 
@@ -15,11 +15,11 @@ class FixtureGitSyncRepository implements GitSyncRepository {
   ) async {
     await Future<void>.delayed(const Duration(milliseconds: 350));
 
-    if (request.directoryPath == fixtureDirectoryPath &&
+    if (request.directoryPath.trim().isNotEmpty &&
         request.remoteUrl == fixtureRemoteUrl &&
         request.credential == fixtureCredential) {
       return DirectorySyncResult.success(
-        message: '同步成功:目录已推送到远程仓库。',
+        message: '同步成功:已下载 2 个远端文件,清理 0 个本地残留项目。',
         commitHash: 'fixture-sync',
       );
     }

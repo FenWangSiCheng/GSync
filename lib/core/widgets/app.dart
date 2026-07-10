@@ -24,7 +24,6 @@ class App extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
       ],
       theme: const CupertinoThemeData(
-        brightness: Brightness.light,
         primaryColor: CupertinoColors.activeBlue,
         scaffoldBackgroundColor: CupertinoColors.systemGroupedBackground,
       ),
@@ -56,5 +55,5 @@ class App extends StatelessWidget {
           textDirection: TextDirection.ltr,
           child: child,
         )
-      : Container(child: child);
+      : child;
 }

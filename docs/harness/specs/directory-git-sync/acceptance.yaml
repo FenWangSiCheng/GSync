@@ -3,12 +3,12 @@ feature: feat-directory-git-sync
 goal: 'User can choose one local directory and sync it to one configured Git remote.'
 preconditions:
   - Run the dev flavor.
-  - Dev fixture directory GitSync Fixture Notes is available.
-  - Dev fixture remote https://example.invalid/gitsync-fixture.git is available.
+  - Dev default sync directory is available.
+  - Dev fixture repository and branch are available after authorization.
   - Dev fixture credential test-token is accepted without a real account.
 acceptance:
   - id: ui-happy-path
-    claim: 'A user can choose a local directory, enter remote Git credentials, tap Sync, and see a success state.'
+    claim: 'A user can use the default local directory, save Git credentials, tap Sync, and see a success state.'
     kind: maestro
     flow: directory_git_sync_flow
   - id: logic-push-selected-directory

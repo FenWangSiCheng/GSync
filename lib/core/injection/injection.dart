@@ -2,16 +2,42 @@ import '../config/app_config.dart';
 import '../network/dio_client.dart';
 import 'injection.config.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_foundations/features/directory_git_sync/data/datasources/git_command_runner.dart';
+import 'package:flutter_foundations/features/directory_git_sync/data/datasources/github_contents_api.dart';
+import 'package:flutter_foundations/features/directory_git_sync/data/datasources/directory_access_scope.dart';
+import 'package:flutter_foundations/features/directory_git_sync/data/datasources/github_repository_catalog_api.dart';
+import 'package:flutter_foundations/features/directory_git_sync/data/repositories/app_documents_default_sync_directory_repository.dart';
 import 'package:flutter_foundations/features/directory_git_sync/data/repositories/file_picker_directory_picker_repository.dart';
+import 'package:flutter_foundations/features/directory_git_sync/data/repositories/fixture_github_repository_catalog_repository.dart';
 import 'package:flutter_foundations/features/directory_git_sync/data/repositories/fixture_git_sync_repository.dart';
-import 'package:flutter_foundations/features/directory_git_sync/data/repositories/process_git_sync_repository.dart';
+import 'package:flutter_foundations/features/directory_git_sync/data/repositories/github_api_git_sync_repository.dart';
+import 'package:flutter_foundations/features/directory_git_sync/data/repositories/github_api_repository_catalog_repository.dart';
+import 'package:flutter_foundations/features/directory_git_sync/domain/repositories/default_sync_directory_repository.dart';
 import 'package:flutter_foundations/features/directory_git_sync/domain/repositories/directory_picker_repository.dart';
 import 'package:flutter_foundations/features/directory_git_sync/domain/repositories/git_sync_repository.dart';
+import 'package:flutter_foundations/features/directory_git_sync/domain/repositories/github_repository_catalog_repository.dart';
+import 'package:flutter_foundations/features/directory_git_sync/domain/usecases/get_default_sync_directory.dart';
+import 'package:flutter_foundations/features/directory_git_sync/domain/usecases/load_github_repositories.dart';
+import 'package:flutter_foundations/features/directory_git_sync/domain/usecases/load_github_repository_branches.dart';
 import 'package:flutter_foundations/features/directory_git_sync/domain/usecases/pick_sync_directory.dart';
 import 'package:flutter_foundations/features/directory_git_sync/domain/usecases/sync_directory_to_git_repository.dart';
 import 'package:flutter_foundations/features/directory_git_sync/presentation/bloc/directory_sync_bloc.dart';
+import 'package:flutter_foundations/features/token_settings/data/datasources/secure_token_storage.dart';
+import 'package:flutter_foundations/features/token_settings/data/datasources/github_device_flow_api.dart';
+import 'package:flutter_foundations/features/token_settings/data/repositories/fixture_github_device_flow_repository.dart';
+import 'package:flutter_foundations/features/token_settings/data/repositories/github_api_device_flow_repository.dart';
+import 'package:flutter_foundations/features/token_settings/data/repositories/secure_git_token_repository.dart';
+import 'package:flutter_foundations/features/token_settings/domain/repositories/github_device_flow_repository.dart';
+import 'package:flutter_foundations/features/token_settings/domain/repositories/git_token_repository.dart';
+import 'package:flutter_foundations/features/token_settings/domain/usecases/delete_git_token.dart';
+import 'package:flutter_foundations/features/token_settings/domain/usecases/get_git_token.dart';
+import 'package:flutter_foundations/features/token_settings/domain/usecases/poll_github_device_token.dart';
+import 'package:flutter_foundations/features/token_settings/domain/usecases/request_github_device_authorization.dart';
+import 'package:flutter_foundations/features/token_settings/domain/usecases/save_git_token.dart';
+import 'package:flutter_foundations/features/token_settings/presentation/bloc/token_settings_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:http/http.dart' as http;
 import 'package:injectable/injectable.dart';
 
 final getIt = GetIt.instance;
@@ -41,46 +67,159 @@ abstract class RegisterModule {
   Dio dio(DioClient dioClient) => dioClient.dio;
 
   @lazySingleton
+  http.Client httpClient() => http.Client();
+
+  @lazySingleton
+  GitHubContentsApi gitHubContentsApi(http.Client client) =>
+      GitHubContentsApi(client);
+
+  @lazySingleton
+  GitHubRepositoryCatalogApi gitHubRepositoryCatalogApi(http.Client client) =>
+      GitHubRepositoryCatalogApi(client);
+
+  @lazySingleton
+  DirectoryAccessScope directoryAccessScope() =>
+      const PlatformDirectoryAccessScope();
+
+  @lazySingleton
+  GitHubDeviceFlowApi gitHubDeviceFlowApi(http.Client client) =>
+      GitHubDeviceFlowApi(client);
+
+  @lazySingleton
   GitCommandRunner gitCommandRunner() => const ProcessGitCommandRunner();
 
   @lazySingleton
-  DirectoryPickerRepository directoryPickerRepository() {
-    return const FilePickerDirectoryPickerRepository();
+  FlutterSecureStorage flutterSecureStorage() => const FlutterSecureStorage();
+
+  @lazySingleton
+  SecureTokenStorage secureTokenStorage(FlutterSecureStorage storage) =>
+      FlutterSecureTokenStorage(storage);
+
+  @lazySingleton
+  GitTokenRepository gitTokenRepository(SecureTokenStorage storage) =>
+      SecureGitTokenRepository(storage);
+
+  @lazySingleton
+  GitHubDeviceFlowRepository gitHubDeviceFlowRepository(
+    AppConfig appConfig,
+    GitHubDeviceFlowApi api,
+  ) {
+    return appConfig.mockApiDataSource
+        ? const FixtureGitHubDeviceFlowRepository()
+        : GitHubApiDeviceFlowRepository(appConfig: appConfig, api: api);
   }
+
+  @lazySingleton
+  DefaultSyncDirectoryRepository defaultSyncDirectoryRepository() =>
+      const AppDocumentsDefaultSyncDirectoryRepository();
+
+  @lazySingleton
+  DirectoryPickerRepository directoryPickerRepository() =>
+      const FilePickerDirectoryPickerRepository();
 
   @lazySingleton
   GitSyncRepository gitSyncRepository(
     AppConfig appConfig,
-    GitCommandRunner gitCommandRunner,
+    GitHubContentsApi gitHubContentsApi,
+    DirectoryAccessScope directoryAccessScope,
   ) {
-    if (appConfig.mockApiDataSource) {
-      return const FixtureGitSyncRepository();
-    }
-    return ProcessGitSyncRepository(gitCommandRunner);
+    return appConfig.mockApiDataSource
+        ? const FixtureGitSyncRepository()
+        : GithubApiGitSyncRepository(
+            gitHubContentsApi,
+            directoryAccessScope: directoryAccessScope,
+          );
+  }
+
+  @lazySingleton
+  GitHubRepositoryCatalogRepository gitHubRepositoryCatalogRepository(
+    AppConfig appConfig,
+    GitHubRepositoryCatalogApi gitHubRepositoryCatalogApi,
+  ) {
+    return appConfig.mockApiDataSource
+        ? const FixtureGitHubRepositoryCatalogRepository()
+        : GitHubApiRepositoryCatalogRepository(gitHubRepositoryCatalogApi);
   }
 
   @lazySingleton
   PickSyncDirectory pickSyncDirectory(
     DirectoryPickerRepository directoryPickerRepository,
-  ) {
-    return PickSyncDirectory(directoryPickerRepository);
-  }
+  ) => PickSyncDirectory(directoryPickerRepository);
+
+  @lazySingleton
+  GetDefaultSyncDirectory getDefaultSyncDirectory(
+    DefaultSyncDirectoryRepository defaultSyncDirectoryRepository,
+  ) => GetDefaultSyncDirectory(defaultSyncDirectoryRepository);
+
+  @lazySingleton
+  GetGitToken getGitToken(GitTokenRepository gitTokenRepository) =>
+      GetGitToken(gitTokenRepository);
+
+  @lazySingleton
+  SaveGitToken saveGitToken(GitTokenRepository gitTokenRepository) =>
+      SaveGitToken(gitTokenRepository);
+  @lazySingleton
+  DeleteGitToken deleteGitToken(GitTokenRepository gitTokenRepository) =>
+      DeleteGitToken(gitTokenRepository);
+
+  @lazySingleton
+  RequestGitHubDeviceAuthorization requestGitHubDeviceAuthorization(
+    GitHubDeviceFlowRepository repository,
+  ) => RequestGitHubDeviceAuthorization(repository);
+
+  @lazySingleton
+  PollGitHubDeviceToken pollGitHubDeviceToken(
+    GitHubDeviceFlowRepository repository,
+  ) => PollGitHubDeviceToken(repository);
 
   @lazySingleton
   SyncDirectoryToGitRepository syncDirectoryToGitRepository(
     GitSyncRepository gitSyncRepository,
-  ) {
-    return SyncDirectoryToGitRepository(gitSyncRepository);
-  }
+  ) => SyncDirectoryToGitRepository(gitSyncRepository);
+
+  @lazySingleton
+  LoadGitHubRepositories loadGitHubRepositories(
+    GitHubRepositoryCatalogRepository repository,
+  ) => LoadGitHubRepositories(repository);
+
+  @lazySingleton
+  LoadGitHubRepositoryBranches loadGitHubRepositoryBranches(
+    GitHubRepositoryCatalogRepository repository,
+  ) => LoadGitHubRepositoryBranches(repository);
 
   @injectable
   DirectorySyncBloc directorySyncBloc(
+    GetDefaultSyncDirectory getDefaultDirectory,
     PickSyncDirectory pickDirectory,
+    GetGitToken getGitToken,
     SyncDirectoryToGitRepository syncDirectory,
+    LoadGitHubRepositories loadRepositories,
+    LoadGitHubRepositoryBranches loadBranches,
   ) {
     return DirectorySyncBloc(
+      getDefaultDirectory: getDefaultDirectory,
       pickDirectory: pickDirectory,
+      getGitToken: getGitToken,
       syncDirectory: syncDirectory,
+      loadRepositories: loadRepositories,
+      loadBranches: loadBranches,
+    );
+  }
+
+  @injectable
+  TokenSettingsBloc tokenSettingsBloc(
+    GetGitToken getGitToken,
+    SaveGitToken saveGitToken,
+    DeleteGitToken deleteGitToken,
+    RequestGitHubDeviceAuthorization requestDeviceAuthorization,
+    PollGitHubDeviceToken pollDeviceToken,
+  ) {
+    return TokenSettingsBloc(
+      getGitToken: getGitToken,
+      saveGitToken: saveGitToken,
+      deleteGitToken: deleteGitToken,
+      requestDeviceAuthorization: requestDeviceAuthorization,
+      pollDeviceToken: pollDeviceToken,
     );
   }
 }

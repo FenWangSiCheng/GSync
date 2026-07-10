@@ -3,6 +3,6 @@
 #   fvm dart run tool/harness.dart spec ui-map
 # This restyle reuses the existing directory-git-sync semantics identifiers
 # (directory_sync_screen, directory_picker_button, selected_directory_text,
-# remote_url_field, auth_token_field, sync_button, sync_status_text,
+# sync_button, sync_status_text,
 # sync_success_text, sync_error_text) and introduces no new UI targets.
 targets: {}

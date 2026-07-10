@@ -10,7 +10,7 @@ void main() {
     test('returns success for the dev fixture request', () async {
       final result = await repository.syncDirectory(
         const DirectorySyncRequest(
-          directoryPath: FixtureGitSyncRepository.fixtureDirectoryPath,
+          directoryPath: '/any/default/GitSync',
           remoteUrl: FixtureGitSyncRepository.fixtureRemoteUrl,
           credential: FixtureGitSyncRepository.fixtureCredential,
         ),
@@ -18,6 +18,7 @@ void main() {
 
       expect(result.type, DirectorySyncResultType.success);
       expect(result.commitHash, 'fixture-sync');
+      expect(result.message, contains('已下载 2 个远端文件'));
     });
 
     test('returns failure for non-fixture credentials', () async {

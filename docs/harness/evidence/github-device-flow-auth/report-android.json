@@ -1,0 +1,46 @@
+{
+  "spec": "github-device-flow-auth",
+  "feature": "feat-github-device-flow-auth",
+  "platform": "android",
+  "result": "PASS",
+  "maestro_run": true,
+  "maestro_blocked_reason": null,
+  "maestro_all_pass": true,
+  "acceptance": [
+    {
+      "id": "ui-device-flow-auth",
+      "claim": "The user opens settings, starts GitHub Device Flow, sees the verification code and URL, waits for the app to save the token, then returns to the sync screen with authorization configured.",
+      "kind": "maestro",
+      "verdict": "pass",
+      "evidence": ".maestro/android/github_device_flow_auth_flow.yaml"
+    },
+    {
+      "id": "logic-device-code-request",
+      "claim": "The GitHub Device Flow API requests a device code with client_id and scope, parses the user code, verification URI, expiry, and polling interval, and does not send a client secret.",
+      "kind": "test",
+      "verdict": "pass",
+      "evidence": "test/features/token_settings/data/datasources/github_device_flow_api_test.dart"
+    },
+    {
+      "id": "logic-device-token-polling",
+      "claim": "The GitHub Device Flow API maps authorization_pending, slow_down, expired_token, access_denied, success, and readable failure responses.",
+      "kind": "test",
+      "verdict": "pass",
+      "evidence": "test/features/token_settings/data/datasources/github_device_flow_api_test.dart"
+    },
+    {
+      "id": "logic-device-flow-bloc",
+      "claim": "The token settings BLoC displays the device code, polls until authorization succeeds, stores the returned token securely, and reports missing client ID failures.",
+      "kind": "test",
+      "verdict": "pass",
+      "evidence": "test/features/token_settings/presentation/bloc/token_settings_bloc_test.dart"
+    },
+    {
+      "id": "logic-device-flow-di",
+      "claim": "Dependency injection uses the deterministic Device Flow fixture in dev and the GitHub API-backed Device Flow repository outside dev.",
+      "kind": "test",
+      "verdict": "pass",
+      "evidence": "test/core/injection/injection_test.dart"
+    }
+  ]
+}

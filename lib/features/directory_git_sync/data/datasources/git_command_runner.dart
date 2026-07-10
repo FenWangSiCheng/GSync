@@ -18,6 +18,7 @@ abstract class GitCommandRunner {
   Future<GitCommandResult> run(
     List<String> arguments, {
     required String workingDirectory,
+    Map<String, String>? environment,
   });
 }
 
@@ -28,11 +29,13 @@ class ProcessGitCommandRunner implements GitCommandRunner {
   Future<GitCommandResult> run(
     List<String> arguments, {
     required String workingDirectory,
+    Map<String, String>? environment,
   }) async {
     final result = await Process.run(
       'git',
       arguments,
       workingDirectory: workingDirectory,
+      environment: environment,
     );
     return GitCommandResult(
       exitCode: result.exitCode,

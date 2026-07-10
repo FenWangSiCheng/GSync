@@ -1,3 +1,5 @@
 {
-  "flavor": "stg"
+  "flavor": "stg",
+  "githubOAuthClientId": "Ov23liCpVbeNSbSRKr3M",
+  "githubOAuthScope": "repo"
 }

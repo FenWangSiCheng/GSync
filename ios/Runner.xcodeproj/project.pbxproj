@@ -20,6 +20,7 @@
 		64A08D653E69EE4022F9B440 /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FFCCD9F80331C584236522E0 /* Pods_Runner.framework */; };
 		74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FAE1ED2DC5600515810 /* AppDelegate.swift */; };
 		7847C4F195D1F0EE62D689CE /* prodProfile.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 57A85C79F1B75726CDE2B3F7 /* prodProfile.xcconfig */; };
+		78A318202AECB46A00862997 /* FlutterGeneratedPluginSwiftPackage in Frameworks */ = {isa = PBXBuildFile; productRef = 78A3181F2AECB46A00862997 /* FlutterGeneratedPluginSwiftPackage */; };
 		80195A50F031C2EF9568BEAD /* prodRelease.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 5310B43FDABDD253A14776EC /* prodRelease.xcconfig */; };
 		8EED3BD404BEE06D26295606 /* devDebug.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 6EB639BFE6BCCE0E760D76F2 /* devDebug.xcconfig */; };
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
@@ -28,7 +29,6 @@
 		AB8B6E07AC2DE51F7A21D999 /* stgLaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C59376E0796CFDB71265EC6D /* stgLaunchScreen.storyboard */; };
 		C3E6E37646451255C8A3767B /* stgRelease.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 75404181AC23B8FC54FC0E8A /* stgRelease.xcconfig */; };
 		E1E465A83CCAA8F1051D6ADE /* devRelease.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 6FFAA03DFF8479BA44049FE5 /* devRelease.xcconfig */; };
-		78A318202AECB46A00862997 /* FlutterGeneratedPluginSwiftPackage in Frameworks */ = {isa = PBXBuildFile; productRef = 78A3181F2AECB46A00862997 /* FlutterGeneratedPluginSwiftPackage */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -80,6 +80,7 @@
 		74858FAE1ED2DC5600515810 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		75404181AC23B8FC54FC0E8A /* stgRelease.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = stgRelease.xcconfig; path = Flutter/stgRelease.xcconfig; sourceTree = "<group>"; };
 		7797AE6DE33524157052652F /* Pods-Runner.profile-stg.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile-stg.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile-stg.xcconfig"; sourceTree = "<group>"; };
+		78E0A7A72DC9AD7400C4905E /* FlutterGeneratedPluginSwiftPackage */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = FlutterGeneratedPluginSwiftPackage; path = Flutter/ephemeral/Packages/FlutterGeneratedPluginSwiftPackage; sourceTree = "<group>"; };
 		7AFA3C8E1D35360C0083082E /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Release.xcconfig; path = Flutter/Release.xcconfig; sourceTree = "<group>"; };
 		7EE69C9961FA3D3048B53B6D /* Pods-RunnerTests.release-stg.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.release-stg.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.release-stg.xcconfig"; sourceTree = "<group>"; };
 		886DD36C05529372254EDB67 /* Pods-Runner.profile-dev.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile-dev.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile-dev.xcconfig"; sourceTree = "<group>"; };
@@ -108,7 +109,6 @@
 		E90624A420EA5FB587DE7706 /* Pods-RunnerTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.release.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.release.xcconfig"; sourceTree = "<group>"; };
 		FB88DBF047FB6EF69B759BE6 /* Pods-Runner.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"; sourceTree = "<group>"; };
 		FFCCD9F80331C584236522E0 /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		78E0A7A72DC9AD7400C4905E /* FlutterGeneratedPluginSwiftPackage */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = FlutterGeneratedPluginSwiftPackage; path = Flutter/ephemeral/Packages/FlutterGeneratedPluginSwiftPackage; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -263,9 +263,6 @@
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 		97C146ED1CF9000F007C117D /* Runner */ = {
-			packageProductDependencies = (
-				78A3181F2AECB46A00862997 /* FlutterGeneratedPluginSwiftPackage */,
-			);
 			isa = PBXNativeTarget;
 			buildConfigurationList = 97C147051CF9000F007C117D /* Build configuration list for PBXNativeTarget "Runner" */;
 			buildPhases = (
@@ -283,6 +280,9 @@
 			dependencies = (
 			);
 			name = Runner;
+			packageProductDependencies = (
+				78A3181F2AECB46A00862997 /* FlutterGeneratedPluginSwiftPackage */,
+			);
 			productName = Runner;
 			productReference = 97C146EE1CF9000F007C117D /* Runner.app */;
 			productType = "com.apple.product-type.application";
@@ -291,9 +291,6 @@
 
 /* Begin PBXProject section */
 		97C146E61CF9000F007C117D /* Project object */ = {
-			packageReferences = (
-				781AD8BC2B33823900A9FFBB /* XCLocalSwiftPackageReference "Flutter/ephemeral/Packages/FlutterGeneratedPluginSwiftPackage" */,
-			);
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 1510;
@@ -318,6 +315,9 @@
 				Base,
 			);
 			mainGroup = 97C146E51CF9000F007C117D;
+			packageReferences = (
+				781AD8BC2B33823900A9FFBB /* XCLocalSwiftPackageReference "FlutterGeneratedPluginSwiftPackage" */,
+			);
 			productRefGroup = 97C146EF1CF9000F007C117D /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -562,7 +562,7 @@
 					"$(PROJECT_DIR)/Flutter",
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = "cn.com.fenrir-inc.iosAppTest.stg";
+				PRODUCT_BUNDLE_IDENTIFIER = "cn.com.fenrir-inc.gsync.stg";
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
@@ -582,7 +582,7 @@
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 533H75UL22;
-				PRODUCT_BUNDLE_IDENTIFIER = "cn.com.fenrir-inc.iosAppTest.dev";
+				PRODUCT_BUNDLE_IDENTIFIER = "cn.com.fenrir-inc.gsync.dev";
 				PRODUCT_NAME = Runner;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Wildcard Development Profile";
@@ -594,7 +594,7 @@
 			baseConfigurationReference = 886DD36C05529372254EDB67 /* Pods-Runner.profile-dev.xcconfig */;
 			buildSettings = {
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 533H75UL22;
-				PRODUCT_BUNDLE_IDENTIFIER = "cn.com.fenrir-inc.iosAppTest.dev";
+				PRODUCT_BUNDLE_IDENTIFIER = "cn.com.fenrir-inc.gsync.dev";
 				PRODUCT_NAME = Runner;
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Wildcard Development Profile";
 			};
@@ -605,7 +605,7 @@
 			baseConfigurationReference = 106F8AF82F69140F4E230C3E /* Pods-Runner.release-dev.xcconfig */;
 			buildSettings = {
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 533H75UL22;
-				PRODUCT_BUNDLE_IDENTIFIER = "cn.com.fenrir-inc.iosAppTest.dev";
+				PRODUCT_BUNDLE_IDENTIFIER = "cn.com.fenrir-inc.gsync.dev";
 				PRODUCT_NAME = Runner;
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Wildcard Development Profile";
 			};
@@ -645,10 +645,12 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = B7F375799E98EF5ABD4344EB /* Pods-Runner.debug-prod.xcconfig */;
 			buildSettings = {
-				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 533H75UL22;
-				PRODUCT_BUNDLE_IDENTIFIER = "cn.com.fenrir-inc.iosAppTest";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 533H75UL22;
+				PRODUCT_BUNDLE_IDENTIFIER = "cn.com.fenrir-inc.gsync";
 				PRODUCT_NAME = Runner;
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Wildcard Development Profile";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 			};
 			name = "Debug-prod";
 		};
@@ -656,10 +658,12 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 9A11C4B64F78E0AF04FC2E27 /* Pods-Runner.profile-prod.xcconfig */;
 			buildSettings = {
-				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 533H75UL22;
-				PRODUCT_BUNDLE_IDENTIFIER = "cn.com.fenrir-inc.iosAppTest";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 533H75UL22;
+				PRODUCT_BUNDLE_IDENTIFIER = "cn.com.fenrir-inc.gsync";
 				PRODUCT_NAME = Runner;
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Wildcard Development Profile";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 			};
 			name = "Profile-prod";
 		};
@@ -667,10 +671,12 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 34085394DD8A8CD1B49F0E90 /* Pods-Runner.release-prod.xcconfig */;
 			buildSettings = {
-				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 533H75UL22;
-				PRODUCT_BUNDLE_IDENTIFIER = "cn.com.fenrir-inc.iosAppTest";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 533H75UL22;
+				PRODUCT_BUNDLE_IDENTIFIER = "cn.com.fenrir-inc.gsync";
 				PRODUCT_NAME = Runner;
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Wildcard Development Profile";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 			};
 			name = "Release-prod";
 		};
@@ -829,20 +835,19 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
-				DEVELOPMENT_TEAM = "";
-				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 533H75UL22;
+				DEVELOPMENT_TEAM = 533H75UL22;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "cn.com.fenrir-inc.iosAppTest";
+				PRODUCT_BUNDLE_IDENTIFIER = "cn.com.fenrir-inc.gsync";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Wildcard Development Profile";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -859,7 +864,7 @@
 				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.flutterFoundations.RunnerTests;
+				PRODUCT_BUNDLE_IDENTIFIER = "cn.com.fenrir-inc.gsync.RunnerTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
@@ -879,7 +884,7 @@
 				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.flutterFoundations.RunnerTests;
+				PRODUCT_BUNDLE_IDENTIFIER = "cn.com.fenrir-inc.gsync.RunnerTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
@@ -897,7 +902,7 @@
 				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.flutterFoundations.RunnerTests;
+				PRODUCT_BUNDLE_IDENTIFIER = "cn.com.fenrir-inc.gsync.RunnerTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
@@ -963,7 +968,7 @@
 					"$(PROJECT_DIR)/Flutter",
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = "cn.com.fenrir-inc.iosAppTest";
+				PRODUCT_BUNDLE_IDENTIFIER = "cn.com.fenrir-inc.gsync";
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
@@ -1040,7 +1045,7 @@
 				);
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = "cn.com.fenrir-inc.iosAppTest";
+				PRODUCT_BUNDLE_IDENTIFIER = "cn.com.fenrir-inc.gsync";
 				SDKROOT = iphoneos;
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
@@ -1161,20 +1166,19 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
-				DEVELOPMENT_TEAM = "";
-				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 533H75UL22;
+				DEVELOPMENT_TEAM = 533H75UL22;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "cn.com.fenrir-inc.iosAppTest";
+				PRODUCT_BUNDLE_IDENTIFIER = "cn.com.fenrir-inc.gsync";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Wildcard Development Profile";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -1188,20 +1192,19 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
-				DEVELOPMENT_TEAM = "";
-				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 533H75UL22;
+				DEVELOPMENT_TEAM = 533H75UL22;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "cn.com.fenrir-inc.iosAppTest";
+				PRODUCT_BUNDLE_IDENTIFIER = "cn.com.fenrir-inc.gsync";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Wildcard Development Profile";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -1266,7 +1269,7 @@
 					"$(PROJECT_DIR)/Flutter",
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = "cn.com.fenrir-inc.iosAppTest.stg";
+				PRODUCT_BUNDLE_IDENTIFIER = "cn.com.fenrir-inc.gsync.stg";
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
@@ -1343,7 +1346,7 @@
 				);
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = "cn.com.fenrir-inc.iosAppTest.stg";
+				PRODUCT_BUNDLE_IDENTIFIER = "cn.com.fenrir-inc.gsync.stg";
 				SDKROOT = iphoneos;
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
@@ -1409,7 +1412,7 @@
 					"$(PROJECT_DIR)/Flutter",
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = "cn.com.fenrir-inc.iosAppTest.stg";
+				PRODUCT_BUNDLE_IDENTIFIER = "cn.com.fenrir-inc.gsync.stg";
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = iphoneos;
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
@@ -1477,7 +1480,7 @@
 					"$(PROJECT_DIR)/Flutter",
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = "cn.com.fenrir-inc.iosAppTest.stg";
+				PRODUCT_BUNDLE_IDENTIFIER = "cn.com.fenrir-inc.gsync.stg";
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = iphoneos;
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
@@ -1552,7 +1555,7 @@
 				);
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = "cn.com.fenrir-inc.iosAppTest.stg";
+				PRODUCT_BUNDLE_IDENTIFIER = "cn.com.fenrir-inc.gsync.stg";
 				SDKROOT = iphoneos;
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
@@ -1618,7 +1621,7 @@
 					"$(PROJECT_DIR)/Flutter",
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = "cn.com.fenrir-inc.iosAppTest";
+				PRODUCT_BUNDLE_IDENTIFIER = "cn.com.fenrir-inc.gsync";
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = iphoneos;
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
@@ -1689,12 +1692,14 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
 /* Begin XCLocalSwiftPackageReference section */
-		781AD8BC2B33823900A9FFBB /* XCLocalSwiftPackageReference "Flutter/ephemeral/Packages/FlutterGeneratedPluginSwiftPackage" */ = {
+		781AD8BC2B33823900A9FFBB /* XCLocalSwiftPackageReference "FlutterGeneratedPluginSwiftPackage" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Flutter/ephemeral/Packages/FlutterGeneratedPluginSwiftPackage;
 		};
 /* End XCLocalSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
 		78A3181F2AECB46A00862997 /* FlutterGeneratedPluginSwiftPackage */ = {
 			isa = XCSwiftPackageProductDependency;

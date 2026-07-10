@@ -1,0 +1,46 @@
+{
+  "spec": "github-directory-api-sync",
+  "feature": "feat-github-directory-api-sync",
+  "platform": "ios",
+  "result": "PASS",
+  "maestro_run": true,
+  "maestro_blocked_reason": null,
+  "maestro_all_pass": true,
+  "acceptance": [
+    {
+      "id": "ui-existing-directory-sync-path",
+      "claim": "The existing directory sync screen still lets a user save a token, enter a target, tap Sync, and see a success state in the dev fixture flow.",
+      "kind": "maestro",
+      "verdict": "pass",
+      "evidence": ".maestro/ios/github_directory_api_sync_flow.yaml"
+    },
+    {
+      "id": "logic-parse-github-target",
+      "claim": "GitHub repository root URLs and branch directory URLs are parsed into owner, repo, branch, and target path values.",
+      "kind": "test",
+      "verdict": "pass",
+      "evidence": "test/features/directory_git_sync/data/models/github_repository_target_test.dart"
+    },
+    {
+      "id": "logic-create-update-contents",
+      "claim": "The GitHub API sync repository creates new files and updates existing files by sending base64 content and existing SHA values to the Contents API.",
+      "kind": "test",
+      "verdict": "pass",
+      "evidence": "test/features/directory_git_sync/data/repositories/github_api_git_sync_repository_test.dart"
+    },
+    {
+      "id": "logic-readable-api-failures",
+      "claim": "GitHub target parsing, authentication, and API failures produce readable sync failure messages without exposing the saved token.",
+      "kind": "test",
+      "verdict": "pass",
+      "evidence": "test/features/directory_git_sync/data/repositories/github_api_git_sync_repository_test.dart"
+    },
+    {
+      "id": "logic-real-sync-uses-github-api",
+      "claim": "Dependency injection uses the GitHub API sync repository outside dev fixtures so mobile builds do not execute system git processes.",
+      "kind": "test",
+      "verdict": "pass",
+      "evidence": "test/core/injection/injection_test.dart"
+    }
+  ]
+}

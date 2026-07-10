@@ -1,0 +1,28 @@
+spec: github-directory-api-sync
+feature: feat-github-directory-api-sync
+goal: 'User can sync the selected local directory to a GitHub repository path through GitHub Repository Contents API instead of a system git process.'
+preconditions:
+  - Run the dev flavor.
+  - Dev fixture repository and branch are available after authorization.
+  - Dev fixture credential test-token is accepted without a real account.
+acceptance:
+  - id: ui-existing-directory-sync-path
+    claim: 'The existing directory sync screen still lets a user authorize GitHub, choose a fixture repository and branch, tap Sync, and see a success state in the dev fixture flow.'
+    kind: maestro
+    flow: github_directory_api_sync_flow
+  - id: logic-parse-github-target
+    claim: 'GitHub repository root URLs and branch directory URLs are parsed into owner, repo, branch, and target path values.'
+    kind: test
+    file: test/features/directory_git_sync/data/models/github_repository_target_test.dart
+  - id: logic-create-update-contents
+    claim: 'The GitHub API sync repository creates new files and updates existing files by sending base64 content and existing SHA values to the Contents API.'
+    kind: test
+    file: test/features/directory_git_sync/data/repositories/github_api_git_sync_repository_test.dart
+  - id: logic-readable-api-failures
+    claim: 'GitHub target parsing, authentication, and API failures produce readable sync failure messages without exposing the saved token.'
+    kind: test
+    file: test/features/directory_git_sync/data/repositories/github_api_git_sync_repository_test.dart
+  - id: logic-real-sync-uses-github-api
+    claim: 'Dependency injection uses the GitHub API sync repository outside dev fixtures so mobile builds do not execute system git processes.'
+    kind: test
+    file: test/core/injection/injection_test.dart

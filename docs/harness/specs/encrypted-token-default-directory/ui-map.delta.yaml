@@ -1,0 +1,32 @@
+# New UI targets introduced by the "encrypted-token-default-directory" spec.
+# Approved deltas are generated into docs/harness/specs/ui-map.yaml by:
+#   fvm dart run tool/harness.dart spec ui-map
+targets:
+  token_settings_button:
+    role: button
+    label: Token settings
+    semantics_identifier: token_settings_button
+  directory_token_status_text:
+    role: text
+    label: Directory sync token status
+    semantics_identifier: directory_token_status_text
+  token_settings_screen:
+    role: screen
+    label: Token settings
+    semantics_identifier: token_settings_screen
+  token_settings_back_button:
+    role: button
+    label: Back from token settings
+    semantics_identifier: token_settings_back_button
+  saved_token_status_text:
+    role: text
+    label: Saved token status
+    semantics_identifier: saved_token_status_text
+  delete_token_button:
+    role: button
+    label: Delete token
+    semantics_identifier: delete_token_button
+  token_settings_status_text:
+    role: text
+    label: Token settings status
+    semantics_identifier: token_settings_status_text

@@ -1,0 +1,18 @@
+{
+  "spec": "ios-hig-repository-discovery",
+  "feature": "feat-ios-hig-repository-discovery",
+  "platform": "android",
+  "result": "PASS",
+  "maestro_run": true,
+  "maestro_blocked_reason": null,
+  "maestro_all_pass": true,
+  "acceptance": [
+    {
+      "id": "ui-filter-repositories-locally",
+      "claim": "After authorization, the sync screen filters the loaded repository list with a native search field and shows both result-count and empty-result states.",
+      "kind": "maestro",
+      "verdict": "pass",
+      "evidence": ".maestro/android/ios_hig_repository_discovery_flow.yaml"
+    }
+  ]
+}

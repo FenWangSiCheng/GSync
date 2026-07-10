@@ -164,5 +164,29 @@ void main() {
         expect(config.isProduction, true);
       });
     });
+
+    group('GitHub OAuth config', () {
+      test('defaults to no client id and repo scope', () {
+        const config = AppConfig(currentFlavor: Flavor.prod);
+
+        expect(config.githubOAuthClientId, isEmpty);
+        expect(config.githubOAuthScope, 'repo');
+      });
+
+      test('reports GitHub OAuth context without exposing client id', () {
+        const config = AppConfig(
+          currentFlavor: Flavor.prod,
+          githubOAuthClientId: 'client-id',
+          githubOAuthScope: 'public_repo',
+        );
+
+        expect(
+          config.harnessContext['github_oauth_client_id_configured'],
+          true,
+        );
+        expect(config.harnessContext['github_oauth_scope'], 'public_repo');
+        expect(config.harnessContext.values, isNot(contains('client-id')));
+      });
+    });
   });
 }

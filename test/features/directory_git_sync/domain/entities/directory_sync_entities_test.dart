@@ -1,5 +1,6 @@
 import 'package:flutter_foundations/features/directory_git_sync/domain/entities/directory_sync_request.dart';
 import 'package:flutter_foundations/features/directory_git_sync/domain/entities/directory_sync_result.dart';
+import 'package:flutter_foundations/features/directory_git_sync/domain/entities/github_repository_selection.dart';
 import 'package:flutter_foundations/features/directory_git_sync/presentation/bloc/directory_sync_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -56,27 +57,40 @@ void main() {
       const empty = DirectorySyncState();
       final ready = empty.copyWith(
         selectedDirectoryPath: '/notes',
-        remoteUrl: 'https://example.com/repo.git',
-        credential: 'token',
+        hasCredential: true,
+        selectedRepository: const GitHubRepositorySummary(
+          owner: 'octocat',
+          name: 'notes',
+          fullName: 'octocat/notes',
+          defaultBranch: 'main',
+          htmlUrl: 'https://github.com/octocat/notes',
+          isPrivate: false,
+        ),
+        selectedBranch: const GitHubBranchSummary(name: 'main'),
+        repositoryStatus: GitHubRepositorySelectionStatus.ready,
       );
       final syncing = ready.copyWith(status: DirectorySyncStatus.syncing);
 
       expect(empty.canSync, isFalse);
       expect(ready.canSync, isTrue);
       expect(syncing.canSync, isFalse);
-      expect(ready.statusMessage, '请先选择一个目录。');
+      expect(ready.statusMessage, '正在准备默认同步目录。');
     });
 
     test('events expose value props', () {
+      expect(const DirectorySyncStarted().props, isEmpty);
       expect(const DirectorySyncSystemDirectoryRequested().props, isEmpty);
-      expect(const DirectorySyncFixtureDirectorySelected().props, isEmpty);
+      expect(const DirectorySyncTokenStatusRequested().props, isEmpty);
       expect(
         const DirectorySyncRemoteUrlChanged(
           'https://example.com/repo.git',
         ).props,
         ['https://example.com/repo.git'],
       );
-      expect(const DirectorySyncCredentialChanged('token').props, ['token']);
+      expect(const DirectorySyncRepositorySelected('octocat/notes').props, [
+        'octocat/notes',
+      ]);
+      expect(const DirectorySyncBranchSelected('main').props, ['main']);
       expect(const DirectorySyncRequested().props, isEmpty);
     });
   });

@@ -13,9 +13,9 @@
       "title": "指定目录一键同步到 Git 仓库",
       "status": "done",
       "spec": "directory-git-sync",
-      "summary": "用户选择一个本地目录，配置远程 Git 仓库和认证信息，点击同步后将目录内容提交并推送到远程仓库。",
+      "summary": "用户使用默认目录或选择一个本地目录，配置远程 Git 仓库和认证信息，点击同步后将目录内容提交并推送到远程仓库。",
       "scope": [
-        "选择一个本地目录",
+        "使用默认目录或选择一个本地目录",
         "输入远程 Git 仓库 URL",
         "输入认证 token 或等价凭据",
         "点击同步",
@@ -78,6 +78,311 @@
         "android": "PASS: fvm dart run tool/harness.dart spec accept ios-clean-ui --maestro --platform android"
       },
       "next_step": "Feature complete. Dual-platform Maestro acceptance passes on both iOS and Android. No further action required."
+    },
+    {
+      "id": "feat-encrypted-token-default-directory",
+      "title": "加密令牌设置与默认同步目录",
+      "status": "done",
+      "spec": "encrypted-token-default-directory",
+      "summary": "用户在单独页面保存 Git 访问令牌,应用使用系统安全存储加密保存;目录同步页默认填入应用同步目录,并允许用户改选本地目录。",
+      "scope": [
+        "新增令牌设置页面",
+        "使用系统安全存储保存、读取和删除 Git 访问令牌",
+        "目录同步页显示令牌配置状态,不直接输入令牌",
+        "目录同步页启动时自动创建并选中默认同步目录",
+        "保留系统目录选择器以改选目录",
+        "移除示例笔记目录入口",
+        "真实 Git 推送不把令牌写入 remote URL"
+      ],
+      "out_of_scope": [
+        "多令牌或多账号管理",
+        "生物识别解锁令牌",
+        "后台自动同步",
+        "复杂 Git 冲突处理",
+        "远程仓库创建"
+      ],
+      "dependencies": [
+        "feat-directory-git-sync",
+        "feat-ios-clean-ui"
+      ],
+      "evidence": [
+        "docs/harness/specs/encrypted-token-default-directory/spec.md",
+        "docs/harness/specs/encrypted-token-default-directory/acceptance.yaml",
+        ".maestro/ios/encrypted_token_default_directory_flow.yaml",
+        ".maestro/android/encrypted_token_default_directory_flow.yaml",
+        "docs/harness/evidence/encrypted-token-default-directory/report.json",
+        "docs/harness/evidence/encrypted-token-default-directory/report-ios.json",
+        "docs/harness/evidence/encrypted-token-default-directory/report-android.json"
+      ],
+      "acceptance": {
+        "ios": "PASS: fvm dart run tool/harness.dart spec accept encrypted-token-default-directory --maestro --platform ios",
+        "android": "PASS: fvm dart run tool/harness.dart spec accept encrypted-token-default-directory --maestro --platform android"
+      },
+      "next_step": "Feature complete. Dual-platform Maestro acceptance passes on both iOS and Android. No further action required."
+    },
+    {
+      "id": "feat-github-directory-api-sync",
+      "title": "使用 GitHub API 同步指定目录",
+      "status": "done",
+      "spec": "github-directory-api-sync",
+      "summary": "移动端不启动系统 git 进程,而是使用 GitHub Repository Contents API 将本地默认同步目录的文件上传到用户指定的 GitHub 仓库目录。",
+      "scope": [
+        "解析 GitHub 仓库或目录 URL",
+        "扫描本地同步目录中的普通文件",
+        "使用保存的 GitHub token 调用 GitHub Contents API 创建或更新文件",
+        "支持同步到仓库根目录或 URL 中指定的目标子目录",
+        "移动端真实同步路径不再调用系统 git 进程",
+        "保留现有同步中、成功和失败状态"
+      ],
+      "out_of_scope": [
+        "任意 Git 服务商同步",
+        "SSH 远程仓库",
+        "完整 Git clone/fetch/merge",
+        "删除远端多余文件",
+        "复杂冲突处理",
+        "GitHub OAuth 登录流程"
+      ],
+      "dependencies": [
+        "feat-directory-git-sync",
+        "feat-encrypted-token-default-directory"
+      ],
+      "evidence": [
+        "docs/harness/specs/github-directory-api-sync/spec.md",
+        "docs/harness/specs/github-directory-api-sync/acceptance.yaml",
+        ".maestro/ios/github_directory_api_sync_flow.yaml",
+        ".maestro/android/github_directory_api_sync_flow.yaml",
+        "docs/harness/evidence/github-directory-api-sync/report.json",
+        "docs/harness/evidence/github-directory-api-sync/report-ios.json",
+        "docs/harness/evidence/github-directory-api-sync/report-android.json"
+      ],
+      "acceptance": {
+        "ios": "PASS: fvm dart run tool/harness.dart spec accept github-directory-api-sync --maestro --platform ios",
+        "android": "PASS: fvm dart run tool/harness.dart spec accept github-directory-api-sync --maestro --platform android",
+        "logic": "PASS: fvm dart run tool/harness.dart check; PASS: targeted GitHub API sync tests"
+      },
+      "next_step": "Feature complete. Dual-platform Maestro acceptance passes on both iOS and Android. No further action required."
+    },
+    {
+      "id": "feat-github-repository-download-sync",
+      "title": "从 GitHub 仓库同步到本地目录",
+      "status": "done",
+      "spec": "github-repository-download-sync",
+      "summary": "用户输入 GitHub 仓库或目录地址后,应用通过 GitHub Repository Contents API 将远端文件递归下载到当前选中的手机本地目录。",
+      "scope": [
+        "解析 GitHub 仓库或目录 URL",
+        "读取 GitHub 远端目录树",
+        "下载远端普通文件内容",
+        "在本地选中目录中保留相对路径写入文件",
+        "空远端目录显示无可下载文件",
+        "已选目录显示目录名和完整路径上下文",
+        "同步文案明确方向为 GitHub 远端到本地目录"
+      ],
+      "out_of_scope": [
+        "本地修改上传到远端",
+        "删除本地多余文件",
+        "双向冲突合并",
+        "GitHub OAuth 登录流程",
+        "大文件 Git LFS 支持",
+        "后台自动同步"
+      ],
+      "dependencies": [
+        "feat-encrypted-token-default-directory",
+        "feat-github-directory-api-sync"
+      ],
+      "evidence": [
+        "docs/harness/specs/github-repository-download-sync/spec.md",
+        "docs/harness/specs/github-repository-download-sync/acceptance.yaml",
+        ".maestro/ios/github_repository_download_sync_flow.yaml",
+        ".maestro/android/github_repository_download_sync_flow.yaml",
+        "test/features/directory_git_sync/data/datasources/github_contents_api_test.dart",
+        "test/features/directory_git_sync/data/datasources/directory_access_scope_test.dart",
+        "test/features/directory_git_sync/data/repositories/github_api_git_sync_repository_test.dart",
+        "docs/harness/evidence/github-repository-download-sync/report.json",
+        "docs/harness/evidence/github-repository-download-sync/report-ios.json",
+        "docs/harness/evidence/github-repository-download-sync/report-android.json"
+      ],
+      "acceptance": {
+        "logic": "PASS: fvm dart run tool/harness.dart check; PASS: targeted GitHub download sync and iOS directory access scope tests",
+        "ios": "PASS: fvm dart run tool/harness.dart spec accept github-repository-download-sync --maestro --platform ios",
+        "android": "PASS: fvm dart run tool/harness.dart spec accept github-repository-download-sync --maestro --platform android"
+      },
+      "next_step": "Feature complete. Dual-platform Maestro acceptance passes on both iOS and Android. Real iOS Files directories now use security-scoped access before download writes."
+    },
+    {
+      "id": "feat-github-device-flow-auth",
+      "title": "GitHub Device Flow 授权",
+      "status": "done",
+      "spec": "github-device-flow-auth",
+      "summary": "用户不再手动粘贴 GitHub 访问令牌,而是在应用中获取设备码,前往 github.com/login/device 授权,应用轮询换取并安全保存访问令牌。",
+      "scope": [
+        "在令牌设置页发起 GitHub OAuth Device Flow",
+        "显示 GitHub 设备授权 user code 和 verification URL",
+        "使用配置的 OAuth client_id 请求 device code,不使用 client_secret 或回调 scheme",
+        "应用按 GitHub 返回的 interval 轮询 access token",
+        "处理 pending、slow_down、expired、denied 和成功状态",
+        "授权成功后复用现有安全存储保存访问令牌",
+        "目录同步页显示 GitHub 授权配置状态",
+        "dev flavor 使用确定性 fixture,不依赖真实 GitHub 账号"
+      ],
+      "out_of_scope": [
+        "创建或注册 GitHub OAuth App",
+        "GitHub App installation token 流程",
+        "自定义 deep link 或 callback scheme",
+        "多账号管理",
+        "token refresh",
+        "在应用内嵌浏览器完成 GitHub 登录"
+      ],
+      "dependencies": [
+        "feat-encrypted-token-default-directory",
+        "feat-github-repository-download-sync"
+      ],
+      "evidence": [
+        "docs/harness/specs/github-device-flow-auth/spec.md",
+        "docs/harness/specs/github-device-flow-auth/acceptance.yaml",
+        ".maestro/ios/github_device_flow_auth_flow.yaml",
+        ".maestro/android/github_device_flow_auth_flow.yaml",
+        "test/features/token_settings/data/datasources/github_device_flow_api_test.dart",
+        "test/features/token_settings/presentation/bloc/token_settings_bloc_test.dart",
+        "test/core/injection/injection_test.dart",
+        "docs/harness/evidence/github-device-flow-auth/report.json",
+        "docs/harness/evidence/github-device-flow-auth/report-ios.json",
+        "docs/harness/evidence/github-device-flow-auth/report-android.json"
+      ],
+      "acceptance": {
+        "logic": "PASS: fvm dart run tool/harness.dart check; PASS: fvm dart run tool/harness.dart spec accept github-device-flow-auth",
+        "ios": "PASS: fvm dart run tool/harness.dart spec accept github-device-flow-auth --maestro --platform ios",
+        "android": "PASS: fvm dart run tool/harness.dart spec accept github-device-flow-auth --maestro --platform android"
+      },
+      "next_step": "Feature complete. Dual-platform Maestro acceptance passes on both iOS and Android. No further action required."
+    },
+    {
+      "id": "feat-github-repository-picker-sync",
+      "title": "授权后选择 GitHub 仓库和分支进行同步",
+      "status": "done",
+      "spec": "github-repository-picker-sync",
+      "summary": "用户完成 GitHub 授权后,目录同步页自动列出可访问的 GitHub 仓库,用户选择仓库和分支后即可同步,无需手动输入仓库地址。",
+      "scope": [
+        "使用保存的 GitHub 授权读取用户可访问仓库列表",
+        "显示仓库列表并允许选择一个仓库",
+        "读取并显示所选仓库的分支列表",
+        "允许选择一个分支",
+        "同步时使用所选仓库和分支生成 GitHub 同步目标",
+        "移除目录同步页手动输入 GitHub 地址的主流程",
+        "dev flavor 使用确定性仓库和分支 fixture"
+      ],
+      "out_of_scope": [
+        "仓库搜索和分页 UI 优化",
+        "创建 GitHub 仓库",
+        "选择仓库子目录",
+        "多账号切换",
+        "删除镜像、冲突合并和后台同步",
+        "GitHub OAuth 权限升级引导"
+      ],
+      "dependencies": [
+        "feat-github-repository-download-sync",
+        "feat-github-device-flow-auth"
+      ],
+      "evidence": [
+        "docs/harness/specs/github-repository-picker-sync/spec.md",
+        "docs/harness/specs/github-repository-picker-sync/acceptance.yaml",
+        ".maestro/ios/github_repository_picker_sync_flow.yaml",
+        ".maestro/android/github_repository_picker_sync_flow.yaml",
+        "test/features/directory_git_sync/data/datasources/github_repository_catalog_api_test.dart",
+        "test/features/directory_git_sync/data/repositories/github_repository_catalog_repository_test.dart",
+        "test/features/directory_git_sync/presentation/bloc/directory_sync_bloc_test.dart",
+        "test/core/injection/injection_test.dart",
+        "docs/harness/tasks/completed/2026-07-09-github-repository-picker-sync.md",
+        "docs/harness/evidence/github-repository-picker-sync/report.json",
+        "docs/harness/evidence/github-repository-picker-sync/report-ios.json",
+        "docs/harness/evidence/github-repository-picker-sync/report-android.json"
+      ],
+      "acceptance": {
+        "logic": "PASS: fvm dart run tool/harness.dart check; PASS: repository catalog and BLoC tests",
+        "ios": "PASS: fvm dart run tool/harness.dart spec accept github-repository-picker-sync --maestro --platform ios",
+        "android": "PASS: fvm dart run tool/harness.dart spec accept github-repository-picker-sync --maestro --platform android"
+      },
+      "next_step": "Feature complete. Dual-platform Maestro acceptance passes on both iOS and Android. No further action required."
+    },
+    {
+      "id": "feat-ios-hig-repository-discovery",
+      "title": "iOS 风格仓库发现与系统外观适配",
+      "status": "done",
+      "spec": "ios-hig-repository-discovery",
+      "summary": "目录同步页使用原生 iOS 搜索控件帮助用户从已授权仓库中快速找到目标，并让 Cupertino 界面跟随系统深浅色外观。",
+      "scope": [
+        "在已加载的 GitHub 仓库列表中提供本地搜索",
+        "显示可访问仓库的筛选结果数量和空结果提示",
+        "保留现有仓库、分支选择和同步行为以及语义标识符",
+        "移除强制浅色的 Cupertino 主题设置，使系统深浅色外观生效"
+      ],
+      "out_of_scope": [
+        "GitHub API 搜索、分页或服务端过滤",
+        "仓库创建、子目录选择或多账号切换",
+        "同步业务逻辑、GitHub 授权流程或数据层改动"
+      ],
+      "dependencies": [
+        "feat-github-repository-picker-sync",
+        "feat-ios-clean-ui"
+      ],
+      "evidence": [
+        "docs/harness/specs/ios-hig-repository-discovery/spec.md",
+        "docs/harness/specs/ios-hig-repository-discovery/acceptance.yaml",
+        ".maestro/ios/ios_hig_repository_discovery_flow.yaml",
+        ".maestro/android/ios_hig_repository_discovery_flow.yaml",
+        "docs/harness/tasks/completed/2026-07-10-ios-hig-repository-discovery.md",
+        "docs/harness/evidence/ios-hig-repository-discovery/report.json",
+        "docs/harness/evidence/ios-hig-repository-discovery/report-ios.json",
+        "docs/harness/evidence/ios-hig-repository-discovery/report-android.json"
+      ],
+      "acceptance": {
+        "logic": "PASS: fvm dart run tool/harness.dart check",
+        "ios": "PASS: fvm dart run tool/harness.dart spec accept ios-hig-repository-discovery --maestro --platform ios",
+        "android": "PASS: fvm dart run tool/harness.dart spec accept ios-hig-repository-discovery --maestro --platform android"
+      },
+      "next_step": "Feature complete. Repository discovery search and system appearance adaptation passed dual-platform Maestro acceptance."
+    },
+    {
+      "id": "feat-github-local-mirror-sync",
+      "title": "GitHub 远端到本地完整镜像同步",
+      "status": "done",
+      "spec": "github-local-mirror-sync",
+      "summary": "用户点击同步后，所选本地目录与所选 GitHub 仓库分支保持一致：下载并覆盖远端文件，同时删除远端不存在的本地文件、链接和空目录。",
+      "scope": [
+        "完整读取所选 GitHub 仓库或子目录中的远端文件后再开始本地清理",
+        "下载并覆盖远端存在的本地同路径文件",
+        "删除所选本地目录内远端不存在的文件、链接和目录",
+        "处理本地文件与远端目录或本地目录与远端文件的类型冲突",
+        "同步结果显示下载和清理的项目数量",
+        "远端读取或下载失败时不执行本地残留清理"
+      ],
+      "out_of_scope": [
+        "双向合并或冲突解决",
+        "同步前预览、逐项选择或回收站恢复",
+        "远端 Git 历史、提交或删除操作",
+        "后台自动同步",
+        "Git LFS 和超大文件优化"
+      ],
+      "dependencies": [
+        "feat-github-repository-download-sync",
+        "feat-github-repository-picker-sync"
+      ],
+      "evidence": [
+        "docs/harness/specs/github-local-mirror-sync/spec.md",
+        "docs/harness/specs/github-local-mirror-sync/acceptance.yaml",
+        ".maestro/ios/github_local_mirror_sync_flow.yaml",
+        ".maestro/android/github_local_mirror_sync_flow.yaml",
+        "test/features/directory_git_sync/data/repositories/github_api_git_sync_repository_test.dart",
+        "docs/harness/tasks/completed/2026-07-10-github-local-mirror-sync.md",
+        "docs/harness/evidence/github-local-mirror-sync/report.json",
+        "docs/harness/evidence/github-local-mirror-sync/report-ios.json",
+        "docs/harness/evidence/github-local-mirror-sync/report-android.json"
+      ],
+      "acceptance": {
+        "logic": "PASS: local mirror cleanup, type-collision, and failed-download safety tests",
+        "ios": "PASS: fvm dart run tool/harness.dart spec accept github-local-mirror-sync --maestro --platform ios",
+        "android": "PASS: fvm dart run tool/harness.dart spec accept github-local-mirror-sync --maestro --platform android"
+      },
+      "next_step": "Feature complete. Successful syncs now mirror the selected remote path into the selected local directory, including removal of local residual entries."
     }
   ]
 }
